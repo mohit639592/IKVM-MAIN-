@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IKVM | Student Details</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #07090d;
+            --card: #0d1017;
+            --border: rgba(255,255,255,.07);
+            --text: #f5f7ff;
+            --muted: #70788a;
+            --primary: #687cff;
+            --green: #4ed39a;
+            --red: #ff6878;
+        }
+
+        body {
+            font-family: Inter, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 70px 70px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            padding: 24px 16px;
+            background: #090b11;
+            border-right: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 10px;
+            margin-bottom: 38px;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: linear-gradient(135deg,#6078ff,#914cff);
+            font-weight: 800;
+        }
+
+        .brand-text strong {
+            display: block;
+            color: white;
+            font-size: 15px;
+        }
+
+        .brand-text span {
+            color: #606777;
+            font-size: 8px;
+            letter-spacing: 1px;
+        }
+
+        .nav-label {
+            margin: 22px 11px 10px;
+            color: #4e5666;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            border-radius: 9px;
+            color: #737a8b;
+            font-size: 11px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,.04);
+            color: white;
+        }
+
+        .nav-item.active {
+            color: #8090ff;
+            background: rgba(91,111,255,.12);
+        }
+
+        .nav-icon {
+            width: 27px;
+            height: 27px;
+            display: grid;
+            place-items: center;
+            border-radius: 7px;
+        }
+
+        .sidebar-bottom {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 20px;
+        }
+
+        .user-mini {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255,255,255,.025);
+        }
+
+        .avatar {
+            width: 31px;
+            height: 31px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#566fff,#8b4cff);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-info strong {
+            display: block;
+            color: white;
+            font-size: 9px;
+        }
+
+        .user-info span {
+            color: #626979;
+            font-size: 7px;
+        }
+
+        .logout {
+            color: #666d7e;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            padding: 25px 35px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back {
+            display: inline-block;
+            color: #687cff;
+            font-size: 9px;
+            margin-bottom: 10px;
+        }
+
+        .page-label {
+            color: #626979;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        .topbar h1 {
+            margin-top: 5px;
+            font-size: 22px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            color: #a0a7b6;
+            background: rgba(255,255,255,.025);
+            font-size: 8px;
+        }
+
+        .btn.primary {
+            border: none;
+            color: white;
+            background: linear-gradient(135deg,#566fff,#824cff);
+        }
+
+        /* CONTENT */
+
+        .content {
+            max-width: 1250px;
+            margin: 24px auto;
+        }
+
+        /* PROFILE */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--card);
+            margin-bottom: 15px;
+        }
+
+        .profile-avatar {
+            width: 65px;
+            height: 65px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 15px;
+            background: rgba(104,124,255,.12);
+            color: #8592ff;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            font-size: 18px;
+        }
+
+        .profile-meta {
+            margin-top: 7px;
+            color: #626a7b;
+            font-size: 8px;
+        }
+
+        .profile-meta strong {
+            color: #a2a9b8;
+        }
+
+        .status {
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 600;
+        }
+
+        .status.active {
+            color: var(--green);
+            background: rgba(78,211,154,.08);
+        }
+
+        .status.deactive {
+            color: var(--red);
+            background: rgba(255,104,120,.08);
+        }
+
+        /* SECTION */
+
+        .section {
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--card);
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-icon {
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border-radius: 7px;
+            background: rgba(104,124,255,.08);
+            color: #7c8bff;
+        }
+
+        .section-header h2 {
+            font-size: 11px;
+        }
+
+        .section-header p {
+            margin-top: 3px;
+            color: #555d6e;
+            font-size: 7px;
+        }
+
+        /* FIELDS */
+
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+        }
+
+        .field {
+            padding: 15px 18px;
+            min-height: 70px;
+            border-bottom: 1px solid rgba(255,255,255,.045);
+        }
+
+        .field:nth-child(odd) {
+            border-right: 1px solid rgba(255,255,255,.045);
+        }
+
+        .label {
+            color: #555e6f;
+            font-size: 7px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .value {
+            color: #d6d9e1;
+            font-size: 10px;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .empty-value {
+            color: #444b5a;
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        /* DOCUMENTS */
+
+        .documents {
+            padding: 18px;
+        }
+
+        .document-list {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 10px;
+        }
+
+        .document {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: rgba(255,255,255,.018);
+        }
+
+        .document-icon {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: rgba(104,124,255,.08);
+            color: #7b89ff;
+        }
+
+        .document-name {
+            color: #c7cbd5;
+            font-size: 8px;
+            font-weight: 500;
+        }
+
+        .document-number {
+            margin-top: 3px;
+            color: #505868;
+            font-size: 6px;
+        }
+
+        .empty-box {
+            padding: 30px;
+            text-align: center;
+            color: #555d6e;
+            font-size: 8px;
+        }
+
+        /* CUSTOM */
+
+        .custom-fields {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+        }
+
+        .custom-field {
+            padding: 15px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.045);
+        }
+
+        .custom-field:nth-child(odd) {
+            border-right: 1px solid rgba(255,255,255,.045);
+        }
+
+        /* RECORD */
+
+        .record {
+            padding: 13px 18px;
+            text-align: right;
+            color: #454c5b;
+            font-size: 7px;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:850px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .fields {
+                grid-template-columns: 1fr;
+            }
+
+            .field:nth-child(odd) {
+                border-right: none;
+            }
+
+            .document-list {
+                grid-template-columns: repeat(2,1fr);
+            }
+
+            .custom-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .custom-field:nth-child(odd) {
+                border-right: none;
+            }
+
+        }
+
+        @media(max-width:550px) {
+
+            .main {
+                padding: 14px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .profile {
+                flex-wrap: wrap;
+            }
+
+            .document-list {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            ◆
+        </div>
+
+        <div class="brand-text">
+
+            <strong>IKVM</strong>
+
+            <span>ADMIN PORTAL</span>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-label">
+        MAIN MENU
+    </div>
+
+
+    <a
+        href="/admin/dashboard"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ⌂
+        </div>
+
+        Dashboard
+
+    </a>
+
+
+    <a
+        href="/admin/students"
+        class="nav-item active">
+
+        <div class="nav-icon">
+            ◉
+        </div>
+
+        Students
+
+    </a>
+
+
+    <a
+        href="/admin/faculty"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ◇
+        </div>
+
+        Faculty
+
+    </a>
+
+
+    <div class="nav-label">
+        MANAGEMENT
+    </div>
+
+
+    <a href="/admin/attendance" class="nav-item">
+
+        <div class="nav-icon">
+            ✓
+        </div>
+
+        Attendance
+
+    </a>
+
+
+    <a href="/admin/results" class="nav-item">
+
+        <div class="nav-icon">
+            %
+        </div>
+
+        Results
+
+    </a>
+
+
+    <a href="/admin/library" class="nav-item">
+
+        <div class="nav-icon">
+            ▣
+        </div>
+
+        Library
+
+    </a>
+
+
+    <a href="/admin/notices" class="nav-item">
+
+        <div class="nav-icon">
+            !
+        </div>
+
+        Notices
+
+    </a>
+
+
+    <div class="nav-label">
+        SYSTEM
+    </div>
+
+
+    <a href="/admin/reports" class="nav-item">
+
+        <div class="nav-icon">
+            ◫
+        </div>
+
+        Reports
+
+    </a>
+
+
+    <a href="/admin/settings" class="nav-item">
+
+        <div class="nav-icon">
+            ⚙
+        </div>
+
+        Settings
+
+    </a>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="user-mini">
+
+            <div class="avatar">
+                <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+
+            <div class="user-info">
+
+                <strong>
+                    <%= user.name %>
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+            <a href="/logout" class="logout">
+                ↪
+            </a>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- MAIN -->
+
+<main class="main">
+
+
+    <div class="topbar">
+
+        <div>
+
+            <a
+                href="/admin/students"
+                class="back">
+
+                ← Back to Students
+
+            </a>
+
+            <div class="page-label">
+                STUDENT MANAGEMENT
+            </div>
+
+            <h1>
+                Student Details
+            </h1>
+
+        </div>
+
+
+        <div class="actions">
+
+            <a
+                href="/admin/students"
+                class="btn">
+
+                Back
+
+            </a>
+
+
+            <a
+    href="/admin/students/update/<%= student._id %>"
+    class="btn primary">
+
+    Edit Data
+
+</a>
+
+        </div>
+
+    </div>
+
+
+    <div class="content">
+
+
+        <!-- PROFILE -->
+
+        <section class="profile">
+
+
+            <div class="profile-avatar">
+
+                <%= student.name
+                    .split(" ")
+                    .slice(0,2)
+                    .map(function(name) {
+                        return name.charAt(0);
+                    })
+                    .join("")
+                    .toUpperCase()
+                %>
+
+            </div>
+
+
+            <div class="profile-info">
+
+                <h2>
+                    <%= student.name %>
+                </h2>
+
+
+                <div class="profile-meta">
+
+                    Class
+                    <strong>
+                        <%= student.class %>
+                    </strong>
+
+                    &nbsp; • &nbsp;
+
+                    Join Session
+                    <strong>
+                        <%= student.schoolJoinSession || "—" %>
+                    </strong>
+
+                    <% if (student.uid) { %>
+
+                        &nbsp; • &nbsp;
+
+                        UID
+                        <strong>
+                            <%= student.uid %>
+                        </strong>
+
+                    <% } %>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="status <%= student.status === 'active' ? 'active' : 'deactive' %>"
+            >
+
+                ●
+
+                <%= student.status === "active"
+                    ? "Active"
+                    : "Deactive"
+                %>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- PERSONAL INFORMATION -->
+
+        <section class="section">
+
+
+            <div class="section-header">
+
+                <div class="section-icon">
+                    ◉
+                </div>
+
+                <div>
+
+                    <h2>
+                        Personal Information
+                    </h2>
+
+                    <p>
+                        Student identification and contact details
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="fields">
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Student Name
+                    </div>
+
+                    <div class="value">
+                        <%= student.name %>
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Class
+                    </div>
+
+                    <div class="value">
+                        Class <%= student.class %>
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        School Join Session
+                    </div>
+
+                    <div class="value">
+
+                        <%= student.schoolJoinSession || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Status
+                    </div>
+
+                    <div class="value">
+
+                        <%= student.status === "active"
+                            ? "Active"
+                            : "Deactive"
+                        %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Serial Number
+                    </div>
+
+                    <div class="value <%= student.serialNo ? '' : 'empty-value' %>">
+
+                        <%= student.serialNo || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        UID
+                    </div>
+
+                    <div class="value <%= student.uid ? '' : 'empty-value' %>">
+
+                        <%= student.uid || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Aadhaar Number
+                    </div>
+
+                    <div class="value <%= student.aadhaar ? '' : 'empty-value' %>">
+
+                        <%= student.aadhaar || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Mobile Number
+                    </div>
+
+                    <div class="value <%= student.mobile ? '' : 'empty-value' %>">
+
+                        <%= student.mobile || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- PARENTS -->
+
+        <section class="section">
+
+
+            <div class="section-header">
+
+                <div class="section-icon">
+                    ◇
+                </div>
+
+                <div>
+
+                    <h2>
+                        Parent Information
+                    </h2>
+
+                    <p>
+                        Father and mother details
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="fields">
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Father Name
+                    </div>
+
+                    <div class="value">
+
+                        <%= student.fatherName || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Mother Name
+                    </div>
+
+                    <div class="value">
+
+                        <%= student.motherName || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Father Aadhaar
+                    </div>
+
+                    <div class="value <%= student.fatherAadhaar ? '' : 'empty-value' %>">
+
+                        <%= student.fatherAadhaar || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Mother Aadhaar
+                    </div>
+
+                    <div class="value <%= student.motherAadhaar ? '' : 'empty-value' %>">
+
+                        <%= student.motherAadhaar || "Not provided" %>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- DOCUMENTS -->
+
+        <section class="section">
+
+
+            <div class="section-header">
+
+                <div class="section-icon">
+                    ▣
+                </div>
+
+                <div>
+
+                    <h2>
+                        Submitted Documents
+                    </h2>
+
+                    <p>
+                        Documents submitted by the student
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="documents">
+
+
+                <% if (
+                    student.submittedDocuments &&
+                    student.submittedDocuments.length > 0
+                ) { %>
+
+
+                    <div class="document-list">
+
+
+                        <% for (
+                            let i = 0;
+                            i < student.submittedDocuments.length;
+                            i++
+                        ) { %>
+
+
+                            <div class="document">
+
+
+                                <div class="document-icon">
+                                    ✓
+                                </div>
+
+
+                                <div>
+
+                                    <div class="document-name">
+
+                                        <%= student.submittedDocuments[i] %>
+
+                                    </div>
+
+
+                                    <div class="document-number">
+
+                                        Document <%= i + 1 %>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                        <% } %>
+
+
+                    </div>
+
+
+                <% } else { %>
+
+
+                    <div class="empty-box">
+
+                        No documents submitted.
+
+                    </div>
+
+
+                <% } %>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- CUSTOM FIELDS -->
+
+        <section class="section">
+
+
+            <div class="section-header">
+
+                <div class="section-icon">
+                    +
+                </div>
+
+                <div>
+
+                    <h2>
+                        Additional Information
+                    </h2>
+
+                    <p>
+                        Custom information added for this student
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <% if (
+                student.customFields &&
+                student.customFields.length > 0
+            ) { %>
+
+
+                <div class="custom-fields">
+
+
+                    <% for (
+                        let i = 0;
+                        i < student.customFields.length;
+                        i++
+                    ) { %>
+
+
+                        <div class="custom-field">
+
+
+                            <div class="label">
+
+                                <%= student.customFields[i].name %>
+
+                            </div>
+
+
+                            <div class="value">
+
+                                <%= student.customFields[i].value || "Not provided" %>
+
+                            </div>
+
+
+                        </div>
+
+
+                    <% } %>
+
+
+                </div>
+
+
+            <% } else { %>
+
+
+                <div class="empty-box">
+
+                    No additional fields have been added.
+
+                </div>
+
+
+            <% } %>
+
+
+        </section>
+
+
+        <!-- RECORD -->
+
+        <section class="section">
+
+            <div class="record">
+
+                Student ID:
+                <%= student._id %>
+
+                <% if (student.createdAt) { %>
+
+                    &nbsp; • &nbsp;
+
+                    Created:
+
+                    <%= new Date(student.createdAt).toLocaleDateString("en-IN") %>
+
+                <% } %>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+
+</main>
+
+
+</body>
+
+</html>

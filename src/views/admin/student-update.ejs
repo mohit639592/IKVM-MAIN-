@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        IKVM | Edit Student
+    </title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+
+            --bg: #07090d;
+            --card: #0d1017;
+            --card2: #10141d;
+            --border: rgba(255,255,255,.07);
+            --text: #f5f7ff;
+            --muted: #70788a;
+            --muted2: #505868;
+            --primary: #687cff;
+            --green: #4ed39a;
+            --red: #ff6878;
+
+        }
+
+        body {
+
+            min-height: 100vh;
+
+            background: var(--bg);
+
+            color: var(--text);
+
+            font-family: Inter, sans-serif;
+
+        }
+
+
+        body::before {
+
+            content: "";
+
+            position: fixed;
+
+            inset: 0;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.018) 1px,
+                    transparent 1px
+                );
+
+            background-size: 70px 70px;
+
+            pointer-events: none;
+
+            z-index: -1;
+
+        }
+
+
+        a {
+            text-decoration: none;
+        }
+
+
+        /* ============================
+           SIDEBAR
+        ============================ */
+
+        .sidebar {
+
+            position: fixed;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: 250px;
+
+            padding: 24px 16px;
+
+            background: #090b11;
+
+            border-right:
+                1px solid var(--border);
+
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            padding: 0 10px;
+
+            margin-bottom: 38px;
+
+        }
+
+
+        .brand-icon {
+
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6078ff,
+                    #914cff
+                );
+
+            font-weight: 800;
+
+        }
+
+
+        .brand-text strong {
+
+            display: block;
+
+            font-size: 15px;
+
+        }
+
+
+        .brand-text span {
+
+            color: #606777;
+
+            font-size: 8px;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .nav-label {
+
+            margin: 22px 11px 10px;
+
+            color: #4e5666;
+
+            font-size: 9px;
+
+            letter-spacing: 1.5px;
+
+            font-weight: 700;
+
+        }
+
+
+        .nav-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 10px 12px;
+
+            margin-bottom: 4px;
+
+            border-radius: 9px;
+
+            color: #737a8b;
+
+            font-size: 11px;
+
+        }
+
+
+        .nav-item:hover {
+
+            background:
+                rgba(255,255,255,.04);
+
+            color: white;
+
+        }
+
+
+        .nav-item.active {
+
+            color: #8090ff;
+
+            background:
+                rgba(91,111,255,.12);
+
+        }
+
+
+        .nav-icon {
+
+            width: 27px;
+            height: 27px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 7px;
+
+        }
+
+
+        .sidebar-bottom {
+
+            position: absolute;
+
+            left: 16px;
+            right: 16px;
+            bottom: 20px;
+
+        }
+
+
+        .user-mini {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding: 10px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            background:
+                rgba(255,255,255,.025);
+
+        }
+
+
+        .avatar {
+
+            width: 31px;
+            height: 31px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #566fff,
+                    #8b4cff
+                );
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+        }
+
+
+        .user-info {
+
+            flex: 1;
+
+            min-width: 0;
+
+        }
+
+
+        .user-info strong {
+
+            display: block;
+
+            color: white;
+
+            font-size: 9px;
+
+        }
+
+
+        .user-info span {
+
+            color: #626979;
+
+            font-size: 7px;
+
+        }
+
+
+        .logout {
+
+            color: #666d7e;
+
+        }
+
+
+        /* ============================
+           MAIN
+        ============================ */
+
+        .main {
+
+            margin-left: 250px;
+
+            padding: 25px 35px;
+
+        }
+
+
+        .topbar {
+
+            display: flex;
+
+            align-items: flex-end;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding-bottom: 20px;
+
+            border-bottom:
+                1px solid var(--border);
+
+        }
+
+
+        .back {
+
+            display: inline-block;
+
+            color: #687cff;
+
+            font-size: 9px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .page-label {
+
+            color: #626979;
+
+            font-size: 9px;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .topbar h1 {
+
+            margin-top: 5px;
+
+            font-size: 22px;
+
+        }
+
+
+        .top-actions {
+
+            display: flex;
+
+            gap: 8px;
+
+        }
+
+
+        .btn {
+
+            padding: 10px 14px;
+
+            border-radius: 8px;
+
+            border:
+                1px solid var(--border);
+
+            background:
+                rgba(255,255,255,.025);
+
+            color: #a0a7b6;
+
+            font-size: 8px;
+
+            cursor: pointer;
+
+        }
+
+
+        .btn:hover {
+
+            color: white;
+
+        }
+
+
+        .btn.primary {
+
+            border: none;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #566fff,
+                    #824cff
+                );
+
+        }
+
+
+        /* ============================
+           CONTENT
+        ============================ */
+
+        .content {
+
+            max-width: 1100px;
+
+            margin: 24px auto;
+
+        }
+
+
+        .notice {
+
+            padding: 12px 15px;
+
+            margin-bottom: 15px;
+
+            border:
+                1px solid
+                rgba(104,124,255,.14);
+
+            border-radius: 10px;
+
+            background:
+                rgba(104,124,255,.05);
+
+            color: #737fbd;
+
+            font-size: 8px;
+
+        }
+
+
+        /* ============================
+           SECTION
+        ============================ */
+
+        .section {
+
+            margin-bottom: 15px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 13px;
+
+            background: var(--card);
+
+            overflow: hidden;
+
+        }
+
+
+        .section-header {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 15px 18px;
+
+            border-bottom:
+                1px solid var(--border);
+
+        }
+
+
+        .section-icon {
+
+            width: 29px;
+            height: 29px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 7px;
+
+            background:
+                rgba(104,124,255,.08);
+
+            color: #7c8bff;
+
+        }
+
+
+        .section-header h2 {
+
+            font-size: 11px;
+
+        }
+
+
+        .section-header p {
+
+            margin-top: 3px;
+
+            color: #555d6e;
+
+            font-size: 7px;
+
+        }
+
+
+        /* ============================
+           FORM
+        ============================ */
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+        }
+
+
+        .form-group {
+
+            padding: 14px 18px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.045);
+
+        }
+
+
+        .form-group:nth-child(odd) {
+
+            border-right:
+                1px solid
+                rgba(255,255,255,.045);
+
+        }
+
+
+        .form-group.full {
+
+            grid-column:
+                1 / -1;
+
+            border-right: none;
+
+        }
+
+
+        label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #666f80;
+
+            font-size: 7px;
+
+            letter-spacing: .8px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .required {
+
+            color: #ff6878;
+
+        }
+
+
+        input,
+        select {
+
+            width: 100%;
+
+            height: 40px;
+
+            padding: 0 11px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+
+            outline: none;
+
+            background:
+                rgba(255,255,255,.025);
+
+            color: #e8ebf3;
+
+            font-family: inherit;
+
+            font-size: 9px;
+
+            transition: .2s;
+
+        }
+
+
+        input:focus,
+        select:focus {
+
+            border-color:
+                rgba(104,124,255,.55);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(104,124,255,.05);
+
+        }
+
+
+        input::placeholder {
+
+            color: #454c59;
+
+        }
+
+
+        select option {
+
+            background: #11141c;
+
+            color: white;
+
+        }
+
+
+        .hint {
+
+            margin-top: 5px;
+
+            color: #444c5a;
+
+            font-size: 6px;
+
+        }
+
+
+        /* ============================
+           STATUS
+        ============================ */
+
+        .status-options {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap: 8px;
+
+        }
+
+
+        .status-option {
+
+            position: relative;
+
+        }
+
+
+        .status-option input {
+
+            position: absolute;
+
+            opacity: 0;
+
+            pointer-events: none;
+
+        }
+
+
+        .status-label {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            height: 40px;
+
+            padding: 0 12px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,255,255,.02);
+
+            color: #6d7586;
+
+            font-size: 8px;
+
+            cursor: pointer;
+
+        }
+
+
+        .status-dot {
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #555d6e;
+
+        }
+
+
+        .status-option input:checked
+        + .status-label.active-label {
+
+            border-color:
+                rgba(78,211,154,.35);
+
+            background:
+                rgba(78,211,154,.06);
+
+            color: var(--green);
+
+        }
+
+
+        .status-option input:checked
+        + .status-label.deactive-label {
+
+            border-color:
+                rgba(255,104,120,.35);
+
+            background:
+                rgba(255,104,120,.06);
+
+            color: var(--red);
+
+        }
+
+
+        .status-option input:checked
+        + .status-label
+        .status-dot {
+
+            background: currentColor;
+
+        }
+
+
+        /* ============================
+           DOCUMENTS
+        ============================ */
+
+        .dynamic-area {
+
+            padding: 18px;
+
+        }
+
+
+        .dynamic-row {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 45px;
+
+            gap: 8px;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .remove-btn {
+
+            height: 40px;
+
+            border:
+                1px solid
+                rgba(255,104,120,.15);
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,104,120,.04);
+
+            color: #ff6878;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+        }
+
+
+        .remove-btn:hover {
+
+            background:
+                rgba(255,104,120,.1);
+
+        }
+
+
+        .add-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            margin-top: 4px;
+
+            padding: 8px 11px;
+
+            border:
+                1px solid
+                rgba(104,124,255,.2);
+
+            border-radius: 7px;
+
+            background:
+                rgba(104,124,255,.05);
+
+            color: #7888ff;
+
+            cursor: pointer;
+
+            font-size: 7px;
+
+        }
+
+
+        .add-btn:hover {
+
+            background:
+                rgba(104,124,255,.1);
+
+            color: white;
+
+        }
+
+
+        /* ============================
+           SAVE BAR
+        ============================ */
+
+        .save-bar {
+
+            position: sticky;
+
+            bottom: 15px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding: 13px 15px;
+
+            margin-top: 20px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.08);
+
+            border-radius: 12px;
+
+            background:
+                rgba(13,16,23,.94);
+
+            backdrop-filter:
+                blur(15px);
+
+        }
+
+
+        .save-info {
+
+            color: #555e6e;
+
+            font-size: 7px;
+
+        }
+
+
+        .save-actions {
+
+            display: flex;
+
+            gap: 8px;
+
+        }
+
+
+        .cancel-btn {
+
+            padding: 10px 15px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,255,255,.025);
+
+            color: #8a92a2;
+
+            font-size: 8px;
+
+            cursor: pointer;
+
+        }
+
+
+        .save-btn {
+
+            padding: 10px 18px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #566fff,
+                    #824cff
+                );
+
+            color: white;
+
+            font-size: 8px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+        }
+
+
+        .save-btn:hover {
+
+            opacity: .9;
+
+        }
+
+
+        /* ============================
+           MOBILE
+        ============================ */
+
+        @media(max-width:850px) {
+
+            .sidebar {
+
+                display: none;
+
+            }
+
+            .main {
+
+                margin-left: 0;
+
+                padding: 18px;
+
+            }
+
+            .form-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .form-group:nth-child(odd) {
+
+                border-right: none;
+
+            }
+
+            .form-group.full {
+
+                grid-column: auto;
+
+            }
+
+        }
+
+
+        @media(max-width:550px) {
+
+            .main {
+
+                padding: 14px;
+
+            }
+
+            .topbar {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+            .top-actions {
+
+                width: 100%;
+
+            }
+
+            .top-actions .btn {
+
+                flex: 1;
+
+                text-align: center;
+
+            }
+
+            .status-options {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .save-bar {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+            .save-actions {
+
+                width: 100%;
+
+            }
+
+            .cancel-btn,
+            .save-btn {
+
+                flex: 1;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            ◆
+        </div>
+
+        <div class="brand-text">
+
+            <strong>IKVM</strong>
+
+            <span>ADMIN PORTAL</span>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-label">
+        MAIN MENU
+    </div>
+
+
+    <a
+        href="/admin/dashboard"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ⌂
+        </div>
+
+        Dashboard
+
+    </a>
+
+
+    <a
+        href="/admin/students"
+        class="nav-item active">
+
+        <div class="nav-icon">
+            ◉
+        </div>
+
+        Students
+
+    </a>
+
+
+    <a
+        href="/admin/faculty"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ◇
+        </div>
+
+        Faculty
+
+    </a>
+
+
+    <div class="nav-label">
+        MANAGEMENT
+    </div>
+
+
+    <a
+        href="/admin/attendance"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ✓
+        </div>
+
+        Attendance
+
+    </a>
+
+
+    <a
+        href="/admin/results"
+        class="nav-item">
+
+        <div class="nav-icon">
+            %
+        </div>
+
+        Results
+
+    </a>
+
+
+    <a
+        href="/admin/library"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ▣
+        </div>
+
+        Library
+
+    </a>
+
+
+    <a
+        href="/admin/notices"
+        class="nav-item">
+
+        <div class="nav-icon">
+            !
+        </div>
+
+        Notices
+
+    </a>
+
+
+    <div class="nav-label">
+        SYSTEM
+    </div>
+
+
+    <a
+        href="/admin/reports"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ◫
+        </div>
+
+        Reports
+
+    </a>
+
+
+    <a
+        href="/admin/settings"
+        class="nav-item">
+
+        <div class="nav-icon">
+            ⚙
+        </div>
+
+        Settings
+
+    </a>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="user-mini">
+
+            <div class="avatar">
+
+                <%= user.name.charAt(0).toUpperCase() %>
+
+            </div>
+
+
+            <div class="user-info">
+
+                <strong>
+                    <%= user.name %>
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+
+            <a
+                href="/logout"
+                class="logout">
+
+                ↪
+
+            </a>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+
+    <div class="topbar">
+
+
+        <div>
+
+            <a
+                href="/admin/students/details/<%= student._id %>"
+                class="back">
+
+                ← Back to Student
+
+            </a>
+
+
+            <div class="page-label">
+                STUDENT MANAGEMENT
+            </div>
+
+
+            <h1>
+                Edit Student Data
+            </h1>
+
+        </div>
+
+
+        <div class="top-actions">
+
+            <a
+                href="/admin/students/details/<%= student._id %>"
+                class="btn">
+
+                Cancel
+
+            </a>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="content">
+
+
+        <div class="notice">
+
+            Editing student:
+            <strong>
+                <%= student.name %>
+            </strong>
+
+            — Make your changes and click
+            <strong>Save Changes</strong>.
+
+        </div>
+
+
+        <!-- =================================================
+             FORM
+        ================================================== -->
+
+        <form
+            id="studentForm"
+            method="POST"
+            action="/admin/students/update/<%= student._id %>"
+        >
+
+
+            <!-- =============================================
+                 BASIC INFORMATION
+            ============================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <div class="section-icon">
+                        ◉
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Student Information
+                        </h2>
+
+                        <p>
+                            Basic identification and academic information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    <!-- NAME -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Student Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="name"
+                            value="<%= student.name %>"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- CLASS -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Class
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="studentClass"
+                            required
+                        >
+
+                            <% for (
+                                let i = 1;
+                                i <= 12;
+                                i++
+                            ) { %>
+
+                                <option
+                                    value="<%= i %>"
+                                    <%= Number(student.class) === i ? "selected" : "" %>
+                                >
+
+                                    Class <%= i %>
+
+                                </option>
+
+                            <% } %>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- JOIN SESSION -->
+
+                    <div class="form-group">
+
+                        <label>
+                            School Join Session
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="schoolJoinSession"
+                            value="<%= student.schoolJoinSession || '' %>"
+                            placeholder="Example: 2025-26"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- SERIAL -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Serial / Sr. No.
+                        </label>
+
+                        <input
+                            type="text"
+                            name="serialNo"
+                            value="<%= student.serialNo || '' %>"
+                            placeholder="Enter serial number"
+                        >
+
+                    </div>
+
+
+                    <!-- UID -->
+
+                    <div class="form-group">
+
+                        <label>
+                            UID
+                        </label>
+
+                        <input
+                            type="text"
+                            name="uid"
+                            value="<%= student.uid || '' %>"
+                            placeholder="Enter UID"
+                        >
+
+                    </div>
+
+
+                    <!-- AADHAAR -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Aadhaar Number
+                        </label>
+
+                        <input
+                            type="text"
+                            name="aadhaar"
+                            value="<%= student.aadhaar || '' %>"
+                            placeholder="Enter Aadhaar number"
+                            inputmode="numeric"
+                        >
+
+                        <div class="hint">
+                            Optional
+                        </div>
+
+                    </div>
+
+
+                    <!-- MOBILE -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Mobile Number
+                        </label>
+
+                        <input
+                            type="text"
+                            name="mobile"
+                            value="<%= student.mobile || '' %>"
+                            placeholder="Enter mobile number"
+                            inputmode="numeric"
+                        >
+
+                        <div class="hint">
+                            Optional
+                        </div>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="form-group">
+
+
+                        <label>
+                            Student Status
+                            <span class="required">*</span>
+                        </label>
+
+
+                        <div class="status-options">
+
+
+                            <div class="status-option">
+
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    id="active"
+                                    value="active"
+                                    <%= student.status === "active" ? "checked" : "" %>
+                                >
+
+
+                                <label
+                                    for="active"
+                                    class="status-label active-label"
+                                >
+
+                                    <span class="status-dot"></span>
+
+                                    Active
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="status-option">
+
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    id="deactive"
+                                    value="deactive"
+                                    <%= student.status === "deactive" ? "checked" : "" %>
+                                >
+
+
+                                <label
+                                    for="deactive"
+                                    class="status-label deactive-label"
+                                >
+
+                                    <span class="status-dot"></span>
+
+                                    Deactive
+
+                                </label>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PARENT INFORMATION
+            ================================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <div class="section-icon">
+                        ◇
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Parent Information
+                        </h2>
+
+                        <p>
+                            Parent names and Aadhaar information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Father Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="fatherName"
+                            value="<%= student.fatherName || '' %>"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Mother Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="motherName"
+                            value="<%= student.motherName || '' %>"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Father Aadhaar
+                        </label>
+
+                        <input
+                            type="text"
+                            name="fatherAadhaar"
+                            value="<%= student.fatherAadhaar || '' %>"
+                            placeholder="Optional"
+                            inputmode="numeric"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Mother Aadhaar
+                        </label>
+
+                        <input
+                            type="text"
+                            name="motherAadhaar"
+                            value="<%= student.motherAadhaar || '' %>"
+                            placeholder="Optional"
+                            inputmode="numeric"
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 DOCUMENTS
+            ================================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <div class="section-icon">
+                        ▣
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Submitted Documents
+                        </h2>
+
+                        <p>
+                            Add, remove or edit submitted document names
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dynamic-area">
+
+
+                    <div id="documentsContainer">
+
+
+                        <% if (
+                            student.submittedDocuments &&
+                            student.submittedDocuments.length > 0
+                        ) { %>
+
+
+                            <% for (
+                                let i = 0;
+                                i < student.submittedDocuments.length;
+                                i++
+                            ) { %>
+
+
+                                <div class="dynamic-row">
+
+
+                                    <input
+                                        type="text"
+                                        name="documents"
+                                        value="<%= student.submittedDocuments[i] %>"
+                                        placeholder="Document name e.g. TC, Photo"
+                                    >
+
+
+                                    <button
+                                        type="button"
+                                        class="remove-btn"
+                                        onclick="removeRow(this)"
+                                    >
+                                        ×
+                                    </button>
+
+
+                                </div>
+
+
+                            <% } %>
+
+
+                        <% } else { %>
+
+
+                            <div class="dynamic-row">
+
+
+                                <input
+                                    type="text"
+                                    name="documents"
+                                    placeholder="Document name e.g. TC, Photo"
+                                >
+
+
+                                <button
+                                    type="button"
+                                    class="remove-btn"
+                                    onclick="removeRow(this)"
+                                >
+                                    ×
+                                </button>
+
+
+                            </div>
+
+
+                        <% } %>
+
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="add-btn"
+                        onclick="addDocument()"
+                    >
+
+                        + Add Document
+
+                    </button>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CUSTOM FIELDS
+            ================================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <div class="section-icon">
+                        +
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Additional Fields
+                        </h2>
+
+                        <p>
+                            Edit existing custom information or add new fields
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dynamic-area">
+
+
+                    <div id="customFieldsContainer">
+
+
+                        <% if (
+                            student.customFields &&
+                            student.customFields.length > 0
+                        ) { %>
+
+
+                            <% for (
+                                let i = 0;
+                                i < student.customFields.length;
+                                i++
+                            ) { %>
+
+
+                                <div class="dynamic-row">
+
+
+                                    <input
+                                        type="text"
+                                        name="customFieldName"
+                                        value="<%= student.customFields[i].name %>"
+                                        placeholder="Field name"
+                                    >
+
+
+                                    <input
+                                        type="text"
+                                        name="customFieldValue"
+                                        value="<%= student.customFields[i].value || '' %>"
+                                        placeholder="Value"
+                                    >
+
+
+                                    <button
+                                        type="button"
+                                        class="remove-btn"
+                                        onclick="removeCustomRow(this)"
+                                    >
+                                        ×
+                                    </button>
+
+
+                                </div>
+
+
+                            <% } %>
+
+
+                        <% } else { %>
+
+
+                            <div class="custom-grid">
+
+
+                                <input
+                                    type="text"
+                                    name="customFieldName"
+                                    placeholder="Field name e.g. Alternative Mobile"
+                                >
+
+
+                                <input
+                                    type="text"
+                                    name="customFieldValue"
+                                    placeholder="Value"
+                                >
+
+
+                                <button
+                                    type="button"
+                                    class="remove-btn"
+                                    onclick="removeCustomRow(this)"
+                                >
+                                    ×
+                                </button>
+
+
+                            </div>
+
+
+                        <% } %>
+
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="add-btn"
+                        onclick="addCustomField()"
+                    >
+
+                        + Add Custom Field
+
+                    </button>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SAVE
+            ================================================== -->
+
+            <div class="save-bar">
+
+
+                <div class="save-info">
+
+                    Changes will be saved to this student's record.
+
+                </div>
+
+
+                <div class="save-actions">
+
+
+                    <a
+                        href="/admin/students/details/<%= student._id %>"
+                        class="cancel-btn"
+                    >
+
+                        Cancel
+
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="save-btn"
+                        id="saveButton"
+                    >
+
+                        Save Changes
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</main>
+
+
+<script>
+
+
+/* =====================================================
+   ADD DOCUMENT
+===================================================== */
+
+function addDocument() {
+
+    const container =
+        document.getElementById(
+            "documentsContainer"
+        );
+
+
+    const row =
+        document.createElement(
+            "div"
+        );
+
+
+    row.className =
+        "dynamic-row";
+
+
+    row.innerHTML = `
+
+        <input
+            type="text"
+            name="documents"
+            placeholder="Document name e.g. TC, Photo"
+        >
+
+        <button
+            type="button"
+            class="remove-btn"
+            onclick="removeRow(this)"
+        >
+            ×
+        </button>
+
+    `;
+
+
+    container.appendChild(row);
+
+}
+
+
+/* =====================================================
+   REMOVE DOCUMENT
+===================================================== */
+
+function removeRow(button) {
+
+    const row =
+        button.parentElement;
+
+
+    const container =
+        document.getElementById(
+            "documentsContainer"
+        );
+
+
+    if (
+        container.children.length === 1
+    ) {
+
+        row.querySelector(
+            "input"
+        ).value = "";
+
+        return;
+
+    }
+
+
+    row.remove();
+
+}
+
+
+/* =====================================================
+   ADD CUSTOM FIELD
+===================================================== */
+
+function addCustomField() {
+
+    const container =
+        document.getElementById(
+            "customFieldsContainer"
+        );
+
+
+    const row =
+        document.createElement(
+            "div"
+        );
+
+
+    row.className =
+        "custom-row";
+
+
+    row.innerHTML = `
+
+        <input
+            type="text"
+            name="customFieldName"
+            placeholder="Field name"
+        >
+
+        <input
+            type="text"
+            name="customFieldValue"
+            placeholder="Value"
+        >
+
+        <button
+            type="button"
+            class="remove-btn"
+            onclick="removeCustomRow(this)"
+        >
+            ×
+        </button>
+
+    `;
+
+
+    container.appendChild(row);
+
+}
+
+
+/* =====================================================
+   REMOVE CUSTOM FIELD
+===================================================== */
+
+function removeCustomRow(button) {
+
+    const row =
+        button.parentElement;
+
+
+    const container =
+        document.getElementById(
+            "customFieldsContainer"
+        );
+
+
+    if (
+        container.children.length === 1
+    ) {
+
+        const inputs =
+            row.querySelectorAll(
+                "input"
+            );
+
+
+        inputs.forEach(function(input) {
+
+            input.value = "";
+
+        });
+
+        return;
+
+    }
+
+
+    row.remove();
+
+}
+
+
+/* =====================================================
+   FORM SUBMIT
+===================================================== */
+
+document
+    .getElementById("studentForm")
+    .addEventListener(
+        "submit",
+        function() {
+
+            const button =
+                document.getElementById(
+                    "saveButton"
+                );
+
+
+            button.textContent =
+                "Saving...";
+
+
+            button.disabled =
+                true;
+
+        }
+    );
+
+
+</script>
+
+
+</body>
+
+</html>

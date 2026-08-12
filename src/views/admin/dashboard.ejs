@@ -1,0 +1,3246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>IKVM | Admin Portal</title>
+
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        :root {
+
+            --bg: #07090d;
+
+            --sidebar: #090b11;
+
+            --card: rgba(255,255,255,.025);
+
+            --border: rgba(255,255,255,.07);
+
+            --text: #f5f7ff;
+
+            --muted: #777f91;
+
+            --muted2: #555d6e;
+
+            --primary: #687cff;
+
+            --purple: #914cff;
+
+            --green: #4ed39a;
+
+            --red: #ff6878;
+
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            font-family:
+                "Inter",
+                sans-serif;
+
+            background:
+                var(--bg);
+
+            color:
+                var(--text);
+
+            min-height:
+                100vh;
+
+            overflow-x:
+                hidden;
+
+        }
+
+
+        a {
+
+            text-decoration:
+                none;
+
+            color:
+                inherit;
+
+        }
+
+
+        button,
+        input {
+
+            font-family:
+                inherit;
+
+        }
+
+
+        /* =========================================
+           BACKGROUND
+        ========================================= */
+
+        body::before {
+
+            content:
+                "";
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            background-image:
+
+                linear-gradient(
+                    rgba(255,255,255,.018)
+                    1px,
+                    transparent 1px
+                ),
+
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.018)
+                    1px,
+                    transparent 1px
+                );
+
+            background-size:
+                70px 70px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 90%
+                );
+
+            pointer-events:
+                none;
+
+            z-index:
+                -3;
+
+        }
+
+
+        .glow {
+
+            position:
+                fixed;
+
+            width:
+                400px;
+
+            height:
+                400px;
+
+            border-radius:
+                50%;
+
+            filter:
+                blur(150px);
+
+            opacity:
+                .08;
+
+            pointer-events:
+                none;
+
+            z-index:
+                -2;
+
+        }
+
+
+        .glow-one {
+
+            background:
+                #566fff;
+
+            top:
+                -200px;
+
+            left:
+                100px;
+
+        }
+
+
+        .glow-two {
+
+            background:
+                #914cff;
+
+            right:
+                -200px;
+
+            bottom:
+                100px;
+
+        }
+
+
+        /* =========================================
+           OVERLAY
+        ========================================= */
+
+        .overlay {
+
+            display:
+                none;
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            background:
+                rgba(0,0,0,.65);
+
+            backdrop-filter:
+                blur(3px);
+
+            z-index:
+                20;
+
+        }
+
+
+        .overlay.active {
+            display: block;
+        }
+
+
+        /* =========================================
+           SIDEBAR
+        ========================================= */
+
+        .sidebar {
+
+            width:
+                250px;
+
+            position:
+                fixed;
+
+            top:
+                0;
+
+            bottom:
+                0;
+
+            left:
+                0;
+
+            padding:
+                24px 16px;
+
+            background:
+                rgba(9,11,17,.95);
+
+            border-right:
+                1px solid var(--border);
+
+            backdrop-filter:
+                blur(20px);
+
+            z-index:
+                30;
+
+            transition:
+                .3s ease;
+
+        }
+
+
+        .brand {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                11px;
+
+            padding:
+                0 10px;
+
+            margin-bottom:
+                38px;
+
+        }
+
+
+        .brand-icon {
+
+            width:
+                36px;
+
+            height:
+                36px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border-radius:
+                10px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6078ff,
+                    #914cff
+                );
+
+            box-shadow:
+                0 10px 30px
+                rgba(80,80,255,.25);
+
+            font-size:
+                13px;
+
+            font-weight:
+                800;
+
+        }
+
+
+        .brand-text strong {
+
+            display:
+                block;
+
+            font-size:
+                15px;
+
+        }
+
+
+        .brand-text span {
+
+            color:
+                #606777;
+
+            font-size:
+                8px;
+
+            letter-spacing:
+                1px;
+
+        }
+
+
+        /* =========================================
+           NAVIGATION
+        ========================================= */
+
+        .nav-label {
+
+            padding:
+                0 11px;
+
+            margin:
+                22px 0 10px;
+
+            color:
+                #4e5666;
+
+            font-size:
+                9px;
+
+            letter-spacing:
+                1.5px;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .nav-item {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                12px;
+
+            width:
+                100%;
+
+            padding:
+                10px 12px;
+
+            margin-bottom:
+                4px;
+
+            border-radius:
+                9px;
+
+            color:
+                #737a8b;
+
+            font-size:
+                11px;
+
+            transition:
+                .25s;
+
+        }
+
+
+        .nav-item:hover {
+
+            color:
+                #e1e4ed;
+
+            background:
+                rgba(255,255,255,.04);
+
+        }
+
+
+        .nav-item.active {
+
+            color:
+                #8090ff;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(91,111,255,.16),
+                    rgba(91,111,255,.04)
+                );
+
+            border:
+                1px solid
+                rgba(100,120,255,.08);
+
+        }
+
+
+        .nav-icon {
+
+            width:
+                27px;
+
+            height:
+                27px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border-radius:
+                7px;
+
+            font-size:
+                11px;
+
+        }
+
+
+        .nav-item.active .nav-icon {
+
+            background:
+                rgba(100,120,255,.12);
+
+        }
+
+
+        .nav-badge {
+
+            margin-left:
+                auto;
+
+            padding:
+                3px 6px;
+
+            border-radius:
+                20px;
+
+            background:
+                rgba(100,120,255,.12);
+
+            color:
+                #7182ff;
+
+            font-size:
+                7px;
+
+        }
+
+
+        /* =========================================
+           SIDEBAR USER
+        ========================================= */
+
+        .sidebar-bottom {
+
+            position:
+                absolute;
+
+            left:
+                16px;
+
+            right:
+                16px;
+
+            bottom:
+                20px;
+
+        }
+
+
+        .user-mini {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+            padding:
+                10px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(255,255,255,.025);
+
+        }
+
+
+        .avatar {
+
+            width:
+                31px;
+
+            height:
+                31px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            flex-shrink:
+                0;
+
+            border-radius:
+                50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #566fff,
+                    #8b4cff
+                );
+
+            font-size:
+                10px;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .user-info {
+
+            min-width:
+                0;
+
+            flex:
+                1;
+
+        }
+
+
+        .user-info strong {
+
+            display:
+                block;
+
+            font-size:
+                9px;
+
+            white-space:
+                nowrap;
+
+            overflow:
+                hidden;
+
+            text-overflow:
+                ellipsis;
+
+        }
+
+
+        .user-info span {
+
+            color:
+                #626979;
+
+            font-size:
+                7px;
+
+        }
+
+
+        .logout {
+
+            border:
+                none;
+
+            background:
+                transparent;
+
+            color:
+                #666d7e;
+
+            font-size:
+                12px;
+
+            cursor:
+                pointer;
+
+            transition:
+                .2s;
+
+        }
+
+
+        .logout:hover {
+            color:
+                var(--red);
+        }
+
+
+        /* =========================================
+           MAIN
+        ========================================= */
+
+        .main {
+
+            margin-left:
+                250px;
+
+            min-height:
+                100vh;
+
+            padding:
+                25px 35px;
+
+        }
+
+
+        /* =========================================
+           TOPBAR
+        ========================================= */
+
+        .topbar {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            padding-bottom:
+                20px;
+
+            border-bottom:
+                1px solid var(--border);
+
+        }
+
+
+        .top-left {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                15px;
+
+        }
+
+
+        .mobile-menu {
+
+            display:
+                none;
+
+            width:
+                36px;
+
+            height:
+                36px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                9px;
+
+            background:
+                var(--card);
+
+            color:
+                white;
+
+            cursor:
+                pointer;
+
+        }
+
+
+        .page-title small {
+
+            color:
+                #626979;
+
+            font-size:
+                9px;
+
+            letter-spacing:
+                1px;
+
+        }
+
+
+        .page-title h1 {
+
+            margin-top:
+                4px;
+
+            font-size:
+                22px;
+
+            letter-spacing:
+                -.5px;
+
+        }
+
+
+        .top-actions {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+        }
+
+
+        .search {
+
+            position:
+                relative;
+
+        }
+
+
+        .search input {
+
+            width:
+                210px;
+
+            height:
+                36px;
+
+            padding:
+                0 12px 0 34px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                9px;
+
+            outline:
+                none;
+
+            background:
+                var(--card);
+
+            color:
+                white;
+
+            font-size:
+                10px;
+
+        }
+
+
+        .search input::placeholder {
+            color:
+                #555d6e;
+        }
+
+
+        .search-icon {
+
+            position:
+                absolute;
+
+            left:
+                12px;
+
+            top:
+                50%;
+
+            transform:
+                translateY(-50%);
+
+            color:
+                #626979;
+
+        }
+
+
+        .icon-button {
+
+            width:
+                36px;
+
+            height:
+                36px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                9px;
+
+            background:
+                var(--card);
+
+            color:
+                #737a8b;
+
+            cursor:
+                pointer;
+
+        }
+
+
+        .icon-button:hover {
+
+            color:
+                white;
+
+            background:
+                rgba(255,255,255,.06);
+
+        }
+
+
+        /* =========================================
+           WELCOME
+        ========================================= */
+
+        .welcome {
+
+            margin-top:
+                23px;
+
+            padding:
+                23px 26px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                14px;
+
+            background:
+                linear-gradient(
+                    110deg,
+                    rgba(83,105,255,.11),
+                    rgba(139,76,255,.04),
+                    rgba(255,255,255,.02)
+                );
+
+            position:
+                relative;
+
+            overflow:
+                hidden;
+
+        }
+
+
+        .welcome::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            width:
+                220px;
+
+            height:
+                220px;
+
+            right:
+                -80px;
+
+            top:
+                -100px;
+
+            border-radius:
+                50%;
+
+            background:
+                rgba(100,100,255,.08);
+
+            filter:
+                blur(20px);
+
+        }
+
+
+        .welcome small {
+
+            color:
+                #7180ff;
+
+            font-size:
+                8px;
+
+            letter-spacing:
+                1.5px;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .welcome h2 {
+
+            margin-top:
+                7px;
+
+            font-size:
+                20px;
+
+        }
+
+
+        .welcome p {
+
+            margin-top:
+                6px;
+
+            color:
+                #777f91;
+
+            font-size:
+                10px;
+
+        }
+
+
+        /* =========================================
+           STATS
+        ========================================= */
+
+        .stats {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap:
+                14px;
+
+            margin-top:
+                16px;
+
+        }
+
+
+        .stat-card {
+
+            padding:
+                17px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                11px;
+
+            background:
+                var(--card);
+
+            transition:
+                .25s;
+
+        }
+
+
+        .stat-card:hover {
+
+            transform:
+                translateY(-3px);
+
+            border-color:
+                rgba(100,120,255,.22);
+
+        }
+
+
+        .stat-top {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+        }
+
+
+        .stat-label {
+
+            color:
+                #707789;
+
+            font-size:
+                8px;
+
+            letter-spacing:
+                .4px;
+
+        }
+
+
+        .stat-icon {
+
+            width:
+                27px;
+
+            height:
+                27px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border-radius:
+                7px;
+
+            background:
+                rgba(90,110,255,.1);
+
+            color:
+                #7182ff;
+
+        }
+
+
+        .stat-number {
+
+            margin-top:
+                13px;
+
+            font-size:
+                24px;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .stat-bottom {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                5px;
+
+            margin-top:
+                5px;
+
+            color:
+                #596171;
+
+            font-size:
+                8px;
+
+        }
+
+
+        .green {
+            color:
+                var(--green);
+        }
+
+
+        .red {
+            color:
+                var(--red);
+        }
+
+
+        /* =========================================
+           SECTION
+        ========================================= */
+
+        .section {
+
+            margin-top:
+                18px;
+
+        }
+
+
+        .section-heading {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            margin-bottom:
+                12px;
+
+        }
+
+
+        .section-heading h2 {
+            font-size:
+                14px;
+        }
+
+
+        .section-heading span {
+
+            color:
+                #626979;
+
+            font-size:
+                8px;
+
+        }
+
+
+        /* =========================================
+           QUICK ACTIONS
+        ========================================= */
+
+        .quick-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(5,1fr);
+
+            gap:
+                11px;
+
+        }
+
+
+        .quick-card {
+
+            padding:
+                16px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                11px;
+
+            background:
+                var(--card);
+
+            transition:
+                .25s;
+
+        }
+
+
+        .quick-card:hover {
+
+            transform:
+                translateY(-3px);
+
+            border-color:
+                rgba(100,120,255,.25);
+
+            background:
+                rgba(100,120,255,.035);
+
+        }
+
+
+        .quick-icon {
+
+            width:
+                31px;
+
+            height:
+                31px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(90,110,255,.1);
+
+            color:
+                #7182ff;
+
+        }
+
+
+        .quick-card h3 {
+
+            margin-top:
+                11px;
+
+            font-size:
+                10px;
+
+        }
+
+
+        .quick-card p {
+
+            margin-top:
+                4px;
+
+            color:
+                #606878;
+
+            font-size:
+                7px;
+
+            line-height:
+                1.5;
+
+        }
+
+
+        /* =========================================
+           LOWER GRID
+        ========================================= */
+
+        .lower-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                1.35fr .8fr;
+
+            gap:
+                15px;
+
+            margin-top:
+                18px;
+
+        }
+
+
+        .panel {
+
+            padding:
+                18px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                12px;
+
+            background:
+                var(--card);
+
+        }
+
+
+        .panel-header {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            margin-bottom:
+                16px;
+
+        }
+
+
+        .panel-header h3 {
+            font-size:
+                12px;
+        }
+
+
+        .panel-header span {
+
+            display:
+                block;
+
+            margin-top:
+                4px;
+
+            color:
+                #626979;
+
+            font-size:
+                8px;
+
+        }
+
+
+        .view-link {
+
+            color:
+                #7182ff;
+
+            font-size:
+                9px;
+
+        }
+
+
+        /* =========================================
+           TABLE
+        ========================================= */
+
+        .student-table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+        }
+
+
+        .student-table th {
+
+            padding:
+                9px 7px;
+
+            text-align:
+                left;
+
+            color:
+                #535b6b;
+
+            font-size:
+                7px;
+
+            border-bottom:
+                1px solid var(--border);
+
+        }
+
+
+        .student-table td {
+
+            padding:
+                11px 7px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.04);
+
+            color:
+                #a1a7b5;
+
+            font-size:
+                8px;
+
+        }
+
+
+        .student-table tr:last-child td {
+            border-bottom:
+                none;
+        }
+
+
+        .student-name {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+        }
+
+
+        .student-avatar {
+
+            width:
+                25px;
+
+            height:
+                25px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border-radius:
+                7px;
+
+            background:
+                rgba(90,110,255,.12);
+
+            color:
+                #7b8aff;
+
+            font-size:
+                8px;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .student-name strong {
+
+            display:
+                block;
+
+            color:
+                #c5cad5;
+
+            font-size:
+                8px;
+
+        }
+
+
+        .student-name span {
+
+            display:
+                block;
+
+            margin-top:
+                2px;
+
+            color:
+                #535b6b;
+
+            font-size:
+                6px;
+
+        }
+
+
+        .status {
+
+            display:
+                inline-flex;
+
+            padding:
+                4px 7px;
+
+            border-radius:
+                20px;
+
+            font-size:
+                6px;
+
+            text-transform:
+                capitalize;
+
+        }
+
+
+        .status.active {
+
+            background:
+                rgba(78,211,154,.08);
+
+            color:
+                #55ca97;
+
+        }
+
+
+        .status.deactive {
+
+            background:
+                rgba(255,104,120,.08);
+
+            color:
+                #ff6878;
+
+        }
+
+
+        .empty-state {
+
+            text-align:
+                center;
+
+            padding:
+                35px 15px;
+
+            color:
+                #626979;
+
+            font-size:
+                9px;
+
+        }
+
+
+        /* =========================================
+           ACTIVITY
+        ========================================= */
+
+        .activity {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            padding:
+                11px 0;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.05);
+
+        }
+
+
+        .activity:last-child {
+            border-bottom:
+                none;
+        }
+
+
+        .activity-icon {
+
+            width:
+                29px;
+
+            height:
+                29px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            flex-shrink:
+                0;
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(90,110,255,.1);
+
+            color:
+                #7182ff;
+
+            font-size:
+                9px;
+
+        }
+
+
+        .activity-text {
+
+            min-width:
+                0;
+
+            flex:
+                1;
+
+        }
+
+
+        .activity-text strong {
+
+            display:
+                block;
+
+            color:
+                #bfc4d0;
+
+            font-size:
+                8px;
+
+        }
+
+
+        .activity-text span {
+
+            display:
+                block;
+
+            margin-top:
+                3px;
+
+            color:
+                #5f6676;
+
+            font-size:
+                7px;
+
+            white-space:
+                nowrap;
+
+            overflow:
+                hidden;
+
+            text-overflow:
+                ellipsis;
+
+        }
+
+
+        /* =========================================
+           SYSTEM STATUS
+        ========================================= */
+
+        .system-status {
+
+            margin-top:
+                15px;
+
+            padding:
+                13px;
+
+            border:
+                1px solid
+                rgba(78,211,154,.08);
+
+            border-radius:
+                9px;
+
+            background:
+                rgba(78,211,154,.025);
+
+        }
+
+
+        .system-status-top {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+        }
+
+
+        .online-dot {
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            border-radius:
+                50%;
+
+            background:
+                var(--green);
+
+            box-shadow:
+                0 0 10px
+                var(--green);
+
+        }
+
+
+        .system-status strong {
+            font-size:
+                8px;
+        }
+
+
+        .system-status p {
+
+            margin-top:
+                6px;
+
+            color:
+                #596171;
+
+            font-size:
+                7px;
+
+            line-height:
+                1.5;
+
+        }
+
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        .footer {
+
+            padding:
+                25px 0 10px;
+
+            color:
+                #444b5a;
+
+            font-size:
+                7px;
+
+            text-align:
+                center;
+
+        }
+
+
+        /* =========================================
+           TABLET
+        ========================================= */
+
+        @media (max-width:1150px) {
+
+            .quick-grid {
+
+                grid-template-columns:
+                    repeat(3,1fr);
+
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+
+            }
+
+        }
+
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media (max-width:850px) {
+
+            .sidebar {
+
+                transform:
+                    translateX(-100%);
+
+            }
+
+
+            .sidebar.open {
+
+                transform:
+                    translateX(0);
+
+            }
+
+
+            .main {
+
+                margin-left:
+                    0;
+
+                width:
+                    100%;
+
+                padding:
+                    18px;
+
+            }
+
+
+            .mobile-menu {
+
+                display:
+                    grid;
+
+                place-items:
+                    center;
+
+            }
+
+
+            .quick-grid {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+
+            }
+
+
+            .lower-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .search input {
+                width:
+                    170px;
+            }
+
+        }
+
+
+        /* =========================================
+           SMALL MOBILE
+        ========================================= */
+
+        @media (max-width:550px) {
+
+            .main {
+                padding:
+                    14px;
+            }
+
+
+            .topbar {
+                padding-bottom:
+                    15px;
+            }
+
+
+            .page-title h1 {
+                font-size:
+                    19px;
+            }
+
+
+            .search {
+                display:
+                    none;
+            }
+
+
+            .icon-button {
+
+                width:
+                    34px;
+
+                height:
+                    34px;
+
+            }
+
+
+            .welcome {
+                padding:
+                    19px;
+            }
+
+
+            .welcome h2 {
+                font-size:
+                    18px;
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+
+                gap:
+                    9px;
+
+            }
+
+
+            .stat-card {
+                padding:
+                    14px;
+            }
+
+
+            .stat-number {
+                font-size:
+                    21px;
+            }
+
+
+            .quick-grid {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+
+                gap:
+                    8px;
+
+            }
+
+
+            .quick-card {
+                padding:
+                    14px;
+            }
+
+
+            .student-table th:nth-child(3),
+            .student-table td:nth-child(3) {
+
+                display:
+                    none;
+
+            }
+
+
+            .panel {
+                padding:
+                    14px;
+            }
+
+        }
+
+
+        @media (max-width:370px) {
+
+            .stats {
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .quick-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="glow glow-one"></div>
+
+<div class="glow glow-two"></div>
+
+
+<div
+    class="overlay"
+    id="overlay"
+></div>
+
+
+<div class="layout">
+
+
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                ◆
+            </div>
+
+            <div class="brand-text">
+
+                <strong>
+                    IKVM
+                </strong>
+
+                <span>
+                    ADMIN PORTAL
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="nav-label">
+            MAIN MENU
+        </div>
+
+
+        <a
+            href="/admin/dashboard"
+            class="nav-item active"
+        >
+
+            <div class="nav-icon">
+                ⌂
+            </div>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <a
+            href="/admin/students"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                ◉
+            </div>
+
+            <span>
+                Students
+            </span>
+
+            <span class="nav-badge">
+                <%= totalStudents %>
+            </span>
+
+        </a>
+
+
+        <a
+            href="/admin/faculty"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                ◇
+            </div>
+
+            <span>
+                Faculty
+            </span>
+
+        </a>
+
+
+        <div class="nav-label">
+            MANAGEMENT
+        </div>
+
+
+        <a
+            href="/admin/attendance"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                ✓
+            </div>
+
+            <span>
+                Attendance
+            </span>
+
+        </a>
+
+
+        <a
+            href="/admin/results"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                %
+            </div>
+
+            <span>
+                Results
+            </span>
+
+        </a>
+
+
+        <a
+            href="/admin/library"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                ▣
+            </div>
+
+            <span>
+                Library
+            </span>
+
+        </a>
+
+
+        <a
+            href="/admin/notices"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                !
+            </div>
+
+            <span>
+                Notices
+            </span>
+
+        </a>
+
+
+        <div class="nav-label">
+            SYSTEM
+        </div>
+
+
+        <a
+            href="/admin/reports"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                ◫
+            </div>
+
+            <span>
+                Reports
+            </span>
+
+        </a>
+
+
+        <a
+            href="/admin/settings"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                ⚙
+            </div>
+
+            <span>
+                Settings
+            </span>
+
+        </a>
+
+
+        <!-- SIDEBAR USER -->
+
+        <div class="sidebar-bottom">
+
+            <div class="user-mini">
+
+
+                <div class="avatar">
+
+                    <%= user.name
+                        ? user.name
+                            .charAt(0)
+                            .toUpperCase()
+                        : "A" %>
+
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong>
+                        <%= user.name %>
+                    </strong>
+
+                    <span>
+                        Administrator
+                    </span>
+
+                </div>
+
+
+                <form
+                    action="/logout"
+                    method="POST"
+                >
+
+                    <button
+                        type="submit"
+                        class="logout"
+                        title="Logout"
+                    >
+                        ↪
+                    </button>
+
+                </form>
+
+
+            </div>
+
+        </div>
+
+
+    </aside>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================== -->
+
+    <main class="main">
+
+
+        <!-- TOPBAR -->
+
+        <div class="topbar">
+
+
+            <div class="top-left">
+
+
+                <button
+                    class="mobile-menu"
+                    id="menuBtn"
+                >
+                    ☰
+                </button>
+
+
+                <div class="page-title">
+
+                    <small>
+                        ADMINISTRATION
+                    </small>
+
+                    <h1>
+                        Dashboard
+                    </h1>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="top-actions">
+
+
+                <div class="search">
+
+                    <span class="search-icon">
+                        ⌕
+                    </span>
+
+                    <input
+                        type="text"
+                        id="dashboardSearch"
+                        placeholder="Search students..."
+                    >
+
+                </div>
+
+
+                <button
+                    class="icon-button"
+                    title="Notifications"
+                >
+                    🔔
+                </button>
+
+
+                <a
+                    href="/admin/settings"
+                    class="icon-button"
+                    title="Settings"
+                >
+                    ⚙
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =====================================
+             WELCOME
+        ====================================== -->
+
+        <section class="welcome">
+
+            <small>
+                WELCOME BACK
+            </small>
+
+            <h2>
+                Hello,
+                <%= user.name %>
+                👋
+            </h2>
+
+            <p>
+                Here's an overview of your IKVM
+                management system.
+            </p>
+
+        </section>
+
+
+        <!-- =====================================
+             STATISTICS
+        ====================================== -->
+
+        <section class="stats">
+
+
+            <!-- TOTAL STUDENTS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        TOTAL STUDENTS
+                    </span>
+
+                    <div class="stat-icon">
+                        ◉
+                    </div>
+
+                </div>
+
+
+                <div class="stat-number">
+
+                    <%= totalStudents %>
+
+                </div>
+
+
+                <div class="stat-bottom">
+
+                    <span class="green">
+                        ●
+                    </span>
+
+                    Registered students
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIVE STUDENTS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        ACTIVE STUDENTS
+                    </span>
+
+                    <div class="stat-icon">
+                        ✓
+                    </div>
+
+                </div>
+
+
+                <div class="stat-number">
+
+                    <%= activeStudents %>
+
+                </div>
+
+
+                <div class="stat-bottom">
+
+                    <span class="green">
+                        ●
+                    </span>
+
+                    Currently enrolled
+
+                </div>
+
+            </div>
+
+
+            <!-- DEACTIVE STUDENTS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        DEACTIVE STUDENTS
+                    </span>
+
+                    <div
+                        class="stat-icon"
+                        style="
+                            background:rgba(255,104,120,.08);
+                            color:#ff6878;
+                        "
+                    >
+                        !
+                    </div>
+
+                </div>
+
+
+                <div class="stat-number">
+
+                    <%= deactiveStudents %>
+
+                </div>
+
+
+                <div class="stat-bottom">
+
+                    <span class="red">
+                        ●
+                    </span>
+
+                    Left / inactive
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIVE USERS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        ACTIVE USERS
+                    </span>
+
+                    <div class="stat-icon">
+                        ◇
+                    </div>
+
+                </div>
+
+
+                <div class="stat-number">
+
+                    <%= activeUsers %>
+
+                </div>
+
+
+                <div class="stat-bottom">
+
+                    <span class="green">
+                        ●
+                    </span>
+
+                    System accounts
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =====================================
+             QUICK ACTIONS
+        ====================================== -->
+
+        <section class="section">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Quick Actions
+                    </h2>
+
+                    <span>
+                        Frequently used tools
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="quick-grid">
+
+
+                <a
+                    href="/admin/students/add"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon">
+                        +
+                    </div>
+
+                    <h3>
+                        Add Student
+                    </h3>
+
+                    <p>
+                        Register a new student.
+                    </p>
+
+                </a>
+
+
+                <a
+                    href="/admin/students"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon">
+                        ◉
+                    </div>
+
+                    <h3>
+                        View Students
+                    </h3>
+
+                    <p>
+                        Browse student records.
+                    </p>
+
+                </a>
+
+
+                <a
+                    href="/admin/faculty"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon">
+                        +
+                    </div>
+
+                    <h3>
+                        Add Faculty
+                    </h3>
+
+                    <p>
+                        Add teaching staff.
+                    </p>
+
+                </a>
+
+
+                <a
+                    href="/admin/notices"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon">
+                        !
+                    </div>
+
+                    <h3>
+                        Notice
+                    </h3>
+
+                    <p>
+                        Publish a new notice.
+                    </p>
+
+                </a>
+
+
+                <a
+                    href="/admin/reports"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon">
+                        ◫
+                    </div>
+
+                    <h3>
+                        Reports
+                    </h3>
+
+                    <p>
+                        View system reports.
+                    </p>
+
+                </a>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             LOWER CONTENT
+        ====================================== -->
+
+        <section class="lower-grid">
+
+
+            <!-- RECENT STUDENTS -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h3>
+                            Recent Students
+                        </h3>
+
+                        <span>
+                            Latest registered students
+                        </span>
+
+                    </div>
+
+
+                    <a
+                        href="/admin/students"
+                        class="view-link"
+                    >
+                        View all →
+                    </a>
+
+                </div>
+
+
+                <table class="student-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                STUDENT
+                            </th>
+
+                            <th>
+                                CLASS
+                            </th>
+
+                            <th>
+                                FATHER
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        <% if (
+                            recentStudents &&
+                            recentStudents.length > 0
+                        ) { %>
+
+
+                            <% recentStudents.forEach(
+                                student => {
+                            %>
+
+
+                                <tr>
+
+
+                                    <td>
+
+                                        <div
+                                            class="student-name"
+                                        >
+
+
+                                            <div
+                                                class="student-avatar"
+                                            >
+
+                                                <%= student.name
+                                                    ? student.name
+                                                        .charAt(0)
+                                                        .toUpperCase()
+                                                    : "?" %>
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <strong>
+                                                    <%= student.name %>
+                                                </strong>
+
+                                                <span>
+                                                    Student record
+                                                </span>
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        Class
+                                        <%= student.class %>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <%= student.fatherName || "—" %>
+
+                                    </td>
+
+
+                                    <td>
+
+
+                                        <span
+                                            class="status <%= student.status === 'active'
+                                                ? 'active'
+                                                : 'deactive' %>"
+                                        >
+
+                                            <%= student.status || "—" %>
+
+                                        </span>
+
+
+                                    </td>
+
+
+                                </tr>
+
+
+                            <% }) %>
+
+
+                        <% } else { %>
+
+
+                            <tr>
+
+                                <td
+                                    colspan="4"
+                                >
+
+                                    <div
+                                        class="empty-state"
+                                    >
+
+                                        No students found.
+
+                                        <br>
+
+                                        Add students
+                                        to see records.
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                        <% } %>
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+            <!-- ACTIVITY -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h3>
+                            Recent Activity
+                        </h3>
+
+                        <span>
+                            Latest system events
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity">
+
+
+                    <div class="activity-icon">
+                        ✓
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        <strong>
+                            Admin logged in
+                        </strong>
+
+                        <span>
+                            <%= user.email %>
+                        </span>
+
+                    </div>
+
+
+                    <div class="activity-time">
+                        Now
+                    </div>
+
+
+                </div>
+
+
+                <div class="activity">
+
+
+                    <div class="activity-icon">
+                        ◉
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        <strong>
+                            Student management
+                        </strong>
+
+                        <span>
+                            <%= totalStudents %>
+                            student records available
+                        </span>
+
+                    </div>
+
+
+                    <div class="activity-time">
+                        Now
+                    </div>
+
+
+                </div>
+
+
+                <div class="activity">
+
+
+                    <div class="activity-icon">
+                        ✓
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        <strong>
+                            Active students
+                        </strong>
+
+                        <span>
+                            <%= activeStudents %>
+                            currently active
+                        </span>
+
+                    </div>
+
+
+                    <div class="activity-time">
+                        Now
+                    </div>
+
+
+                </div>
+
+
+                <div class="activity">
+
+
+                    <div class="activity-icon">
+                        !
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        <strong>
+                            Deactive students
+                        </strong>
+
+                        <span>
+                            <%= deactiveStudents %>
+                            inactive records
+                        </span>
+
+                    </div>
+
+
+                    <div class="activity-time">
+                        Now
+                    </div>
+
+
+                </div>
+
+
+                <div class="system-status">
+
+
+                    <div class="system-status-top">
+
+                        <span
+                            class="online-dot"
+                        ></span>
+
+                        <strong>
+                            System Operational
+                        </strong>
+
+                    </div>
+
+
+                    <p>
+
+                        Authentication and
+                        core student services
+                        are currently running
+                        normally.
+
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <div class="footer">
+
+            IKVM Management System
+            • Admin Portal
+            • 2026
+
+        </div>
+
+
+    </main>
+
+
+</div>
+
+
+<script>
+
+
+    /* =========================================
+       MOBILE MENU
+    ========================================= */
+
+    const menuBtn =
+        document.getElementById(
+            "menuBtn"
+        );
+
+
+    const sidebar =
+        document.getElementById(
+            "sidebar"
+        );
+
+
+    const overlay =
+        document.getElementById(
+            "overlay"
+        );
+
+
+    menuBtn.addEventListener(
+        "click",
+        () => {
+
+            sidebar.classList.toggle(
+                "open"
+            );
+
+            overlay.classList.toggle(
+                "active"
+            );
+
+        }
+    );
+
+
+    overlay.addEventListener(
+        "click",
+        () => {
+
+            sidebar.classList.remove(
+                "open"
+            );
+
+            overlay.classList.remove(
+                "active"
+            );
+
+        }
+    );
+
+
+    document
+        .querySelectorAll(
+            ".nav-item"
+        )
+        .forEach(
+            item => {
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        if (
+                            window.innerWidth <= 850
+                        ) {
+
+                            sidebar.classList.remove(
+                                "open"
+                            );
+
+                            overlay.classList.remove(
+                                "active"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+    /* =========================================
+       DASHBOARD SEARCH
+    ========================================= */
+
+    const dashboardSearch =
+        document.getElementById(
+            "dashboardSearch"
+        );
+
+
+    if (dashboardSearch) {
+
+        dashboardSearch.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    const value =
+                        this.value.trim();
+
+
+                    if (value) {
+
+                        window.location.href =
+                            "/admin/students?search=" +
+                            encodeURIComponent(
+                                value
+                            );
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+</script>
+
+
+</body>
+
+</html>

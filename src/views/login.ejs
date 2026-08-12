@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IKVM | Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-family: "Inter", sans-serif;
+
+            background: #07090d;
+
+            color: #f5f7ff;
+
+            overflow: hidden;
+        }
+
+
+        /* Background */
+
+        body::before {
+            content: "";
+
+            position: fixed;
+
+            inset: 0;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 70px 70px;
+
+            mask-image: linear-gradient(
+                to bottom,
+                black,
+                transparent 90%
+            );
+
+            pointer-events: none;
+        }
+
+
+        .glow {
+            position: fixed;
+
+            width: 450px;
+            height: 450px;
+
+            border-radius: 50%;
+
+            filter: blur(150px);
+
+            opacity: .13;
+
+            pointer-events: none;
+        }
+
+
+        .glow-one {
+            background: #4d63ff;
+
+            top: -250px;
+            left: -200px;
+        }
+
+
+        .glow-two {
+            background: #914cff;
+
+            right: -250px;
+            bottom: -250px;
+        }
+
+
+        /* Back button */
+
+        .back {
+            position: fixed;
+
+            top: 28px;
+            left: 35px;
+
+            color: #777e90;
+
+            font-size: 13px;
+
+            text-decoration: none;
+
+            transition: .25s;
+        }
+
+
+        .back:hover {
+            color: white;
+        }
+
+
+        /* Login container */
+
+        .login-container {
+
+            width: 410px;
+
+            padding: 40px;
+
+            border: 1px solid rgba(255,255,255,.09);
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.065),
+                    rgba(255,255,255,.025)
+                );
+
+            backdrop-filter: blur(20px);
+
+            box-shadow:
+                0 40px 100px rgba(0,0,0,.55),
+                0 0 80px rgba(70,80,255,.08);
+
+            position: relative;
+
+            z-index: 2;
+
+            animation: appear .5s ease;
+        }
+
+
+        @keyframes appear {
+
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        /* Logo */
+
+        .logo {
+            width: 52px;
+            height: 52px;
+
+            display: grid;
+            place-items: center;
+
+            margin: 0 auto;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #5b73ff,
+                    #8c4cff
+                );
+
+            box-shadow:
+                0 12px 35px rgba(80,80,255,.3);
+
+            font-size: 20px;
+
+            font-weight: 800;
+        }
+
+
+        .heading {
+            text-align: center;
+
+            margin-top: 24px;
+        }
+
+
+        .heading h1 {
+            font-size: 25px;
+
+            letter-spacing: -.7px;
+        }
+
+
+        .heading p {
+            margin-top: 9px;
+
+            color: #777e90;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+
+        /* Form */
+
+        .login-form {
+            margin-top: 30px;
+        }
+
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+
+        .input-group label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #9da3b3;
+
+            font-size: 11px;
+
+            font-weight: 500;
+        }
+
+
+        .input-wrapper {
+            position: relative;
+        }
+
+
+        .input-icon {
+            position: absolute;
+
+            left: 14px;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #666d7e;
+
+            font-size: 14px;
+
+            pointer-events: none;
+        }
+
+
+        .input-group input {
+            width: 100%;
+
+            height: 45px;
+
+            padding: 0 14px 0 40px;
+
+            border: 1px solid rgba(255,255,255,.08);
+
+            border-radius: 9px;
+
+            outline: none;
+
+            background: rgba(255,255,255,.035);
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            transition: .25s;
+        }
+
+
+        .input-group input::placeholder {
+            color: #555c6d;
+        }
+
+
+        .input-group input:focus {
+            border-color: rgba(100,120,255,.6);
+
+            background: rgba(255,255,255,.05);
+
+            box-shadow:
+                0 0 0 3px rgba(90,110,255,.08);
+        }
+
+
+        /* Options */
+
+        .form-options {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-top: 5px;
+
+            margin-bottom: 23px;
+        }
+
+
+        .remember {
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            color: #777e90;
+
+            font-size: 10px;
+        }
+
+
+        .remember input {
+            accent-color: #6379ff;
+        }
+
+
+        .forgot {
+            color: #7182ff;
+
+            font-size: 10px;
+
+            text-decoration: none;
+        }
+
+
+        .forgot:hover {
+            text-decoration: underline;
+        }
+
+
+        /* Login button */
+
+        .login-button {
+            width: 100%;
+
+            height: 46px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #566fff,
+                    #824cff
+                );
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 12px 30px rgba(75,75,255,.25);
+
+            transition: .25s;
+        }
+
+
+        .login-button:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 16px 40px rgba(75,75,255,.4);
+        }
+
+
+        /* Divider */
+
+        .divider {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin: 25px 0;
+
+            color: #4e5565;
+
+            font-size: 9px;
+        }
+
+
+        .divider::before,
+        .divider::after {
+            content: "";
+
+            height: 1px;
+
+            flex: 1;
+
+            background: rgba(255,255,255,.07);
+        }
+
+
+        /* Demo information */
+
+        .demo-info {
+            padding: 12px;
+
+            border: 1px solid rgba(255,255,255,.06);
+
+            border-radius: 9px;
+
+            background: rgba(255,255,255,.02);
+
+            text-align: center;
+
+            color: #666d7e;
+
+            font-size: 9px;
+
+            line-height: 1.6;
+        }
+
+
+        .demo-info strong {
+            color: #858c9e;
+        }
+
+
+        /* Footer */
+
+        .footer {
+            margin-top: 25px;
+
+            text-align: center;
+
+            color: #4f5666;
+
+            font-size: 9px;
+        }
+
+
+        /* Mobile */
+
+        @media(max-width: 500px) {
+
+            .login-container {
+                width: calc(100% - 30px);
+
+                padding: 30px 24px;
+            }
+
+            .back {
+                top: 20px;
+                left: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
+
+
+    <!-- Back -->
+
+    <a href="/" class="back">
+        ← Back to IKVM
+    </a>
+
+
+    <!-- Login -->
+
+    <div class="login-container">
+
+        <div class="logo">
+            ◆
+        </div>
+
+
+        <div class="heading">
+
+            <h1>
+                Welcome back
+            </h1>
+
+            <p>
+                Sign in to continue to your IKVM account
+            </p>
+
+        </div>
+
+
+        <form class="login-form" action="/login" method="POST">
+
+
+            <div class="input-group">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="input-icon">
+                        @
+                    </span>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="input-icon">
+                        •
+                    </span>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-options">
+
+                <label class="remember">
+
+                    <input
+                        type="checkbox"
+                        name="remember"
+                    >
+
+                    Remember me
+
+                </label>
+
+
+                <a href="#" class="forgot">
+                    Forgot password?
+                </a>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="login-button"
+            >
+                Sign In →
+            </button>
+
+
+        </form>
+
+
+        <div class="divider">
+            SECURE ACCESS
+        </div>
+
+
+        <div class="demo-info">
+
+            <strong>IKVM Management System</strong>
+            <br>
+
+            Authorized users only. Your credentials are
+            securely protected.
+
+        </div>
+
+
+        <div class="footer">
+            © 2026 IKVM. All rights reserved.
+        </div>
+
+    </div>
+
+
+</body>
+</html>

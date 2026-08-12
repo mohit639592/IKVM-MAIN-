@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>IKVM | Students</title>
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+
+    --bg: #07090d;
+    --sidebar: #090b11;
+    --card: rgba(255,255,255,.025);
+    --border: rgba(255,255,255,.07);
+    --text: #f5f7ff;
+    --muted: #777f91;
+    --primary: #687cff;
+    --green: #4ed39a;
+    --red: #ff6878;
+
+}
+
+body {
+
+    font-family: Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+
+}
+
+body::before {
+
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.018) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.018) 1px,
+            transparent 1px
+        );
+
+    background-size: 70px 70px;
+
+    pointer-events: none;
+
+    z-index: -2;
+
+}
+
+.glow {
+
+    position: fixed;
+
+    width: 400px;
+    height: 400px;
+
+    border-radius: 50%;
+
+    filter: blur(150px);
+
+    opacity: .07;
+
+    pointer-events: none;
+
+    z-index: -1;
+
+}
+
+.glow-one {
+
+    background: #566fff;
+
+    top: -200px;
+    left: 100px;
+
+}
+
+.glow-two {
+
+    background: #914cff;
+
+    right: -200px;
+    bottom: 100px;
+
+}
+
+
+/* =====================================================
+SIDEBAR
+===================================================== */
+
+.sidebar {
+
+    width: 250px;
+
+    position: fixed;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    padding: 24px 16px;
+
+    background: rgba(9,11,17,.97);
+
+    border-right: 1px solid var(--border);
+
+    z-index: 20;
+
+    transition: .3s;
+
+}
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 0 10px;
+
+    margin-bottom: 38px;
+
+}
+
+.brand-icon {
+
+    width: 36px;
+    height: 36px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6078ff,
+            #914cff
+        );
+
+    font-weight: 800;
+
+}
+
+.brand-text strong {
+
+    display: block;
+
+    font-size: 15px;
+
+}
+
+.brand-text span {
+
+    color: #606777;
+
+    font-size: 8px;
+
+    letter-spacing: 1px;
+
+}
+
+.nav-label {
+
+    padding: 0 11px;
+
+    margin: 22px 0 10px;
+
+    color: #4e5666;
+
+    font-size: 9px;
+
+    letter-spacing: 1.5px;
+
+    font-weight: 700;
+
+}
+
+.nav-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    margin-bottom: 4px;
+
+    border-radius: 9px;
+
+    color: #737a8b;
+
+    font-size: 11px;
+
+    transition: .2s;
+
+    text-decoration: none;
+
+}
+
+.nav-item:hover {
+
+    color: white;
+
+    background: rgba(255,255,255,.04);
+
+}
+
+.nav-item.active {
+
+    color: #8090ff;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(91,111,255,.16),
+            rgba(91,111,255,.04)
+        );
+
+}
+
+.nav-icon {
+
+    width: 27px;
+    height: 27px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 7px;
+
+}
+
+.sidebar-bottom {
+
+    position: absolute;
+
+    left: 16px;
+    right: 16px;
+    bottom: 20px;
+
+}
+
+.user-mini {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 10px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    background: var(--card);
+
+}
+
+.avatar {
+
+    width: 31px;
+    height: 31px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #566fff,
+            #8b4cff
+        );
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+}
+
+.user-info {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+.user-info strong {
+
+    display: block;
+
+    font-size: 9px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+.user-info span {
+
+    color: #626979;
+
+    font-size: 7px;
+
+}
+
+.logout {
+
+    color: #666d7e;
+
+    text-decoration: none;
+
+}
+
+
+/* =====================================================
+MAIN
+===================================================== */
+
+.main {
+
+    margin-left: 250px;
+
+    min-height: 100vh;
+
+    padding: 25px 35px;
+
+}
+
+.topbar {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+.top-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+.page-title small {
+
+    color: #626979;
+
+    font-size: 9px;
+
+    letter-spacing: 1px;
+
+}
+
+.page-title h1 {
+
+    margin-top: 4px;
+
+    font-size: 22px;
+
+}
+
+.mobile-menu {
+
+    display: none;
+
+    width: 35px;
+    height: 35px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    background: var(--card);
+
+    color: white;
+
+}
+
+
+/* =====================================================
+ADD BUTTON
+===================================================== */
+
+.add-student {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 10px 14px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #566fff,
+            #824cff
+        );
+
+    color: white;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+}
+
+
+/* =====================================================
+CONTENT
+===================================================== */
+
+.content {
+
+    max-width: 1350px;
+
+    margin: 23px auto;
+
+}
+
+
+/* =====================================================
+SUMMARY
+===================================================== */
+
+.summary {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+
+    margin-bottom: 15px;
+
+}
+
+.summary-card {
+
+    padding: 16px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 11px;
+
+    background: var(--card);
+
+}
+
+.summary-card span {
+
+    color: #646c7d;
+
+    font-size: 8px;
+
+}
+
+.summary-card strong {
+
+    display: block;
+
+    margin-top: 8px;
+
+    font-size: 22px;
+
+}
+
+.summary-card small {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: #555d6e;
+
+    font-size: 7px;
+
+}
+
+.green {
+
+    color: var(--green);
+
+}
+
+.red {
+
+    color: var(--red);
+
+}
+
+
+/* =====================================================
+FILTER
+===================================================== */
+
+.filter-panel {
+
+    padding: 18px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background: var(--card);
+
+}
+
+.filter-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+
+}
+
+.filter-title h2 {
+
+    font-size: 12px;
+
+}
+
+.filter-title p {
+
+    margin-top: 4px;
+
+    color: #606878;
+
+    font-size: 8px;
+
+}
+
+.clear-btn {
+
+    border: none;
+
+    background: transparent;
+
+    color: #687cff;
+
+    cursor: pointer;
+
+    font-size: 8px;
+
+}
+
+.filter-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        190px 1fr 150px;
+
+    gap: 10px;
+
+}
+
+.filter-box input,
+.filter-box select {
+
+    width: 100%;
+
+    height: 40px;
+
+    padding: 0 11px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: rgba(255,255,255,.025);
+
+    color: #e8ebf3;
+
+    font-size: 9px;
+
+}
+
+.filter-box input::placeholder {
+
+    color: #505766;
+
+}
+
+.filter-box input:focus,
+.filter-box select:focus {
+
+    border-color:
+        rgba(104,124,255,.55);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(104,124,255,.05);
+
+}
+
+.filter-box select option {
+
+    background: #11141c;
+
+    color: white;
+
+}
+
+
+/* =====================================================
+EXTRA FILTER
+===================================================== */
+
+.extra-filter {
+
+    display: none;
+
+    margin-top: 10px;
+
+}
+
+.extra-filter.show {
+
+    display: block;
+
+}
+
+.extra-filter input,
+.extra-filter select {
+
+    width: 100%;
+
+    height: 40px;
+
+    padding: 0 11px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: rgba(255,255,255,.025);
+
+    color: white;
+
+    font-size: 9px;
+
+}
+
+.extra-filter select option {
+
+    background: #11141c;
+
+}
+
+
+/* =====================================================
+RESULTS
+===================================================== */
+
+.results-panel {
+
+    margin-top: 15px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background: var(--card);
+
+    overflow: hidden;
+
+}
+
+.results-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 16px 18px;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+.results-header h2 {
+
+    font-size: 12px;
+
+}
+
+.results-count {
+
+    color: #626979;
+
+    font-size: 8px;
+
+}
+
+.table-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+table {
+
+    width: 100%;
+
+    min-width: 950px;
+
+    border-collapse: collapse;
+
+}
+
+th {
+
+    padding: 11px 15px;
+
+    text-align: left;
+
+    color: #505868;
+
+    font-size: 7px;
+
+    font-weight: 600;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+td {
+
+    padding: 13px 15px;
+
+    color: #9ea5b4;
+
+    font-size: 8px;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.04);
+
+}
+
+tbody tr {
+
+    cursor: pointer;
+
+    transition: .15s;
+
+}
+
+tbody tr:hover {
+
+    background:
+        rgba(104,124,255,.035);
+
+}
+
+.student-name {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+}
+
+.student-avatar {
+
+    width: 29px;
+    height: 29px;
+
+    display: grid;
+
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background:
+        rgba(104,124,255,.1);
+
+    color: #7c8bff;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+}
+
+.student-name strong {
+
+    display: block;
+
+    color: #d0d4de;
+
+    font-size: 8px;
+
+}
+
+.student-name small {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #505868;
+
+    font-size: 6px;
+
+}
+
+.status {
+
+    display: inline-flex;
+
+    padding: 4px 7px;
+
+    border-radius: 20px;
+
+    font-size: 6px;
+
+}
+
+.status.active {
+
+    color: var(--green);
+
+    background: rgba(78,211,154,.08);
+
+}
+
+.status.deactive {
+
+    color: var(--red);
+
+    background: rgba(255,104,120,.08);
+
+}
+
+.documents {
+
+    color: #7182ff;
+
+}
+
+
+/* =====================================================
+EDIT BUTTON
+===================================================== */
+
+.edit-btn {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    padding: 7px 11px;
+
+    border:
+        1px solid
+        rgba(104,124,255,.25);
+
+    border-radius: 7px;
+
+    background:
+        rgba(104,124,255,.07);
+
+    color: #7c8bff;
+
+    font-size: 7px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition: .2s;
+
+}
+
+.edit-btn:hover {
+
+    background:
+        rgba(104,124,255,.15);
+
+    border-color:
+        rgba(104,124,255,.45);
+
+    color: white;
+
+}
+
+
+/* =====================================================
+LOADING
+===================================================== */
+
+.loading {
+
+    display: none;
+
+    padding: 35px;
+
+    text-align: center;
+
+    color: #606878;
+
+    font-size: 9px;
+
+}
+
+.loading.show {
+
+    display: block;
+
+}
+
+
+/* =====================================================
+EMPTY
+===================================================== */
+
+.empty {
+
+    padding: 45px 20px;
+
+    text-align: center;
+
+    color: #555d6e;
+
+}
+
+.empty strong {
+
+    display: block;
+
+    color: #747c8d;
+
+    font-size: 10px;
+
+}
+
+.empty p {
+
+    margin-top: 5px;
+
+    font-size: 8px;
+
+}
+
+
+/* =====================================================
+PAGINATION
+===================================================== */
+
+.pagination {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 14px 18px;
+
+    border-top: 1px solid var(--border);
+
+}
+
+.page-info {
+
+    color: #555d6e;
+
+    font-size: 7px;
+
+}
+
+.show-more-btn {
+
+    padding: 9px 18px;
+
+    border:
+        1px solid
+        rgba(104,124,255,.25);
+
+    border-radius: 8px;
+
+    background:
+        rgba(104,124,255,.07);
+
+    color: #7c8bff;
+
+    cursor: pointer;
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+    transition: .2s;
+
+}
+
+.show-more-btn:hover {
+
+    background:
+        rgba(104,124,255,.13);
+
+    border-color:
+        rgba(104,124,255,.45);
+
+    color: white;
+
+}
+
+.show-more-btn:disabled {
+
+    opacity: .35;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =====================================================
+MOBILE
+===================================================== */
+
+@media(max-width:850px) {
+
+    .sidebar {
+
+        transform:
+            translateX(-100%);
+
+    }
+
+    .sidebar.open {
+
+        transform:
+            translateX(0);
+
+    }
+
+    .main {
+
+        margin-left: 0;
+
+        padding: 18px;
+
+    }
+
+    .mobile-menu {
+
+        display: grid;
+
+        place-items: center;
+
+    }
+
+    .summary {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+    .filter-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+@media(max-width:550px) {
+
+    .main {
+
+        padding: 14px;
+
+    }
+
+    .summary {
+
+        gap: 8px;
+
+    }
+
+    .summary-card {
+
+        padding: 13px;
+
+    }
+
+    .summary-card strong {
+
+        font-size: 19px;
+
+    }
+
+    .add-student span {
+
+        display: none;
+
+    }
+
+    .filter-panel {
+
+        padding: 14px;
+
+    }
+
+    .pagination {
+
+        gap: 10px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="glow glow-one"></div>
+
+<div class="glow glow-two"></div>
+
+
+<!-- =====================================================
+SIDEBAR
+===================================================== -->
+
+<aside
+    class="sidebar"
+    id="sidebar"
+>
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            ◆
+        </div>
+
+        <div class="brand-text">
+
+            <strong>IKVM</strong>
+
+            <span>
+                ADMIN PORTAL
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-label">
+        MAIN MENU
+    </div>
+
+
+    <a
+        href="/admin/dashboard"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            ⌂
+        </div>
+
+        Dashboard
+
+    </a>
+
+
+    <a
+        href="/admin/students"
+        class="nav-item active"
+    >
+
+        <div class="nav-icon">
+            ◉
+        </div>
+
+        Students
+
+    </a>
+
+
+    <a
+        href="/admin/faculty"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            ◇
+        </div>
+
+        Faculty
+
+    </a>
+
+
+    <div class="nav-label">
+        MANAGEMENT
+    </div>
+
+
+    <a
+        href="/admin/attendance"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            ✓
+        </div>
+
+        Attendance
+
+    </a>
+
+
+    <a
+        href="/admin/results"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            %
+        </div>
+
+        Results
+
+    </a>
+
+
+    <a
+        href="/admin/library"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            ▣
+        </div>
+
+        Library
+
+    </a>
+
+
+    <a
+        href="/admin/notices"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            !
+        </div>
+
+        Notices
+
+    </a>
+
+
+    <div class="nav-label">
+        SYSTEM
+    </div>
+
+
+    <a
+        href="/admin/reports"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            ◫
+        </div>
+
+        Reports
+
+    </a>
+
+
+    <a
+        href="/admin/settings"
+        class="nav-item"
+    >
+
+        <div class="nav-icon">
+            ⚙
+        </div>
+
+        Settings
+
+    </a>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="user-mini">
+
+            <div class="avatar">
+
+                <%= user.name.charAt(0).toUpperCase() %>
+
+            </div>
+
+
+            <div class="user-info">
+
+                <strong>
+                    <%= user.name %>
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+
+            <a
+                href="/logout"
+                class="logout"
+            >
+
+                ↪
+
+            </a>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+MAIN
+===================================================== -->
+
+<main class="main">
+
+
+    <div class="topbar">
+
+
+        <div class="top-left">
+
+            <button
+                class="mobile-menu"
+                id="menuBtn"
+            >
+                ☰
+            </button>
+
+
+            <div class="page-title">
+
+                <small>
+                    STUDENT MANAGEMENT
+                </small>
+
+                <h1>
+                    Students
+                </h1>
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="/admin/students/add"
+            class="add-student"
+        >
+
+            +
+
+            <span>
+                Add Student
+            </span>
+
+        </a>
+
+
+    </div>
+
+
+    <div class="content">
+
+
+        <!-- SUMMARY -->
+
+        <section class="summary">
+
+
+            <div class="summary-card">
+
+                <span>
+                    TOTAL STUDENTS
+                </span>
+
+                <strong id="totalCount">
+
+                    <%= totalStudents || 0 %>
+
+                </strong>
+
+                <small>
+                    All registered students
+                </small>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>
+                    ACTIVE
+                </span>
+
+                <strong
+                    class="green"
+                    id="activeCount"
+                >
+
+                    <%= activeStudents || 0 %>
+
+                </strong>
+
+                <small>
+                    Currently enrolled
+                </small>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>
+                    DEACTIVE
+                </span>
+
+                <strong
+                    class="red"
+                    id="deactiveCount"
+                >
+
+                    <%= deactiveStudents || 0 %>
+
+                </strong>
+
+                <small>
+                    Former / inactive
+                </small>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>
+                    SHOWING
+                </span>
+
+                <strong id="showingCount">
+                    0
+                </strong>
+
+                <small>
+                    Matching records
+                </small>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- FILTER -->
+
+        <section class="filter-panel">
+
+
+            <div class="filter-header">
+
+                <div class="filter-title">
+
+                    <h2>
+                        Find Student
+                    </h2>
+
+                    <p>
+                        Search students by any available field
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="clear-btn"
+                    id="clearBtn"
+                >
+
+                    Clear Filters
+
+                </button>
+
+            </div>
+
+
+            <div class="filter-grid">
+
+
+                <div class="filter-box">
+
+                    <select id="filterField">
+
+                        <option value="name">
+                            Student Name
+                        </option>
+
+                        <option value="aadhaar">
+                            Aadhaar No.
+                        </option>
+
+                        <option value="fatherName">
+                            Father Name
+                        </option>
+
+                        <option value="motherName">
+                            Mother Name
+                        </option>
+
+                        <option value="mobile">
+                            Mobile No.
+                        </option>
+
+                        <option value="uid">
+                            UID
+                        </option>
+
+                        <option value="serialNo">
+                            Sr. No.
+                        </option>
+
+                        <option value="class">
+                            Class
+                        </option>
+
+                        <option value="document">
+                            Submitted Document
+                        </option>
+
+                        <option value="schoolJoinSession">
+                            Join Session
+                        </option>
+
+                        <option value="status">
+                            Status
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    class="filter-box"
+                    id="normalSearchBox"
+                >
+
+                    <input
+                        type="text"
+                        id="filterValue"
+                        placeholder="Search student name..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <div class="filter-box">
+
+                    <select id="quickFilter">
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="deactive">
+                            Deactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="extra-filter"
+                id="extraFilter"
+            >
+
+                <select
+                    id="classFilter"
+                    style="display:none;"
+                >
+
+                    <option value="">
+                        Select Class
+                    </option>
+
+                    <% for(let i = 1; i <= 12; i++) { %>
+
+                        <option value="<%= i %>">
+                            Class <%= i %>
+                        </option>
+
+                    <% } %>
+
+                </select>
+
+
+                <input
+                    type="text"
+                    id="documentFilter"
+                    style="display:none;"
+                    placeholder="Enter document name e.g. TC or Photo"
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+        </section>
+
+
+        <!-- RESULTS -->
+
+        <section class="results-panel">
+
+
+            <div class="results-header">
+
+                <h2>
+                    Student Records
+                </h2>
+
+
+                <span
+                    class="results-count"
+                    id="resultText"
+                >
+
+                    Loading...
+
+                </span>
+
+            </div>
+
+
+            <div
+                class="loading"
+                id="loading"
+            >
+
+                Searching students...
+
+            </div>
+
+
+            <div
+                class="table-wrapper"
+                id="tableContainer"
+            >
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                STUDENT
+                            </th>
+
+                            <th>
+                                CLASS
+                            </th>
+
+                            <th>
+                                JOIN SESSION
+                            </th>
+
+                            <th>
+                                MOBILE
+                            </th>
+
+                            <th>
+                                FATHER
+                            </th>
+
+                            <th>
+                                DOCUMENTS
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                            <th>
+                                ACTION
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="studentBody"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div
+                class="empty"
+                id="emptyState"
+                style="display:none;"
+            >
+
+                <strong>
+                    No students found
+                </strong>
+
+                <p>
+                    Try changing your search or filters.
+                </p>
+
+            </div>
+
+
+            <div class="pagination">
+
+                <div
+                    class="page-info"
+                    id="pageInfo"
+                >
+
+                    Showing 0 students
+
+                </div>
+
+
+                <button
+                    class="show-more-btn"
+                    id="showMoreBtn"
+                >
+
+                    Show More
+
+                </button>
+
+            </div>
+
+
+        </section>
+
+
+    </div>
+
+
+</main>
+
+
+<script>
+
+
+/* =====================================================
+ELEMENTS
+===================================================== */
+
+const field =
+    document.getElementById(
+        "filterField"
+    );
+
+const value =
+    document.getElementById(
+        "filterValue"
+    );
+
+const quickFilter =
+    document.getElementById(
+        "quickFilter"
+    );
+
+const classFilter =
+    document.getElementById(
+        "classFilter"
+    );
+
+const documentFilter =
+    document.getElementById(
+        "documentFilter"
+    );
+
+const extraFilter =
+    document.getElementById(
+        "extraFilter"
+    );
+
+const studentBody =
+    document.getElementById(
+        "studentBody"
+    );
+
+const loading =
+    document.getElementById(
+        "loading"
+    );
+
+const emptyState =
+    document.getElementById(
+        "emptyState"
+    );
+
+const tableContainer =
+    document.getElementById(
+        "tableContainer"
+    );
+
+const resultText =
+    document.getElementById(
+        "resultText"
+    );
+
+const showingCount =
+    document.getElementById(
+        "showingCount"
+    );
+
+const pageInfo =
+    document.getElementById(
+        "pageInfo"
+    );
+
+const showMoreBtn =
+    document.getElementById(
+        "showMoreBtn"
+    );
+
+const clearBtn =
+    document.getElementById(
+        "clearBtn"
+    );
+
+
+/* =====================================================
+STATE
+===================================================== */
+
+let currentPage = 1;
+
+let totalPages = 1;
+
+let totalMatching = 0;
+
+let loadedStudents = 0;
+
+let searchTimer = null;
+
+
+/* =====================================================
+FIELD CHANGE
+===================================================== */
+
+field.addEventListener(
+    "change",
+    () => {
+
+        const selected =
+            field.value;
+
+        extraFilter.classList.remove(
+            "show"
+        );
+
+        classFilter.style.display =
+            "none";
+
+        documentFilter.style.display =
+            "none";
+
+        value.style.display =
+            "block";
+
+
+        if (selected === "class") {
+
+            extraFilter.classList.add(
+                "show"
+            );
+
+            classFilter.style.display =
+                "block";
+
+            value.style.display =
+                "none";
+
+        }
+
+
+        else if (
+            selected === "document"
+        ) {
+
+            extraFilter.classList.add(
+                "show"
+            );
+
+            documentFilter.style.display =
+                "block";
+
+            value.style.display =
+                "none";
+
+        }
+
+
+        else if (
+            selected === "status"
+        ) {
+
+            value.style.display =
+                "none";
+
+        }
+
+
+        else {
+
+            value.placeholder =
+                "Search " +
+                field.options[
+                    field.selectedIndex
+                ].text.toLowerCase() +
+                "...";
+
+        }
+
+
+        resetAndSearch();
+
+    }
+);
+
+
+/* =====================================================
+NORMAL SEARCH
+===================================================== */
+
+value.addEventListener(
+    "input",
+    () => {
+
+        clearTimeout(
+            searchTimer
+        );
+
+        searchTimer =
+            setTimeout(
+                () => {
+
+                    resetAndSearch();
+
+                },
+                200
+            );
+
+    }
+);
+
+
+/* =====================================================
+CLASS
+===================================================== */
+
+classFilter.addEventListener(
+    "change",
+    () => {
+
+        resetAndSearch();
+
+    }
+);
+
+
+/* =====================================================
+DOCUMENT
+===================================================== */
+
+documentFilter.addEventListener(
+    "input",
+    () => {
+
+        clearTimeout(
+            searchTimer
+        );
+
+        searchTimer =
+            setTimeout(
+                () => {
+
+                    resetAndSearch();
+
+                },
+                200
+            );
+
+    }
+);
+
+
+/* =====================================================
+STATUS
+===================================================== */
+
+quickFilter.addEventListener(
+    "change",
+    () => {
+
+        resetAndSearch();
+
+    }
+);
+
+
+/* =====================================================
+RESET SEARCH
+===================================================== */
+
+function resetAndSearch() {
+
+    currentPage = 1;
+
+    loadedStudents = 0;
+
+    totalMatching = 0;
+
+    studentBody.innerHTML = "";
+
+    loadStudents(false);
+
+}
+
+
+/* =====================================================
+LOAD STUDENTS
+===================================================== */
+
+async function loadStudents(
+    loadMore = false
+) {
+
+    loading.classList.add(
+        "show"
+    );
+
+
+    if (!loadMore) {
+
+        tableContainer.style.display =
+            "none";
+
+        emptyState.style.display =
+            "none";
+
+    }
+
+
+    const params =
+        new URLSearchParams();
+
+
+    params.set(
+        "field",
+        field.value
+    );
+
+    params.set(
+        "page",
+        currentPage
+    );
+
+    params.set(
+        "limit",
+        "50"
+    );
+
+
+    if (
+        field.value === "class"
+    ) {
+
+        if (classFilter.value) {
+
+            params.set(
+                "value",
+                classFilter.value
+            );
+
+        }
+
+    }
+
+
+    else if (
+        field.value === "document"
+    ) {
+
+        if (
+            documentFilter.value.trim()
+        ) {
+
+            params.set(
+                "value",
+                documentFilter.value.trim()
+            );
+
+        }
+
+    }
+
+
+    else if (
+        field.value === "status"
+    ) {
+
+        if (
+            quickFilter.value
+        ) {
+
+            params.set(
+                "value",
+                quickFilter.value
+            );
+
+        }
+
+    }
+
+
+    else {
+
+        if (
+            value.value.trim()
+        ) {
+
+            params.set(
+                "value",
+                value.value.trim()
+            );
+
+        }
+
+    }
+
+
+    if (
+        quickFilter.value &&
+        field.value !== "status"
+    ) {
+
+        params.set(
+            "status",
+            quickFilter.value
+        );
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/students?" +
+                params.toString()
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Request failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load"
+            );
+
+        }
+
+
+        totalMatching =
+            data.total;
+
+        totalPages =
+            data.totalPages;
+
+
+        data.students.forEach(
+            student => {
+
+                addStudentRow(
+                    student
+                );
+
+            }
+        );
+
+
+        loadedStudents +=
+            data.students.length;
+
+
+        showingCount.textContent =
+            loadedStudents;
+
+
+        resultText.textContent =
+            `${totalMatching} matching student${
+                totalMatching === 1
+                    ? ""
+                    : "s"
+            }`;
+
+
+        pageInfo.textContent =
+            `Showing ${
+                loadedStudents
+            } of ${
+                totalMatching
+            }`;
+
+
+        if (
+            totalMatching === 0
+        ) {
+
+            tableContainer.style.display =
+                "none";
+
+            emptyState.style.display =
+                "block";
+
+        }
+
+        else {
+
+            tableContainer.style.display =
+                "block";
+
+            emptyState.style.display =
+                "none";
+
+        }
+
+
+        if (
+            currentPage < totalPages
+        ) {
+
+            showMoreBtn.style.display =
+                "block";
+
+        }
+
+        else {
+
+            showMoreBtn.style.display =
+                "none";
+
+        }
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Student loading error:",
+            error
+        );
+
+
+        resultText.textContent =
+            "Unable to load students";
+
+
+        studentBody.innerHTML = "";
+
+
+        tableContainer.style.display =
+            "none";
+
+
+        emptyState.style.display =
+            "block";
+
+
+        emptyState.innerHTML = `
+
+            <strong>
+                Unable to load students
+            </strong>
+
+            <p>
+                Please refresh the page and try again.
+            </p>
+
+        `;
+
+    }
+
+
+    loading.classList.remove(
+        "show"
+    );
+
+}
+
+
+/* =====================================================
+ADD STUDENT ROW
+===================================================== */
+
+function addStudentRow(
+    student
+) {
+
+    const row =
+        document.createElement(
+            "tr"
+        );
+
+
+    /* ----------------------------------------------
+       ROW CLICK
+    ---------------------------------------------- */
+
+    row.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                `/admin/students/details/${student._id}`;
+
+        }
+    );
+
+
+    /* ----------------------------------------------
+       INITIALS
+    ---------------------------------------------- */
+
+    const initials =
+        student.name
+            .split(" ")
+            .slice(0, 2)
+            .map(
+                name =>
+                    name.charAt(0)
+            )
+            .join("")
+            .toUpperCase();
+
+
+    /* ----------------------------------------------
+       DOCUMENT COUNT
+    ---------------------------------------------- */
+
+    const documentCount =
+        Array.isArray(
+            student.submittedDocuments
+        )
+            ? student.submittedDocuments.length
+            : 0;
+
+
+    /* ----------------------------------------------
+       ROW HTML
+    ---------------------------------------------- */
+
+    row.innerHTML = `
+
+        <td>
+
+            <div class="student-name">
+
+                <div class="student-avatar">
+
+                    ${escapeHTML(
+                        initials
+                    )}
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+
+                        ${escapeHTML(
+                            student.name
+                        )}
+
+                    </strong>
+
+
+                    <small>
+
+                        UID:
+                        ${escapeHTML(
+                            student.uid ||
+                            "—"
+                        )}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </td>
+
+
+        <td>
+
+            Class
+            ${escapeHTML(
+                student.class
+            )}
+
+        </td>
+
+
+        <td>
+
+            ${escapeHTML(
+                student.schoolJoinSession ||
+                "—"
+            )}
+
+        </td>
+
+
+        <td>
+
+            ${escapeHTML(
+                student.mobile ||
+                "—"
+            )}
+
+        </td>
+
+
+        <td>
+
+            ${escapeHTML(
+                student.fatherName ||
+                "—"
+            )}
+
+        </td>
+
+
+        <td>
+
+            <span class="documents">
+
+                ${documentCount}
+
+                ${
+                    documentCount === 1
+                        ? "document"
+                        : "documents"
+                }
+
+            </span>
+
+        </td>
+
+
+        <td>
+
+            <span
+                class="
+                    status
+                    ${
+                        student.status ===
+                        "active"
+                            ? "active"
+                            : "deactive"
+                    }
+                "
+            >
+
+                ●
+
+                ${
+                    student.status ===
+                    "active"
+                        ? "Active"
+                        : "Deactive"
+                }
+
+            </span>
+
+        </td>
+
+
+        <td>
+
+            <a
+                href="/admin/students/update/${student._id}"
+                class="edit-btn"
+                onclick="event.stopPropagation();"
+            >
+
+                ✎ Edit
+
+            </a>
+
+        </td>
+
+    `;
+
+
+    studentBody.appendChild(
+        row
+    );
+
+}
+
+
+/* =====================================================
+SHOW MORE
+===================================================== */
+
+showMoreBtn.addEventListener(
+    "click",
+    () => {
+
+        if (
+            currentPage <
+            totalPages
+        ) {
+
+            currentPage++;
+
+            loadStudents(true);
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+CLEAR FILTERS
+===================================================== */
+
+clearBtn.addEventListener(
+    "click",
+    () => {
+
+        field.value =
+            "name";
+
+        value.value =
+            "";
+
+        quickFilter.value =
+            "";
+
+        classFilter.value =
+            "";
+
+        documentFilter.value =
+            "";
+
+        value.style.display =
+            "block";
+
+        extraFilter.classList.remove(
+            "show"
+        );
+
+        classFilter.style.display =
+            "none";
+
+        documentFilter.style.display =
+            "none";
+
+        value.placeholder =
+            "Search student name...";
+
+        resetAndSearch();
+
+    }
+);
+
+
+/* =====================================================
+ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+MOBILE MENU
+===================================================== */
+
+const menuBtn =
+    document.getElementById(
+        "menuBtn"
+    );
+
+const sidebar =
+    document.getElementById(
+        "sidebar"
+    );
+
+
+if (menuBtn) {
+
+    menuBtn.addEventListener(
+        "click",
+        () => {
+
+            sidebar.classList.toggle(
+                "open"
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+FIRST LOAD
+===================================================== */
+
+loadStudents(false);
+
+</script>
+
+
+</body>
+
+</html>
