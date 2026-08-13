@@ -305,6 +305,182 @@
             background: rgba(255,104,120,.08);
         }
 
+        /* ACADEMIC HISTORY */
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-title .section-icon {
+            flex-shrink: 0;
+        }
+
+        .history-add {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 8px;
+            color: white;
+            background: linear-gradient(135deg,#566fff,#824cff);
+            font-size: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .history-add:hover {
+            filter: brightness(1.08);
+        }
+
+        .history-list {
+            padding: 12px 18px 18px;
+        }
+
+        .history-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 13px 14px;
+            margin-top: 8px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: rgba(255,255,255,.018);
+        }
+
+        .history-cell .label {
+            margin-bottom: 5px;
+        }
+
+        .history-cell .value {
+            font-size: 9px;
+        }
+
+        .history-current {
+            color: var(--green);
+        }
+
+        .history-completed {
+            color: #9ba4ff;
+        }
+
+        .history-graduated {
+            color: #ffc56b;
+        }
+
+        .history-empty {
+            padding: 25px 18px;
+            color: #555d6e;
+            font-size: 8px;
+            text-align: center;
+        }
+
+        .history-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,.72);
+            backdrop-filter: blur(6px);
+        }
+
+        .history-modal.show {
+            display: flex;
+        }
+
+        .history-modal-card {
+            width: min(460px, 100%);
+            padding: 22px;
+            border: 1px solid rgba(255,255,255,.09);
+            border-radius: 14px;
+            background: #0d1017;
+            box-shadow: 0 25px 80px rgba(0,0,0,.45);
+        }
+
+        .history-modal-card h3 {
+            font-size: 15px;
+            color: white;
+        }
+
+        .history-modal-card > p {
+            margin-top: 6px;
+            margin-bottom: 18px;
+            color: #626979;
+            font-size: 8px;
+            line-height: 1.6;
+        }
+
+        .history-form-group {
+            margin-bottom: 13px;
+        }
+
+        .history-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #70788a;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        .history-form-group input,
+        .history-form-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 8px;
+            outline: none;
+            color: #dfe3ec;
+            background: #090c12;
+            font-family: inherit;
+            font-size: 9px;
+        }
+
+        .history-form-group input:focus,
+        .history-form-group select:focus {
+            border-color: rgba(104,124,255,.6);
+        }
+
+        .history-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .history-modal-actions button {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #a0a7b6;
+            background: rgba(255,255,255,.025);
+            font-family: inherit;
+            font-size: 8px;
+            cursor: pointer;
+        }
+
+        .history-modal-actions .save-history {
+            border: 0;
+            color: white;
+            background: linear-gradient(135deg,#566fff,#824cff);
+        }
+
         /* SECTION */
 
         .section {
@@ -490,6 +666,10 @@
                 border-right: none;
             }
 
+            .history-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
         }
 
         @media(max-width:550px) {
@@ -515,9 +695,27 @@
                 grid-template-columns: 1fr;
             }
 
+            .history-row {
+                grid-template-columns: 1fr;
+            }
+
+            .history-header {
+                align-items: flex-start;
+            }
+
         }
 
-    </style>
+    
+        .empty {
+            padding: 18px;
+            border: 1px dashed rgba(255,255,255,.08);
+            border-radius: 10px;
+            color: #626979;
+            font-size: 9px;
+            text-align: center;
+        }
+
+</style>
 
 </head>
 
@@ -826,6 +1024,270 @@
         </section>
 
 
+        <!-- ACADEMIC HISTORY -->
+
+        <section class="section">
+
+            <div class="history-header">
+
+                <div class="history-title">
+
+                    <div class="section-icon">
+                        ◫
+                    </div>
+
+                    <div>
+
+                        <h2>Academic History</h2>
+
+                        <p>
+                            Previous academic sessions and class records
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="history-add"
+                    onclick="openHistoryModal()"
+                >
+                    + Add
+                </button>
+
+            </div>
+
+
+            <% if (academicHistory && academicHistory.length) { %>
+
+                <div class="history-list">
+
+                    <% academicHistory.forEach(function(record) { %>
+
+                        <div class="history-row">
+
+                            <div class="history-cell">
+
+                                <div class="label">
+                                    Session
+                                </div>
+
+                                <div class="value">
+                                    <%= record.session %>
+                                </div>
+
+                            </div>
+
+
+                            <div class="history-cell">
+
+                                <div class="label">
+                                    Class
+                                </div>
+
+                                <div class="value">
+                                    Class <%= record.class %>
+                                </div>
+
+                            </div>
+
+
+                            <div class="history-cell">
+
+                                <div class="label">
+                                    Status
+                                </div>
+
+                                <div class="value
+                                    <%= record.statusAtEnd === 'graduated'
+                                        ? 'history-graduated'
+                                        : (record.session === student.academicSession
+                                            ? 'history-current'
+                                            : 'history-completed') %>"
+                                >
+
+                                    <%= record.session === student.academicSession
+                                        ? "Current"
+                                        : (record.statusAtEnd || "Completed") %>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="history-cell">
+
+                                <div class="label">
+                                    Recorded
+                                </div>
+
+                                <div class="value">
+
+                                    <%= record.recordedAt
+                                        ? new Date(
+                                            record.recordedAt
+                                        ).toLocaleDateString("en-IN")
+                                        : "—" %>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    <% }); %>
+
+                </div>
+
+            <% } else { %>
+
+                <div class="history-empty">
+                    No academic history recorded yet.
+                </div>
+
+            <% } %>
+
+        </section>
+
+
+        <!-- ADD ACADEMIC HISTORY MODAL -->
+
+        <div
+            id="historyModal"
+            class="history-modal"
+            aria-hidden="true"
+        >
+
+            <div
+                class="history-modal-card"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="historyModalTitle"
+            >
+
+                <h3 id="historyModalTitle">
+                    Add Academic History
+                </h3>
+
+                <p>
+                    Add a missing historical session for this student.
+                    This will not change the student's current class or
+                    current academic session.
+                </p>
+
+
+                <form
+                    method="POST"
+                    action="/admin/students/details/<%= student._id %>/history/add"
+                >
+
+                    <div class="history-form-group">
+
+                        <label for="historySession">
+                            Academic Session
+                        </label>
+
+                        <input
+                            id="historySession"
+                            type="text"
+                            name="session"
+                            placeholder="2024-25"
+                            pattern="\d{4}-\d{2}"
+                            maxlength="7"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="history-form-group">
+
+                        <label for="historyClass">
+                            Class
+                        </label>
+
+                        <select
+                            id="historyClass"
+                            name="class"
+                            required
+                        >
+
+                            <option value="">
+                                Select Class
+                            </option>
+
+                            <% for (let i = 1; i <= 12; i++) { %>
+
+                                <option value="<%= i %>">
+                                    Class <%= i %>
+                                </option>
+
+                            <% } %>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="history-form-group">
+
+                        <label for="historyStatus">
+                            Status
+                        </label>
+
+                        <select
+                            id="historyStatus"
+                            name="statusAtEnd"
+                            required
+                        >
+
+                            <option value="completed">
+                                Completed
+                            </option>
+
+                            <option value="active">
+                                Active
+                            </option>
+
+                            <option value="deactive">
+                                Deactive
+                            </option>
+
+                            <option value="graduated">
+                                Graduated
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="history-modal-actions">
+
+                        <button
+                            type="button"
+                            onclick="closeHistoryModal()"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="save-history"
+                        >
+                            Save History
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
         <!-- PERSONAL INFORMATION -->
 
         <section class="section">
@@ -876,6 +1338,19 @@
 
                     <div class="value">
                         Class <%= student.class %>
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <div class="label">
+                        Academic Session
+                    </div>
+
+                    <div class="value">
+                        <%= student.academicSession || (academicState ? academicState.sourceSession : "—") %>
                     </div>
 
                 </div>
@@ -1284,6 +1759,98 @@
 
 
 </main>
+
+
+<script>
+
+    function openHistoryModal() {
+
+        const modal =
+            document.getElementById(
+                "historyModal"
+            );
+
+        if (!modal) return;
+
+        modal.classList.add("show");
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        const sessionInput =
+            document.getElementById(
+                "historySession"
+            );
+
+        if (sessionInput) {
+            sessionInput.focus();
+        }
+
+    }
+
+
+    function closeHistoryModal() {
+
+        const modal =
+            document.getElementById(
+                "historyModal"
+            );
+
+        if (!modal) return;
+
+        modal.classList.remove("show");
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeHistoryModal();
+
+            }
+
+        }
+    );
+
+
+    const historyModal =
+        document.getElementById(
+            "historyModal"
+        );
+
+
+    if (historyModal) {
+
+        historyModal.addEventListener(
+            "click",
+            function(event) {
+
+                if (
+                    event.target ===
+                    historyModal
+                ) {
+
+                    closeHistoryModal();
+
+                }
+
+            }
+        );
+
+    }
+
+</script>
 
 
 </body>

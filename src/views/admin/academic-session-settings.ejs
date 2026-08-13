@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKVM | Academic Session</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0} body{font-family:Inter,sans-serif;background:#07090d;color:#f5f7ff;min-height:100vh} a{text-decoration:none;color:inherit}
+        .layout{min-height:100vh}.sidebar{width:250px;position:fixed;inset:0 auto 0 0;padding:24px 16px;background:#090b11;border-right:1px solid rgba(255,255,255,.07);z-index:20}.brand{display:flex;gap:11px;align-items:center;padding:0 10px;margin-bottom:38px}.brand-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,#6078ff,#914cff);font-size:13px;font-weight:800}.brand-text strong{display:block;font-size:15px}.brand-text span{font-size:8px;color:#606777;letter-spacing:1px}.nav-label{padding:0 11px;margin:22px 0 10px;color:#4e5666;font-size:9px;letter-spacing:1.5px;font-weight:700}.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:4px;border-radius:9px;color:#737a8b;font-size:11px}.nav-item:hover,.nav-item.active{color:#e1e4ed;background:rgba(255,255,255,.04)}.nav-icon{width:27px;height:27px;display:grid;place-items:center;border-radius:7px;font-size:11px}.nav-item.active .nav-icon{background:rgba(100,120,255,.12)}.sidebar-bottom{position:absolute;left:16px;right:16px;bottom:20px}.user-mini{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.025)}.avatar{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#566fff,#8b4cff);font-size:10px;font-weight:700}.user-info{min-width:0;flex:1}.user-info strong{display:block;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-info span{color:#626979;font-size:7px}.logout{color:#666d7e;font-size:12px}.main{margin-left:250px;min-height:100vh;padding:30px 38px}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.07)}.label{font-size:9px;color:#626979;letter-spacing:1px}.topbar h1{font-size:22px;margin-top:5px}.back{padding:9px 13px;border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#858c9d;font-size:9px}.container{max-width:900px;margin:28px auto}.card{padding:24px;border:1px solid rgba(255,255,255,.07);border-radius:14px;background:rgba(255,255,255,.025);margin-bottom:16px}.card h2{font-size:14px}.card p{margin-top:5px;color:#6e7687;font-size:9px;line-height:1.7}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}.group label{display:block;color:#858c9c;font-size:8px;font-weight:600;margin-bottom:7px}.group input{width:100%;height:43px;padding:0 12px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025);color:white;outline:none;font:inherit;font-size:9px}.group input:focus{border-color:rgba(104,124,255,.55)}.readonly{opacity:.65}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.stat{padding:14px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.02)}.stat span{display:block;color:#626979;font-size:8px}.stat strong{display:block;margin-top:5px;font-size:13px}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.btn{padding:11px 17px;border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:9px;color:#838b9b;background:rgba(255,255,255,.025)}.btn.primary{border:0;color:white;background:linear-gradient(135deg,#566fff,#824cff);font-weight:700}.notice{padding:13px 15px;border-radius:9px;background:rgba(78,211,154,.06);border:1px solid rgba(78,211,154,.12);color:#82dcb6;font-size:9px;margin-top:15px}.warning{padding:13px 15px;border-radius:9px;background:rgba(245,181,66,.06);border:1px solid rgba(245,181,66,.14);color:#e5b75d;font-size:9px;margin-top:15px}@media(max-width:850px){.sidebar{transform:translateX(-100%)}.main{margin-left:0;padding:20px}.grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr}.topbar{gap:15px;align-items:flex-start}.back{white-space:nowrap}}
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand"><div class="brand-icon">◆</div><div class="brand-text"><strong>IKVM</strong><span>ADMIN PORTAL</span></div></div>
+        <div class="nav-label">MAIN MENU</div>
+        <a href="/admin/dashboard" class="nav-item"><div class="nav-icon">⌂</div>Dashboard</a>
+        <a href="/admin/students" class="nav-item"><div class="nav-icon">◉</div>Students</a>
+        <div class="nav-label">SYSTEM</div>
+        <a href="/admin/academic-session/settings" class="nav-item active"><div class="nav-icon">◷</div>Academic Session</a>
+        <a href="/admin/academic-session/promotion" class="nav-item"><div class="nav-icon">↑</div>Promotion</a>
+        <div class="sidebar-bottom"><div class="user-mini"><div class="avatar"><%= user.name.charAt(0).toUpperCase() %></div><div class="user-info"><strong><%= user.name %></strong><span>Administrator</span></div><a href="/logout" class="logout">↪</a></div></div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar"><div><div class="label">SYSTEM SETTINGS</div><h1>Academic Session</h1></div><a href="/admin/dashboard" class="back">← Dashboard</a></div>
+
+        <div class="container">
+            <div class="card">
+                <h2>Academic Session Configuration</h2>
+                <p>Set the academic cycle and the date on which the next session becomes available for student promotion.</p>
+
+                <% if (academicState.promotionPending) { %>
+                    <div class="warning">Student promotion is currently in progress. Complete the pending classes before changing the current session.</div>
+                <% } %>
+
+                <form method="POST" action="/admin/academic-session/settings">
+                    <div class="grid">
+                        <div class="group">
+                            <label>Current Session</label>
+                            <input class="<%= academicState.promotionPending ? 'readonly' : '' %>" type="text" name="currentSession" value="<%= academicState.config.currentSession %>" pattern="\d{4}-\d{2}" required <%= academicState.promotionPending ? 'readonly' : '' %>>
+                        </div>
+                        <div class="group">
+                            <label>Next Session</label>
+                            <input class="readonly" type="text" value="<%= academicState.config.nextSession %>" readonly>
+                        </div>
+                        <div class="group">
+                            <label>Session Start Date</label>
+                            <input type="date" name="sessionStartDate" value="<%= sessionStartDate %>" required>
+                        </div>
+                        <div class="group">
+                            <label>Session Displayed After Start Date</label>
+                            <input class="readonly" type="text" value="<%= academicState.config.nextSession %>" readonly>
+                        </div>
+                    </div>
+
+                    <div class="summary">
+                        <div class="stat"><span>Current System Session</span><strong><%= academicState.sourceSession %></strong></div>
+                        <div class="stat"><span>Upcoming Session</span><strong><%= academicState.targetSession %></strong></div>
+                        <div class="stat"><span>Promotion Status</span><strong><%= academicState.promotionPending ? 'Pending' : 'Ready' %></strong></div>
+                    </div>
+
+                    <div class="actions">
+                        <a href="/admin/dashboard" class="btn">Cancel</a>
+                        <button class="btn primary" type="submit" <%= academicState.promotionPending ? 'disabled' : '' %>>Save Session Settings</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Promotion Workflow</h2>
+                <p>The session start date only makes the promotion workflow available. Student records are changed only after an administrator reviews and confirms each class.</p>
+                <div class="actions"><a href="/admin/academic-session/promotion" class="btn primary">Open Promotion Centre →</a></div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

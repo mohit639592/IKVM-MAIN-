@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKVM | Student Promotion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#07090d;color:#f5f7ff;min-height:100vh}a{text-decoration:none;color:inherit}.layout{min-height:100vh}.sidebar{width:250px;position:fixed;inset:0 auto 0 0;padding:24px 16px;background:#090b11;border-right:1px solid rgba(255,255,255,.07);z-index:20}.brand{display:flex;gap:11px;align-items:center;padding:0 10px;margin-bottom:38px}.brand-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,#6078ff,#914cff);font-size:13px;font-weight:800}.brand-text strong{display:block;font-size:15px}.brand-text span{font-size:8px;color:#606777;letter-spacing:1px}.nav-label{padding:0 11px;margin:22px 0 10px;color:#4e5666;font-size:9px;letter-spacing:1.5px;font-weight:700}.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:4px;border-radius:9px;color:#737a8b;font-size:11px}.nav-item:hover,.nav-item.active{color:#e1e4ed;background:rgba(255,255,255,.04)}.nav-icon{width:27px;height:27px;display:grid;place-items:center;border-radius:7px;font-size:11px}.sidebar-bottom{position:absolute;left:16px;right:16px;bottom:20px}.user-mini{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.025)}.avatar{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#566fff,#8b4cff);font-size:10px;font-weight:700}.user-info{min-width:0;flex:1}.user-info strong{display:block;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-info span{color:#626979;font-size:7px}.logout{color:#666d7e;font-size:12px}.main{margin-left:250px;padding:30px 38px;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.07)}.label{font-size:9px;color:#626979;letter-spacing:1px}.topbar h1{font-size:22px;margin-top:5px}.back{padding:9px 13px;border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#858c9d;font-size:9px}.container{max-width:1100px;margin:25px auto}.hero{padding:22px;border:1px solid rgba(255,255,255,.07);border-radius:14px;background:rgba(255,255,255,.025);margin-bottom:15px}.hero-row{display:flex;justify-content:space-between;gap:20px;align-items:center}.hero h2{font-size:15px}.hero p{margin-top:6px;color:#6f7787;font-size:9px;line-height:1.7}.progress-wrap{margin-top:18px}.progress-meta{display:flex;justify-content:space-between;color:#737b8b;font-size:8px}.progress{height:5px;margin-top:8px;background:rgba(255,255,255,.06);border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:linear-gradient(90deg,#687cff,#914cff);border-radius:inherit}.classes{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:16px}.class-chip{padding:11px 8px;border:1px solid rgba(255,255,255,.07);border-radius:9px;text-align:center;color:#777f90;font-size:8px}.class-chip.done{border-color:rgba(78,211,154,.18);background:rgba(78,211,154,.05);color:#78d9ad}.class-chip.active{border-color:rgba(104,124,255,.30);background:rgba(104,124,255,.08);color:#aeb8ff}.panel{padding:22px;border:1px solid rgba(255,255,255,.07);border-radius:14px;background:rgba(255,255,255,.025)}.toolbar{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:18px}.group label{display:block;color:#858c9c;font-size:8px;font-weight:600;margin-bottom:7px}.select{height:40px;min-width:220px;padding:0 11px;background:#11141c;color:white;border:1px solid rgba(255,255,255,.08);border-radius:8px;font:inherit;font-size:9px}.summary{color:#737b8b;font-size:8px}.table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.06);border-radius:10px}.table{width:100%;border-collapse:collapse;min-width:650px}.table th{padding:11px;text-align:left;color:#5e6676;font-size:8px;font-weight:600;background:rgba(255,255,255,.02)}.table td{padding:12px 11px;border-top:1px solid rgba(255,255,255,.05);color:#c9ced9;font-size:9px}.muted{color:#656d7e!important}.empty{padding:30px;text-align:center;color:#666f80;font-size:9px}.actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.btn{padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025);color:#838b9b;font:inherit;font-size:9px;cursor:pointer}.btn.primary{border:0;color:white;background:linear-gradient(135deg,#566fff,#824cff);font-weight:700}.btn.danger{border-color:rgba(255,104,120,.16);background:rgba(255,104,120,.04);color:#ff8490}.info{padding:13px 15px;border:1px solid rgba(104,124,255,.14);background:rgba(104,124,255,.05);border-radius:9px;color:#8f9cff;font-size:9px;line-height:1.6}.warning{padding:13px 15px;border:1px solid rgba(245,181,66,.14);background:rgba(245,181,66,.05);border-radius:9px;color:#e4b75f;font-size:9px;line-height:1.6}.confirm-box{margin-top:20px;padding:16px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.018)}.confirm-box p{color:#777f90;font-size:8px;line-height:1.6}.confirm-input{height:38px;width:100%;margin-top:10px;padding:0 10px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:#0e1117;color:white;outline:none;font:inherit;font-size:9px}@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0;padding:20px}.classes{grid-template-columns:repeat(3,1fr)}.hero-row,.toolbar{align-items:stretch;flex-direction:column}.select{width:100%}}
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand"><div class="brand-icon">◆</div><div class="brand-text"><strong>IKVM</strong><span>ADMIN PORTAL</span></div></div>
+        <div class="nav-label">MAIN MENU</div>
+        <a href="/admin/dashboard" class="nav-item"><div class="nav-icon">⌂</div>Dashboard</a>
+        <a href="/admin/students" class="nav-item"><div class="nav-icon">◉</div>Students</a>
+        <div class="nav-label">SYSTEM</div>
+        <a href="/admin/academic-session/settings" class="nav-item"><div class="nav-icon">◷</div>Academic Session</a>
+        <a href="/admin/academic-session/promotion" class="nav-item active"><div class="nav-icon">↑</div>Promotion</a>
+        <div class="sidebar-bottom"><div class="user-mini"><div class="avatar"><%= user.name.charAt(0).toUpperCase() %></div><div class="user-info"><strong><%= user.name %></strong><span>Administrator</span></div><a href="/logout" class="logout">↪</a></div></div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar"><div><div class="label">ACADEMIC MANAGEMENT</div><h1>Student Promotion</h1></div><a href="/admin/dashboard" class="back">← Dashboard</a></div>
+
+        <div class="container">
+            <% if (!academicState.promotionOpen) { %>
+                <div class="hero"><div class="hero-row"><div><h2>Promotion Centre</h2><p>The promotion workflow will become available on <strong><%= new Intl.DateTimeFormat('en-IN',{dateStyle:'long'}).format(new Date(academicState.config.sessionStartDate)) %></strong>.</p></div></div><div class="warning">The academic session start date has not been reached yet. Student records are unchanged.</div></div>
+            <% } else { %>
+                <div class="hero">
+                    <div class="hero-row"><div><h2>Academic Session <%= academicState.targetSession %></h2><p>Review each class and complete promotion one class at a time.</p></div><div class="summary"><%= academicState.completedClasses.length %> of 12 classes completed</div></div>
+                    <div class="progress-wrap"><div class="progress-meta"><span>Promotion progress</span><span><%= Math.round((academicState.completedClasses.length / 12) * 100) %>%</span></div><div class="progress"><span style="width:<%= Math.round((academicState.completedClasses.length / 12) * 100) %>%"></span></div></div>
+                    <div class="classes">
+                        <% for(let i=1;i<=12;i++){ %>
+                            <a class="class-chip <%= academicState.completedClasses.includes(i) ? 'done' : (selectedClass===i ? 'active' : '') %>" href="/admin/academic-session/promotion?class=<%= i %>">Class <%= i %><br><small><%= academicState.completedClasses.includes(i) ? 'Completed' : (i===12 ? 'Graduation' : 'Pending') %></small></a>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="toolbar">
+                        <div class="group"><label>Select Class</label><select class="select" id="classSelect"><% for(let i=1;i<=12;i++){ %><option value="<%= i %>" <%= selectedClass===i?'selected':'' %>>Class <%= i %><%= i===12?' — Graduation':'' %></option><% } %></select></div><div class="summary"><strong><%= students.length %></strong> eligible active students</div>
+                    </div>
+
+                    <% if (academicState.completedClasses.includes(selectedClass)) { %>
+                        <div class="info">Class <%= selectedClass %> has already been processed for <%= academicState.targetSession %>.</div>
+                    <% } else { %>
+                        <div class="table-wrap">
+                            <% if (students.length) { %>
+                                <table class="table"><thead><tr><th>#</th><th>Student</th><th>Current Class</th><th>Sr. No.</th><th>UID</th></tr></thead><tbody><% students.forEach(function(student,index){ %><tr><td class="muted"><%= index+1 %></td><td><%= student.name %></td><td>Class <%= student.class %></td><td><%= student.serialNo || '—' %></td><td><%= student.uid || '—' %></td></tr><% }); %></tbody></table>
+                            <% } else { %>
+                                <div class="empty">No active students are currently enrolled in Class <%= selectedClass %>.</div>
+                            <% } %>
+                        </div>
+
+                        <div class="confirm-box">
+                            <p><strong>Review carefully before continuing.</strong> This action will create the previous-session academic record and update the selected class. Class 12 students will be recorded as graduated and will not be moved to Class 13.</p>
+                            <form method="POST" action="/admin/academic-session/promotion" onsubmit="return confirmPromotion()">
+                                <input type="hidden" name="classNumber" value="<%= selectedClass %>">
+                                <input class="confirm-input" name="confirmation" placeholder="Type PROMOTE to confirm" autocomplete="off" required>
+                                <div class="actions"><button type="submit" class="btn primary"><%= selectedClass===12 ? 'Complete Class 12' : `Promote Class ${selectedClass}` %> →</button></div>
+                            </form>
+                        </div>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </main>
+</div>
+<script>
+    document.getElementById("classSelect")?.addEventListener("change", function () {
+        window.location.href = "/admin/academic-session/promotion?class=" + encodeURIComponent(this.value);
+    });
+
+    function confirmPromotion() {
+        return window.confirm("Please confirm that you reviewed the student list and want to continue with this class.");
+    }
+</script>
+</body>
+</html>

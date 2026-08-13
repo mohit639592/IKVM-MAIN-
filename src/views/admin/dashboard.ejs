@@ -274,6 +274,15 @@
             padding:
                 24px 16px;
 
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            overflow:
+                hidden;
+
             background:
                 rgba(9,11,17,.95);
 
@@ -521,22 +530,75 @@
 
 
         /* =========================================
+           SIDEBAR NAV SCROLLER
+        ========================================= */
+
+        .sidebar-nav {
+
+            flex:
+                1;
+
+            min-height:
+                0;
+
+            overflow-y:
+                auto;
+
+            overflow-x:
+                hidden;
+
+            padding-right:
+                2px;
+
+            scrollbar-width:
+                thin;
+
+            scrollbar-color:
+                rgba(255,255,255,.12) transparent;
+
+        }
+
+
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+
+
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.12);
+            border-radius: 10px;
+        }
+
+
+        /* =========================================
            SIDEBAR USER
         ========================================= */
 
         .sidebar-bottom {
 
             position:
-                absolute;
+                relative;
 
             left:
-                16px;
+                auto;
 
             right:
-                16px;
+                auto;
 
             bottom:
-                20px;
+                auto;
+
+            flex-shrink:
+                0;
+
+            margin:
+                12px 0 0;
+
+            padding-top:
+                10px;
+
+            border-top:
+                1px solid var(--border);
 
         }
 
@@ -2048,6 +2110,82 @@
 
         }
 
+    
+        /* ACADEMIC SESSION */
+        .academic-banner {
+            display: none;
+            margin: 20px 0 18px;
+            padding: 18px 20px;
+            border: 1px solid rgba(245, 181, 66, .20);
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(245,181,66,.08), rgba(255,255,255,.025));
+            box-shadow: 0 16px 40px rgba(0,0,0,.16);
+        }
+
+        .academic-banner.show { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+        .academic-banner-left { display:flex; align-items:center; gap:13px; min-width:0; }
+        .academic-banner-icon {
+            width:42px; height:42px; border-radius:11px; display:grid; place-items:center;
+            background:rgba(245,181,66,.10); color:#f2bd5d; font-size:18px; flex-shrink:0;
+        }
+        .academic-banner h3 { font-size:13px; margin:0 0 4px; color:#f6f7fb; }
+        .academic-banner p { margin:0; color:#858d9d; font-size:9px; line-height:1.6; }
+        .academic-banner strong { color:#dce1ee; }
+        .academic-banner-btn {
+            flex-shrink:0; padding:10px 14px; border-radius:9px; text-decoration:none;
+            background:linear-gradient(135deg,#687cff,#914cff); color:white; font-size:9px; font-weight:700;
+            box-shadow:0 8px 24px rgba(80,80,255,.20);
+        }
+        .academic-progress { margin-top:7px; height:4px; width:220px; max-width:100%; border-radius:20px; background:rgba(255,255,255,.06); overflow:hidden; }
+        .academic-progress span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#687cff,#914cff); }
+
+        .notification-button {
+            position: relative;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 4px;
+            display: grid;
+            place-items: center;
+            border-radius: 20px;
+            background: #ff5d72;
+            color: #fff;
+            font-size: 8px;
+            font-weight: 800;
+            border: 2px solid var(--bg);
+        }
+
+        .session-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            padding: 4px 8px;
+            border: 1px solid rgba(104,124,255,.18);
+            border-radius: 20px;
+            background: rgba(104,124,255,.07);
+            color: #8b98ff;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        .session-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px rgba(78,211,154,.55);
+        }
+        @media(max-width:650px) {
+            .academic-banner.show { align-items:flex-start; flex-direction:column; }
+            .academic-banner-btn { width:100%; text-align:center; }
+        }
+
     </style>
 
 </head>
@@ -2099,6 +2237,9 @@
             </div>
 
         </div>
+
+
+        <div class="sidebar-nav">
 
 
         <div class="nav-label">
@@ -2233,6 +2374,22 @@
 
 
         <a
+            href="/admin/academic-session/settings"
+            class="nav-item"
+        >
+
+            <div class="nav-icon">
+                ◷
+            </div>
+
+            <span>
+                Academic Session
+            </span>
+
+        </a>
+
+
+        <a
             href="/admin/reports"
             class="nav-item"
         >
@@ -2262,6 +2419,9 @@
             </span>
 
         </a>
+
+
+        </div>
 
 
         <!-- SIDEBAR USER -->
@@ -2328,6 +2488,44 @@
 
         <!-- TOPBAR -->
 
+        <% if (academicState && academicState.promotionPending) { %>
+
+        <section class="academic-banner show" id="academicBanner">
+
+            <div class="academic-banner-left">
+
+                <div class="academic-banner-icon">🎓</div>
+
+                <div>
+
+                    <h3>
+                        New Academic Session — <%= academicState.targetSession %>
+                    </h3>
+
+                    <p>
+                        The new academic session is ready. Student promotion requires admin review before records are moved.
+                        <strong><%= academicState.pendingClasses.length %> classes pending.</strong>
+                    </p>
+
+                    <div class="academic-progress">
+                        <span style="width:<%= Math.round((academicState.completedClasses.length / 12) * 100) %>%"></span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <a
+                href="/admin/academic-session/promotion"
+                class="academic-banner-btn"
+            >
+                Review &amp; Promote →
+            </a>
+
+        </section>
+
+        <% } %>
+
         <div class="topbar">
 
 
@@ -2345,7 +2543,7 @@
                 <div class="page-title">
 
                     <small>
-                        ADMINISTRATION
+                        ADMINISTRATION • SESSION <%= academicState ? academicState.sourceSession : "" %>
                     </small>
 
                     <h1>
@@ -2377,10 +2575,17 @@
 
 
                 <button
-                    class="icon-button"
-                    title="Notifications"
+                    type="button"
+                    class="icon-button notification-button"
+                    id="notificationBtn"
+                    title="Academic session notifications"
                 >
                     🔔
+                    <% if (academicState && academicState.promotionPending) { %>
+                        <span class="notification-count">
+                            <%= academicState.pendingClasses.length %>
+                        </span>
+                    <% } %>
                 </button>
 
 
@@ -3238,6 +3443,24 @@
     }
 
 
+
+    /* ACADEMIC SESSION NOTIFICATION */
+    const notificationBtn =
+        document.getElementById("notificationBtn");
+
+    if (notificationBtn) {
+
+        notificationBtn.addEventListener("click", function () {
+
+            <% if (academicState && academicState.promotionPending) { %>
+                window.location.href = "/admin/academic-session/promotion";
+            <% } else { %>
+                window.location.href = "/admin/academic-session/settings";
+            <% } %>
+
+        });
+
+    }
 </script>
 
 

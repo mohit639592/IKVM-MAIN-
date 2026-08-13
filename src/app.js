@@ -162,12 +162,27 @@ app.set(
 // ROUTES
 // =====================================================
 
+// Main application routes
 const userRoute =
     require("./router/user.route");
 
+
+// Academic Session routes
+const academicSessionRoute =
+    require("./router/academicSession.route");
+
+
+// Mount main routes
 app.use(
     "/",
     userRoute
+);
+
+
+// Mount academic session routes
+app.use(
+    "/",
+    academicSessionRoute
 );
 
 

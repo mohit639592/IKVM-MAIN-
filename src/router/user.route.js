@@ -4,6 +4,13 @@ const mongoose = require("mongoose");
 
 const User = require("../models/user");
 const Student = require("../models/student");
+const StudentAcademicHistory =
+    require("../models/studentAcademicHistory");
+
+const {
+    getSessionState,
+    getOrCreateSession
+} = require("../services/academicSession.service");
 
 const app = express.Router();
 
@@ -623,6 +630,8 @@ app.get(
             ]);
 
 
+            const academicState = await getSessionState();
+
             res.render(
                 "admin/dashboard",
                 {
@@ -638,7 +647,9 @@ app.get(
 
                     activeUsers,
 
-                    recentStudents
+                    recentStudents,
+
+                    academicState
 
                 }
             );
@@ -737,17 +748,22 @@ app.get(
 app.get(
     "/admin/students/add",
     requireAdmin,
-    (req, res) => {
+    async (req, res) => {
 
-        res.render(
-            "admin/add-student",
-            {
+        try {
+            const academicState = await getSessionState();
 
-                user:
-                    req.session.user
-
-            }
-        );
+            res.render(
+                "admin/add-student",
+                {
+                    user: req.session.user,
+                    academicState
+                }
+            );
+        } catch (error) {
+            console.error("Add Student Page Error:", error);
+            return res.status(500).send("Unable to load add student page.");
+        }
 
     }
 );
@@ -769,6 +785,8 @@ app.post(
                 name,
 
                 class: studentClass,
+
+                academicSession,
 
                 schoolJoinSession,
 
@@ -820,6 +838,19 @@ app.post(
 
             }
 
+
+            // ------------------------------------------
+            // ACADEMIC SESSION
+            // ------------------------------------------
+
+            const sessionConfig = await getOrCreateSession();
+            const selectedAcademicSession = String(
+                academicSession || sessionConfig.currentSession
+            ).trim();
+
+            if (!/^\d{4}-\d{2}$/.test(selectedAcademicSession)) {
+                return res.status(400).send("Invalid academic session.");
+            }
 
             // ------------------------------------------
             // CLASS VALIDATION
@@ -978,6 +1009,9 @@ app.post(
 
                 class:
                     classNumber,
+
+                academicSession:
+                    selectedAcademicSession,
 
                 schoolJoinSession:
                     String(
@@ -1397,6 +1431,190 @@ app.get(
 );
 
 
+// =====================================================
+// ADD STUDENT ACADEMIC HISTORY
+// =====================================================
+
+app.post(
+    "/admin/students/details/:id/history/add",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const studentId =
+                req.params.id;
+
+            const {
+                session,
+                class: classValue,
+                statusAtEnd
+            } = req.body;
+
+
+            // ==========================================
+            // VALIDATE SESSION
+            // ==========================================
+
+            if (
+                !session ||
+                !/^\d{4}-\d{2}$/.test(
+                    session.trim()
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .send(
+                        "Invalid academic session. Use YYYY-YY format."
+                    );
+
+            }
+
+
+            // ==========================================
+            // VALIDATE CLASS
+            // ==========================================
+
+            const studentClass =
+                Number(classValue);
+
+
+            if (
+                !Number.isInteger(
+                    studentClass
+                ) ||
+                studentClass < 1 ||
+                studentClass > 12
+            ) {
+
+                return res
+                    .status(400)
+                    .send(
+                        "Invalid class."
+                    );
+
+            }
+
+
+            // ==========================================
+            // CHECK STUDENT
+            // ==========================================
+
+            const student =
+                await Student.findById(
+                    studentId
+                );
+
+
+            if (!student) {
+
+                return res
+                    .status(404)
+                    .send(
+                        "Student not found."
+                    );
+
+            }
+
+
+            // ==========================================
+            // CHECK DUPLICATE HISTORY
+            // ==========================================
+
+            const existing =
+                await StudentAcademicHistory.findOne({
+
+                    studentId:
+                        student._id,
+
+                    session:
+                        session.trim()
+
+                });
+
+
+            if (existing) {
+
+                return res
+                    .status(400)
+                    .send(
+                        `Academic history for ${session} already exists for this student.`
+                    );
+
+            }
+
+
+            // ==========================================
+            // SAVE HISTORY
+            // ==========================================
+
+            await StudentAcademicHistory.create({
+
+                studentId:
+                    student._id,
+
+                session:
+                    session.trim(),
+
+                class:
+                    studentClass,
+
+                statusAtEnd:
+                    statusAtEnd ||
+                    "completed",
+
+                recordedAt:
+                    new Date()
+
+            });
+
+
+            // ==========================================
+            // RETURN TO STUDENT DETAILS
+            // ==========================================
+
+            return res.redirect(
+                `/admin/students/details/${student._id}`
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "ADD STUDENT HISTORY ERROR:",
+                error
+            );
+
+
+            // ==========================================
+            // DUPLICATE KEY PROTECTION
+            // ==========================================
+
+            if (
+                error.code === 11000
+            ) {
+
+                return res
+                    .status(400)
+                    .send(
+                        "Academic history for this session already exists."
+                    );
+
+            }
+
+
+            return res
+                .status(500)
+                .send(
+                    "Unable to add academic history."
+                );
+
+        }
+
+    }
+);
+
 // ======================================================
 // ESCAPE REGEX
 // ======================================================
@@ -1460,6 +1678,14 @@ app.get(
             }
 
 
+            const academicHistory = await StudentAcademicHistory.find({
+                studentId: student._id
+            })
+                .sort({ session: -1, class: 1 })
+                .lean();
+
+            const academicState = await getSessionState();
+
             res.render(
                 "admin/student-details",
                 {
@@ -1467,7 +1693,11 @@ app.get(
                     user:
                         req.session.user,
 
-                    student
+                    student,
+
+                    academicHistory,
+
+                    academicState
 
                 }
             );
@@ -1540,6 +1770,8 @@ app.get(
             }
 
 
+            const academicState = await getSessionState();
+
             res.render(
                 "admin/student-update",
                 {
@@ -1547,7 +1779,9 @@ app.get(
                     user:
                         req.session.user,
 
-                    student
+                    student,
+
+                    academicState
 
                 }
             );
@@ -1609,6 +1843,8 @@ app.post(
 
                 studentClass,
 
+                academicSession,
+
                 aadhaar,
 
                 mobile,
@@ -1653,6 +1889,18 @@ app.post(
 
             }
 
+
+            // ------------------------------------------
+            // ACADEMIC SESSION
+            // ------------------------------------------
+
+            const selectedAcademicSession = String(
+                academicSession || ""
+            ).trim();
+
+            if (!/^\d{4}-\d{2}$/.test(selectedAcademicSession)) {
+                return res.status(400).send("Invalid academic session.");
+            }
 
             // ------------------------------------------
             // CLASS
@@ -1882,6 +2130,9 @@ app.post(
 
                         class:
                             classNumber,
+
+                        academicSession:
+                            selectedAcademicSession,
 
                         aadhaar:
                             String(

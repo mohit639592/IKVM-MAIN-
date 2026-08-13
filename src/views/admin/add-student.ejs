@@ -1355,6 +1355,32 @@
                         <div class="form-group">
 
                             <label>
+                                Academic Session
+                                <span class="required">*</span>
+                            </label>
+
+                            <select
+                                name="academicSession"
+                                required>
+
+                                <option value="<%= academicState.sourceSession %>"
+                                    <%= academicState.displaySession === academicState.sourceSession ? "selected" : "" %>>
+                                    <%= academicState.sourceSession %>
+                                </option>
+
+                                <% if (academicState.targetSession !== academicState.sourceSession) { %>
+                                    <option value="<%= academicState.targetSession %>"
+                                        <%= academicState.displaySession === academicState.targetSession ? "selected" : "" %>>
+                                        <%= academicState.targetSession %>
+                                    </option>
+                                <% } %>
+
+                            </select>
+
+                        </div>
+                        <div class="form-group">
+
+                            <label>
                                 Serial / Sr. No.
                                 <span class="optional">
                                     Optional

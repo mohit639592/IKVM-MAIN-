@@ -17,7 +17,6 @@ const customFieldSchema = new mongoose.Schema(
     }
 );
 
-
 const studentSchema = new mongoose.Schema(
     {
         name: {
@@ -33,6 +32,15 @@ const studentSchema = new mongoose.Schema(
             max: 12
         },
 
+        // Current academic session for this student's active record.
+        // Existing students automatically use 2026-27 unless updated.
+        academicSession: {
+            type: String,
+            trim: true,
+            default: "2026-27",
+            match: /^\d{4}-\d{2}$/
+        },
+
         schoolJoinSession: {
             type: String,
             required: true,
@@ -43,6 +51,12 @@ const studentSchema = new mongoose.Schema(
             type: String,
             enum: ["active", "deactive"],
             default: "active"
+        },
+
+        graduationSession: {
+            type: String,
+            trim: true,
+            default: ""
         },
 
         serialNo: {
@@ -103,11 +117,14 @@ const studentSchema = new mongoose.Schema(
             default: []
         }
     },
-
     {
         timestamps: true
     }
 );
 
+studentSchema.index({ academicSession: 1, class: 1, status: 1 });
+studentSchema.index({ name: 1 });
+studentSchema.index({ uid: 1 });
+studentSchema.index({ serialNo: 1 });
 
 module.exports = mongoose.model("Student", studentSchema);

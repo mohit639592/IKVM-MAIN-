@@ -1477,86 +1477,40 @@
                     </div>
 
 
-                    <!-- JOIN SESSION -->
+                    <!-- ACADEMIC SESSION -->
 
                     <div class="form-group">
 
                         <label>
-                            School Join Session
+                            Academic Session
                             <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            name="schoolJoinSession"
-                            value="<%= student.schoolJoinSession || '' %>"
-                            placeholder="Example: 2025-26"
+                        <select
+                            name="academicSession"
                             required
                         >
 
-                    </div>
+                            <option value="<%= student.academicSession || academicState.sourceSession %>">
+                                <%= student.academicSession || academicState.sourceSession %>
+                            </option>
 
+                            <% if (academicState.sourceSession !== (student.academicSession || academicState.sourceSession)) { %>
+                                <option value="<%= academicState.sourceSession %>">
+                                    <%= academicState.sourceSession %>
+                                </option>
+                            <% } %>
 
-                    <!-- SERIAL -->
+                            <% if (academicState.targetSession !== (student.academicSession || academicState.sourceSession)) { %>
+                                <option value="<%= academicState.targetSession %>">
+                                    <%= academicState.targetSession %>
+                                </option>
+                            <% } %>
 
-                    <div class="form-group">
-
-                        <label>
-                            Serial / Sr. No.
-                        </label>
-
-                        <input
-                            type="text"
-                            name="serialNo"
-                            value="<%= student.serialNo || '' %>"
-                            placeholder="Enter serial number"
-                        >
-
-                    </div>
-
-
-                    <!-- UID -->
-
-                    <div class="form-group">
-
-                        <label>
-                            UID
-                        </label>
-
-                        <input
-                            type="text"
-                            name="uid"
-                            value="<%= student.uid || '' %>"
-                            placeholder="Enter UID"
-                        >
+                        </select>
 
                     </div>
-
-
-                    <!-- AADHAAR -->
-
-                    <div class="form-group">
-
-                        <label>
-                            Aadhaar Number
-                        </label>
-
-                        <input
-                            type="text"
-                            name="aadhaar"
-                            value="<%= student.aadhaar || '' %>"
-                            placeholder="Enter Aadhaar number"
-                            inputmode="numeric"
-                        >
-
-                        <div class="hint">
-                            Optional
-                        </div>
-
-                    </div>
-
-
-                    <!-- MOBILE -->
+<!-- MOBILE -->
 
                     <div class="form-group">
 
