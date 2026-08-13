@@ -1882,85 +1882,54 @@ MAIN
 
 <script>
 
-
 /* =====================================================
 ELEMENTS
 ===================================================== */
 
 const field =
-    document.getElementById(
-        "filterField"
-    );
+    document.getElementById("filterField");
 
 const value =
-    document.getElementById(
-        "filterValue"
-    );
+    document.getElementById("filterValue");
 
 const quickFilter =
-    document.getElementById(
-        "quickFilter"
-    );
+    document.getElementById("quickFilter");
 
 const classFilter =
-    document.getElementById(
-        "classFilter"
-    );
+    document.getElementById("classFilter");
 
 const documentFilter =
-    document.getElementById(
-        "documentFilter"
-    );
+    document.getElementById("documentFilter");
 
 const extraFilter =
-    document.getElementById(
-        "extraFilter"
-    );
+    document.getElementById("extraFilter");
 
 const studentBody =
-    document.getElementById(
-        "studentBody"
-    );
+    document.getElementById("studentBody");
 
 const loading =
-    document.getElementById(
-        "loading"
-    );
+    document.getElementById("loading");
 
 const emptyState =
-    document.getElementById(
-        "emptyState"
-    );
+    document.getElementById("emptyState");
 
 const tableContainer =
-    document.getElementById(
-        "tableContainer"
-    );
+    document.getElementById("tableContainer");
 
 const resultText =
-    document.getElementById(
-        "resultText"
-    );
+    document.getElementById("resultText");
 
 const showingCount =
-    document.getElementById(
-        "showingCount"
-    );
+    document.getElementById("showingCount");
 
 const pageInfo =
-    document.getElementById(
-        "pageInfo"
-    );
+    document.getElementById("pageInfo");
 
 const showMoreBtn =
-    document.getElementById(
-        "showMoreBtn"
-    );
+    document.getElementById("showMoreBtn");
 
 const clearBtn =
-    document.getElementById(
-        "clearBtn"
-    );
+    document.getElementById("clearBtn");
 
 
 /* =====================================================
@@ -1976,6 +1945,9 @@ let totalMatching = 0;
 let loadedStudents = 0;
 
 let searchTimer = null;
+
+// Prevent old search requests from updating the table
+let searchRequestId = 0;
 
 
 /* =====================================================
@@ -2017,7 +1989,6 @@ field.addEventListener(
 
         }
 
-
         else if (
             selected === "document"
         ) {
@@ -2034,7 +2005,6 @@ field.addEventListener(
 
         }
 
-
         else if (
             selected === "status"
         ) {
@@ -2043,7 +2013,6 @@ field.addEventListener(
                 "none";
 
         }
-
 
         else {
 
@@ -2155,9 +2124,16 @@ function resetAndSearch() {
 
     totalMatching = 0;
 
+    // Every new search gets a new ID.
+    // Older requests become invalid.
+    searchRequestId++;
+
     studentBody.innerHTML = "";
 
-    loadStudents(false);
+    loadStudents(
+        false,
+        searchRequestId
+    );
 
 }
 
@@ -2167,7 +2143,8 @@ LOAD STUDENTS
 ===================================================== */
 
 async function loadStudents(
-    loadMore = false
+    loadMore = false,
+    requestId = searchRequestId
 ) {
 
     loading.classList.add(
@@ -2206,6 +2183,10 @@ async function loadStudents(
     );
 
 
+    /* =================================================
+    CLASS FILTER
+    ================================================= */
+
     if (
         field.value === "class"
     ) {
@@ -2221,6 +2202,10 @@ async function loadStudents(
 
     }
 
+
+    /* =================================================
+    DOCUMENT FILTER
+    ================================================= */
 
     else if (
         field.value === "document"
@@ -2240,6 +2225,10 @@ async function loadStudents(
     }
 
 
+    /* =================================================
+    STATUS FILTER
+    ================================================= */
+
     else if (
         field.value === "status"
     ) {
@@ -2258,6 +2247,10 @@ async function loadStudents(
     }
 
 
+    /* =================================================
+    NORMAL TEXT FILTER
+    ================================================= */
+
     else {
 
         if (
@@ -2273,6 +2266,10 @@ async function loadStudents(
 
     }
 
+
+    /* =================================================
+    QUICK STATUS FILTER
+    ================================================= */
 
     if (
         quickFilter.value &&
@@ -2309,6 +2306,22 @@ async function loadStudents(
             await response.json();
 
 
+        /* =================================================
+        IMPORTANT FIX
+
+        If this response belongs to an old search,
+        completely ignore it.
+        ================================================= */
+
+        if (
+            requestId !== searchRequestId
+        ) {
+
+            return;
+
+        }
+
+
         if (!data.success) {
 
             throw new Error(
@@ -2325,6 +2338,10 @@ async function loadStudents(
         totalPages =
             data.totalPages;
 
+
+        /* =================================================
+        ADD STUDENTS
+        ================================================= */
 
         data.students.forEach(
             student => {
@@ -2361,6 +2378,10 @@ async function loadStudents(
             }`;
 
 
+        /* =================================================
+        EMPTY RESULT
+        ================================================= */
+
         if (
             totalMatching === 0
         ) {
@@ -2384,6 +2405,10 @@ async function loadStudents(
         }
 
 
+        /* =================================================
+        SHOW MORE
+        ================================================= */
+
         if (
             currentPage < totalPages
         ) {
@@ -2404,6 +2429,19 @@ async function loadStudents(
     }
 
     catch (error) {
+
+        /*
+         * Don't show an error for an old request.
+         */
+
+        if (
+            requestId !== searchRequestId
+        ) {
+
+            return;
+
+        }
+
 
         console.error(
             "Student loading error:",
@@ -2441,9 +2479,20 @@ async function loadStudents(
     }
 
 
-    loading.classList.remove(
-        "show"
-    );
+    /*
+     * Only hide loading if this is
+     * still the current request.
+     */
+
+    if (
+        requestId === searchRequestId
+    ) {
+
+        loading.classList.remove(
+            "show"
+        );
+
+    }
 
 }
 
@@ -2462,9 +2511,9 @@ function addStudentRow(
         );
 
 
-    /* ----------------------------------------------
-       ROW CLICK
-    ---------------------------------------------- */
+    /* =================================================
+    ROW CLICK
+    ================================================= */
 
     row.addEventListener(
         "click",
@@ -2477,9 +2526,9 @@ function addStudentRow(
     );
 
 
-    /* ----------------------------------------------
-       INITIALS
-    ---------------------------------------------- */
+    /* =================================================
+    INITIALS
+    ================================================= */
 
     const initials =
         student.name
@@ -2493,9 +2542,9 @@ function addStudentRow(
             .toUpperCase();
 
 
-    /* ----------------------------------------------
-       DOCUMENT COUNT
-    ---------------------------------------------- */
+    /* =================================================
+    DOCUMENT COUNT
+    ================================================= */
 
     const documentCount =
         Array.isArray(
@@ -2505,9 +2554,9 @@ function addStudentRow(
             : 0;
 
 
-    /* ----------------------------------------------
-       ROW HTML
-    ---------------------------------------------- */
+    /* =================================================
+    ROW HTML
+    ================================================= */
 
     row.innerHTML = `
 
@@ -2676,7 +2725,10 @@ showMoreBtn.addEventListener(
 
             currentPage++;
 
-            loadStudents(true);
+            loadStudents(
+                true,
+                searchRequestId
+            );
 
         }
 
@@ -2802,7 +2854,10 @@ if (menuBtn) {
 FIRST LOAD
 ===================================================== */
 
-loadStudents(false);
+loadStudents(
+    false,
+    searchRequestId
+);
 
 </script>
 
