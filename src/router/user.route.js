@@ -1811,6 +1811,10 @@ app.get(
 // UPDATE STUDENT
 // ======================================================
 
+// ======================================================
+// UPDATE STUDENT
+// ======================================================
+
 app.post(
     "/admin/students/update/:id",
     requireAdmin,
@@ -1837,34 +1841,44 @@ app.post(
             }
 
 
+            // ------------------------------------------
+            // GET EXISTING STUDENT
+            // ------------------------------------------
+
+            const existingStudent =
+                await Student.findById(
+                    req.params.id
+                );
+
+            if (!existingStudent) {
+
+                return res
+                    .status(404)
+                    .send(
+                        "Student not found."
+                    );
+
+            }
+
+
+            // ------------------------------------------
+            // GET FORM DATA
+            // ------------------------------------------
+
             const {
-
                 name,
-
                 studentClass,
-
                 academicSession,
-
                 aadhaar,
-
                 mobile,
-
                 fatherName,
-
                 motherName,
-
                 fatherAadhaar,
-
                 motherAadhaar,
-
                 serialNo,
-
                 uid,
-
                 schoolJoinSession,
-
                 status
-
             } = req.body;
 
 
@@ -1877,7 +1891,6 @@ app.post(
                 !studentClass ||
                 !fatherName ||
                 !motherName ||
-                !schoolJoinSession ||
                 !status
             ) {
 
@@ -1894,16 +1907,31 @@ app.post(
             // ACADEMIC SESSION
             // ------------------------------------------
 
-            const selectedAcademicSession = String(
-                academicSession || ""
-            ).trim();
+            const selectedAcademicSession =
+                String(
+                    academicSession ||
+                    existingStudent.academicSession ||
+                    ""
+                ).trim();
 
-            if (!/^\d{4}-\d{2}$/.test(selectedAcademicSession)) {
-                return res.status(400).send("Invalid academic session.");
+
+            if (
+                !/^\d{4}-\d{2}$/.test(
+                    selectedAcademicSession
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .send(
+                        "Invalid academic session."
+                    );
+
             }
 
+
             // ------------------------------------------
-            // CLASS
+            // CLASS VALIDATION
             // ------------------------------------------
 
             const classNumber =
@@ -1930,7 +1958,7 @@ app.post(
 
 
             // ------------------------------------------
-            // STATUS
+            // STATUS VALIDATION
             // ------------------------------------------
 
             if (
@@ -1945,6 +1973,18 @@ app.post(
                     );
 
             }
+
+
+            // ------------------------------------------
+            // SCHOOL JOIN SESSION
+            // ------------------------------------------
+
+            const selectedSchoolJoinSession =
+                schoolJoinSession
+                    ? String(
+                        schoolJoinSession
+                    ).trim()
+                    : existingStudent.schoolJoinSession;
 
 
             // ------------------------------------------
@@ -1966,7 +2006,6 @@ app.post(
 
                     submittedDocuments =
                         req.body.documents
-
                             .map(
                                 function(document) {
 
@@ -1976,7 +2015,6 @@ app.post(
 
                                 }
                             )
-
                             .filter(
                                 function(document) {
 
@@ -1992,14 +2030,20 @@ app.post(
                 else {
 
                     submittedDocuments = [
-
                         String(
                             req.body.documents
                         ).trim()
-
                     ];
 
                 }
+
+            }
+
+            else {
+
+                submittedDocuments =
+                    existingStudent.submittedDocuments ||
+                    [];
 
             }
 
@@ -2008,217 +2052,210 @@ app.post(
             // CUSTOM FIELDS
             // ------------------------------------------
 
-            let customFields = [];
+            // ------------------------------------------
+// CUSTOM FIELDS / ADDITIONAL INFORMATION
+// ------------------------------------------
+
+let customFields = [];
+
+let customNames =
+    req.body.customFieldName;
+
+let customValues =
+    req.body.customFieldValue;
 
 
-            const customNames =
-                req.body.customFieldName;
+// ------------------------------------------
+// NORMALIZE SINGLE VALUE TO ARRAY
+// ------------------------------------------
 
-            const customValues =
-                req.body.customFieldValue;
+if (
+    !Array.isArray(customNames)
+) {
 
+    customNames =
+        customNames !== undefined
+            ? [customNames]
+            : [];
 
-            if (
-                Array.isArray(
-                    customNames
-                ) &&
-                Array.isArray(
-                    customValues
-                )
-            ) {
-
-                for (
-                    let i = 0;
-                    i < customNames.length;
-                    i++
-                ) {
-
-                    const fieldName =
-                        customNames[i]
-                            ? String(
-                                customNames[i]
-                            ).trim()
-                            : "";
+}
 
 
-                    const fieldValue =
-                        customValues[i]
-                            ? String(
-                                customValues[i]
-                            ).trim()
-                            : "";
+if (
+    !Array.isArray(customValues)
+) {
+
+    customValues =
+        customValues !== undefined
+            ? [customValues]
+            : [];
+
+}
 
 
-                    if (
-                        fieldName &&
-                        fieldValue
-                    ) {
+// ------------------------------------------
+// BUILD CUSTOM FIELDS
+// ------------------------------------------
 
-                        customFields.push({
+const customFieldCount =
+    Math.max(
+        customNames.length,
+        customValues.length
+    );
 
-                            name:
-                                fieldName,
 
-                            value:
-                                fieldValue
+for (
+    let i = 0;
+    i < customFieldCount;
+    i++
+) {
 
-                        });
+    const fieldName =
+        String(
+            customNames[i] || ""
+        ).trim();
 
-                    }
 
-                }
+    const fieldValue =
+        String(
+            customValues[i] || ""
+        ).trim();
 
-            }
+
+    if (
+        fieldName &&
+        fieldValue
+    ) {
+
+        customFields.push({
+
+            name:
+                fieldName,
+
+            value:
+                fieldValue
+
+        });
+
+    }
+
+}
+
+
+// ------------------------------------------
+// KEEP EXISTING DATA ONLY IF NO CUSTOM
+// FIELDS WERE SUBMITTED AT ALL
+// ------------------------------------------
+
+if (
+    customFieldCount === 0
+) {
+
+    customFields =
+        existingStudent.customFields ||
+        [];
+
+}
+
+            // ------------------------------------------
+            // UPDATE STUDENT
+            // ------------------------------------------
+
+            existingStudent.name =
+                String(
+                    name
+                ).trim();
+
+
+            existingStudent.class =
+                classNumber;
+
+
+            existingStudent.academicSession =
+                selectedAcademicSession;
+
+
+            existingStudent.schoolJoinSession =
+                selectedSchoolJoinSession;
+
+
+            existingStudent.aadhaar =
+                aadhaar
+                    ? String(
+                        aadhaar
+                    ).trim()
+                    : "";
+
+
+            existingStudent.mobile =
+                mobile
+                    ? String(
+                        mobile
+                    ).trim()
+                    : "";
+
+
+            existingStudent.fatherName =
+                String(
+                    fatherName
+                ).trim();
+
+
+            existingStudent.motherName =
+                String(
+                    motherName
+                ).trim();
+
+
+            existingStudent.fatherAadhaar =
+                fatherAadhaar
+                    ? String(
+                        fatherAadhaar
+                    ).trim()
+                    : "";
+
+
+            existingStudent.motherAadhaar =
+                motherAadhaar
+                    ? String(
+                        motherAadhaar
+                    ).trim()
+                    : "";
+
+
+            existingStudent.serialNo =
+                serialNo
+                    ? String(
+                        serialNo
+                    ).trim()
+                    : existingStudent.serialNo;
+
+
+            existingStudent.uid =
+                uid
+                    ? String(
+                        uid
+                    ).trim()
+                    : existingStudent.uid;
+
+
+            existingStudent.status =
+                status;
+
+
+            existingStudent.submittedDocuments =
+                submittedDocuments;
+
+
+            existingStudent.customFields =
+                customFields;
 
 
             // ------------------------------------------
-            // SINGLE CUSTOM FIELD
+            // SAVE
             // ------------------------------------------
 
-            else if (
-                customNames &&
-                customValues
-            ) {
-
-                const fieldName =
-                    String(
-                        customNames
-                    ).trim();
-
-
-                const fieldValue =
-                    String(
-                        customValues
-                    ).trim();
-
-
-                if (
-                    fieldName &&
-                    fieldValue
-                ) {
-
-                    customFields.push({
-
-                        name:
-                            fieldName,
-
-                        value:
-                            fieldValue
-
-                    });
-
-                }
-
-            }
-
-
-            // ------------------------------------------
-            // UPDATE
-            // ------------------------------------------
-
-            const updatedStudent =
-                await Student.findByIdAndUpdate(
-
-                    req.params.id,
-
-                    {
-
-                        name:
-                            String(
-                                name
-                            ).trim(),
-
-                        class:
-                            classNumber,
-
-                        academicSession:
-                            selectedAcademicSession,
-
-                        aadhaar:
-                            String(
-                                aadhaar || ""
-                            ).trim(),
-
-                        mobile:
-                            String(
-                                mobile || ""
-                            ).trim(),
-
-                        fatherName:
-                            String(
-                                fatherName
-                            ).trim(),
-
-                        motherName:
-                            String(
-                                motherName
-                            ).trim(),
-
-                        fatherAadhaar:
-                            String(
-                                fatherAadhaar || ""
-                            ).trim(),
-
-                        motherAadhaar:
-                            String(
-                                motherAadhaar || ""
-                            ).trim(),
-
-                        serialNo:
-                            String(
-                                serialNo || ""
-                            ).trim(),
-
-                        uid:
-                            String(
-                                uid || ""
-                            ).trim(),
-
-                        schoolJoinSession:
-                            String(
-                                schoolJoinSession
-                            ).trim(),
-
-                        status,
-
-                        submittedDocuments,
-
-                        customFields
-
-                    },
-
-                    {
-
-                        new: true,
-
-                        runValidators: true
-
-                    }
-
-                );
-
-
-            // ------------------------------------------
-            // STUDENT NOT FOUND
-            // ------------------------------------------
-
-            if (
-                !updatedStudent
-            ) {
-
-                return res
-                    .status(404)
-                    .send(
-                        "Student not found."
-                    );
-
-            }
-
-
-            console.log(
-                "Student updated:",
-                updatedStudent._id
-            );
+            await existingStudent.save();
 
 
             // ------------------------------------------
@@ -2226,14 +2263,17 @@ app.post(
             // ------------------------------------------
 
             return res.redirect(
-                `/admin/students/details/${updatedStudent._id}`
+                "/admin/students/details/" +
+                existingStudent._id
             );
 
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.error(
-                "Update Student Error:",
+                "Student Update Error:",
                 error
             );
 
@@ -2245,50 +2285,6 @@ app.post(
                 );
 
         }
-
-    }
-);
-
-
-// ======================================================
-// LOGOUT
-// ======================================================
-
-app.post(
-    "/logout",
-    requireLogin,
-    (req, res) => {
-
-        req.session.destroy(
-            (error) => {
-
-                if (error) {
-
-                    console.error(
-                        "Logout Error:",
-                        error
-                    );
-
-                    return res
-                        .status(500)
-                        .send(
-                            "Unable to logout."
-                        );
-
-                }
-
-
-                res.clearCookie(
-                    "ikvm.sid"
-                );
-
-
-                return res.redirect(
-                    "/login"
-                );
-
-            }
-        );
 
     }
 );
