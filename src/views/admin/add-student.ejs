@@ -799,6 +799,10 @@
         }
 
 
+
+/* DYNAMIC FIELD BUILDER */
+.section-add-field{margin-left:auto}.dynamic-section-fields{display:contents}.dynamic-field-group{position:relative}.dynamic-field-group .dynamic-remove{position:absolute;right:24px;top:34px;width:25px;height:25px;border:0;border-radius:6px;background:rgba(255,104,120,.06);color:#ff7180;cursor:pointer;font-size:13px}.dynamic-field-group .dynamic-remove:hover{background:rgba(255,104,120,.12)}.field-builder-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:1000}.field-builder-modal.open{display:flex}.field-builder-card{width:min(470px,100%);padding:22px;border:1px solid var(--border);border-radius:14px;background:#0d1018;box-shadow:0 25px 80px rgba(0,0,0,.55)}.field-builder-card h3{font-size:14px;color:#f5f7ff}.field-builder-card>p{margin-top:6px;color:#70788a;font-size:8px;line-height:1.5}.builder-group{margin-top:16px}.builder-group>label{display:block;margin-bottom:7px;color:#858c9c;font-size:8px;font-weight:600}.builder-group input,.builder-group select{width:100%;height:41px;padding:0 11px;border:1px solid var(--border);border-radius:8px;outline:none;background:rgba(255,255,255,.025);color:#e8ebf3;font-size:9px}.builder-group select option{background:#11141c;color:white}.scope-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}.scope-choice label{position:relative;margin:0;cursor:pointer}.scope-choice input{position:absolute;opacity:0;pointer-events:none}.scope-choice span{display:block;padding:12px;border:1px solid var(--border);border-radius:9px;color:#858c9c;font-size:8px;line-height:1.5}.scope-choice strong{display:block;margin-bottom:3px;color:#dfe3ed;font-size:9px}.scope-choice input:checked+span{border-color:rgba(104,124,255,.5);background:rgba(104,124,255,.08);color:#aeb8ff}.builder-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:19px}.builder-cancel,.builder-create{padding:9px 13px;border-radius:8px;font-size:8px;cursor:pointer}.builder-cancel{border:1px solid var(--border);background:rgba(255,255,255,.025);color:#737a8b}.builder-create{border:0;background:linear-gradient(135deg,#566fff,#824cff);color:white;font-weight:600}@media(max-width:600px){.scope-choice{grid-template-columns:1fr}.section-add-field{width:100%;margin-left:0}}
+
         /* FORM ACTIONS */
 
         .form-actions {
@@ -1276,6 +1280,8 @@
            <form
     action="/admin/students"
     method="POST">
+                <input type="hidden" name="dynamicFieldDefinitions" id="dynamicFieldDefinitions">
+                <input type="hidden" name="dynamicFieldValues" id="dynamicFieldValues">
 
 
                 <!-- BASIC INFORMATION -->
@@ -1455,6 +1461,18 @@
 
 
                     </div>
+                    <div class="dynamic-section-fields" id="studentDynamicFields">
+                        <% if (dynamicFields && dynamicFields.student) { %>
+                            <% dynamicFields.student.forEach(function(field) { %>
+                                <div class="form-group dynamic-field-group">
+                                    <label><%= field.label %> <span class="optional"><%= field.scope === "all" ? "Permanent field" : "This student only" %></span></label>
+                                    <input type="<%= field.type || 'text' %>" name="dynamic_student_<%= field.key %>" data-dynamic-section="student" data-dynamic-key="<%= field.key %>" value="<%= field.value || '' %>" placeholder="Enter <%= field.label %>">
+                                </div>
+                            <% }); %>
+                        <% } %>
+                    </div>
+                    <button type="button" class="add-btn section-add-field" onclick="openFieldBuilder('student')">+ Add Field</button>
+
 
                 </div>
 
@@ -1563,6 +1581,18 @@
 
 
                     </div>
+                    <div class="dynamic-section-fields" id="parentDynamicFields">
+                        <% if (dynamicFields && dynamicFields.parent) { %>
+                            <% dynamicFields.parent.forEach(function(field) { %>
+                                <div class="form-group dynamic-field-group">
+                                    <label><%= field.label %> <span class="optional"><%= field.scope === "all" ? "Permanent field" : "This student only" %></span></label>
+                                    <input type="<%= field.type || 'text' %>" name="dynamic_parent_<%= field.key %>" data-dynamic-section="parent" data-dynamic-key="<%= field.key %>" value="<%= field.value || '' %>" placeholder="Enter <%= field.label %>">
+                                </div>
+                            <% }); %>
+                        <% } %>
+                    </div>
+                    <button type="button" class="add-btn section-add-field" onclick="openFieldBuilder('parent')">+ Add Field</button>
+
 
                 </div>
                 <div class="form-group">
@@ -1922,6 +1952,27 @@
 </script>
 
 
+
+<div class="field-builder-modal" id="fieldBuilderModal">
+<div class="field-builder-card" role="dialog" aria-modal="true">
+<h3 id="fieldBuilderTitle">Add Student Field</h3>
+<p id="fieldBuilderDescription">Add a field to this section for one student or for every student.</p>
+<div class="builder-group"><label for="newFieldName">Field Name</label><input id="newFieldName" type="text" maxlength="80" placeholder="Example: Blood Group"></div>
+<div class="builder-group"><label for="newFieldType">Field Type</label><select id="newFieldType"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="email">Email</option><option value="tel">Mobile Number</option></select></div>
+<div class="builder-group"><label>Apply this field to</label><div class="scope-choice"><label><input type="radio" name="newFieldScope" value="student" checked><span><strong>This Student Only</strong>Saved only for this student.</span></label><label><input type="radio" name="newFieldScope" value="all"><span><strong>Every Student</strong>Saved permanently for all students.</span></label></div></div>
+<div class="builder-actions"><button type="button" class="builder-cancel" onclick="closeFieldBuilder()">Cancel</button><button type="button" class="builder-create" onclick="createDynamicField()">Add Field</button></div>
+</div></div>
+<script>
+let fieldBuilderSection="student";
+const dynamicFieldState={student:<%- JSON.stringify((dynamicFields&&dynamicFields.student)||[]) %>,parent:<%- JSON.stringify((dynamicFields&&dynamicFields.parent)||[]) %>};
+function openFieldBuilder(s){fieldBuilderSection=s;document.getElementById("fieldBuilderTitle").textContent=s==="parent"?"Add Parent Field":"Add Student Field";document.getElementById("fieldBuilderDescription").textContent=s==="parent"?"Add a parent / guardian field for one student or for every student.":"Add a student field for one student or for every student.";document.getElementById("newFieldName").value="";document.getElementById("newFieldType").value="text";document.querySelector('input[name="newFieldScope"][value="student"]').checked=true;document.getElementById("fieldBuilderModal").classList.add("open");setTimeout(()=>document.getElementById("newFieldName").focus(),30)}
+function closeFieldBuilder(){document.getElementById("fieldBuilderModal").classList.remove("open")}
+function fieldKey(v){return v.toLowerCase().trim().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").replace(/_+/g,"_").slice(0,60)||("field_"+Date.now())}
+function createDynamicField(){const label=document.getElementById("newFieldName").value.trim(),type=document.getElementById("newFieldType").value,scope=document.querySelector('input[name="newFieldScope"]:checked').value;if(!label){alert("Please enter a field name.");return}const key=fieldKey(label);if(dynamicFieldState[fieldBuilderSection].some(f=>f.key===key)){alert("A field with this name already exists in this section.");return}dynamicFieldState[fieldBuilderSection].push({key,label,type,scope,value:""});renderDynamicFields(fieldBuilderSection);syncDynamicFields();closeFieldBuilder()}
+function renderDynamicFields(s){const c=document.getElementById(s+"DynamicFields");if(!c)return;c.innerHTML="";dynamicFieldState[s].forEach((f,index)=>{const w=document.createElement("div");w.className="form-group dynamic-field-group";const l=document.createElement("label");l.textContent=f.label;const b=document.createElement("span");b.className="optional";b.textContent=f.scope==="all"?"Permanent field":"This student only";l.appendChild(b);const i=document.createElement("input");i.type=f.type||"text";i.name="dynamic_"+s+"_"+f.key;i.dataset.dynamicSection=s;i.dataset.dynamicKey=f.key;i.value=f.value||"";i.placeholder="Enter "+f.label;const r=document.createElement("button");r.type="button";r.className="dynamic-remove";r.textContent="×";r.onclick=()=>{dynamicFieldState[s].splice(index,1);renderDynamicFields(s);syncDynamicFields()};w.append(l,i,r);c.appendChild(w)})}
+function syncDynamicFields(){const d=[];["student","parent"].forEach(s=>dynamicFieldState[s].forEach(f=>d.push({section:s,key:f.key,label:f.label,type:f.type||"text",scope:f.scope||"student"})));const v={};document.querySelectorAll("[data-dynamic-section][data-dynamic-key]").forEach(i=>{const s=i.dataset.dynamicSection,k=i.dataset.dynamicKey;if(!v[s])v[s]={};v[s][k]=i.value});document.getElementById("dynamicFieldDefinitions").value=JSON.stringify(d);document.getElementById("dynamicFieldValues").value=JSON.stringify(v)}
+const dynamicForm=document.querySelector('form[action="/admin/students"]');if(dynamicForm)dynamicForm.addEventListener("submit",syncDynamicFields);document.getElementById("fieldBuilderModal").addEventListener("click",e=>{if(e.target===e.currentTarget)closeFieldBuilder()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeFieldBuilder()});
+</script>
 </body>
 
 </html>

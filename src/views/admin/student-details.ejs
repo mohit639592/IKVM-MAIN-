@@ -1449,6 +1449,12 @@
                 </div>
 
 
+
+                    <% if (dynamicFields && dynamicFields.student && dynamicFields.student.length) { %>
+                        <% dynamicFields.student.forEach(function(field) { %>
+                            <div class="field"><div class="label"><%= field.label %></div><div class="value <%= field.value ? '' : 'empty-value' %>"><%= field.value || "Not provided" %></div></div>
+                        <% }); %>
+                    <% } %>
             </div>
 
         </section>
@@ -1543,6 +1549,12 @@
                 </div>
 
 
+
+                    <% if (dynamicFields && dynamicFields.parent && dynamicFields.parent.length) { %>
+                        <% dynamicFields.parent.forEach(function(field) { %>
+                            <div class="field"><div class="label"><%= field.label %></div><div class="value <%= field.value ? '' : 'empty-value' %>"><%= field.value || "Not provided" %></div></div>
+                        <% }); %>
+                    <% } %>
             </div>
 
         </section>

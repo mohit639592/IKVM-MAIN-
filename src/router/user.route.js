@@ -19,6 +19,24 @@ const {
     requireAdmin
 } = require("../middleware/auth");
 
+// ======================================================
+// DYNAMIC STUDENT / PARENT FIELDS
+// ======================================================
+const DYNAMIC_FIELD_COLLECTION="studentFieldDefinitions";
+const DYNAMIC_FIELD_PREFIX="__ikvm_dynamic__:";
+function dynamicFieldCollection(){return mongoose.connection.collection(DYNAMIC_FIELD_COLLECTION)}
+function dynamicStorageName(section,key){return `${DYNAMIC_FIELD_PREFIX}${section}:${key}`}
+function parseDynamicName(name){if(typeof name!=="string"||!name.startsWith(DYNAMIC_FIELD_PREFIX))return null;const p=name.slice(DYNAMIC_FIELD_PREFIX.length).split(":");return p.length===2&&["student","parent"].includes(p[0])?{section:p[0],key:p[1]}:null}
+function parseJson(value,fallback){try{const v=typeof value==="string"?JSON.parse(value):value;return v==null?fallback:v}catch(e){return fallback}}
+function cleanDynamicField(f){if(!f||typeof f!=="object")return null;const section=f.section==="parent"?"parent":"student",label=String(f.label||"").trim().slice(0,80),key=String(f.key||"").trim().toLowerCase().replace(/[^a-z0-9_]/g,"_").slice(0,60),types=["text","number","date","email","tel"],type=types.includes(f.type)?f.type:"text",scope=f.scope==="all"?"all":"student";return label&&key?{section,key,label,type,scope}:null}
+async function getDynamicFields(studentId){const c=dynamicFieldCollection(),all=await c.find({scope:"all"}).sort({createdAt:1,_id:1}).toArray(),own=studentId?await c.find({scope:"student",studentId:new mongoose.Types.ObjectId(studentId)}).sort({createdAt:1,_id:1}).toArray():[],out={student:[],parent:[]},seen=new Set();for(const raw of [...all,...own]){const f=cleanDynamicField(raw);if(!f)continue;const k=f.section+":"+f.key;if(seen.has(k))continue;seen.add(k);out[f.section].push(f)}return out}
+async function saveDynamicDefinitions(definitions,studentId){const c=dynamicFieldCollection(),list=Array.isArray(definitions)?definitions.map(cleanDynamicField).filter(Boolean):[],seen=new Set();for(const f of list){const unique=f.section+":"+f.key+":"+f.scope;if(seen.has(unique))continue;seen.add(unique);const filter=f.scope==="all"?{scope:"all",section:f.section,key:f.key}:{scope:"student",section:f.section,key:f.key,studentId:new mongoose.Types.ObjectId(studentId)},set={section:f.section,key:f.key,label:f.label,type:f.type,scope:f.scope,updatedAt:new Date()};if(f.scope==="student")set.studentId=new mongoose.Types.ObjectId(studentId);const update={$set:set,$setOnInsert:{createdAt:new Date()}};if(f.scope==="all")update.$unset={studentId:""};await c.updateOne(filter,update,{upsert:true})}}
+function stripDynamic(fields){return Array.isArray(fields)?fields.filter(x=>!parseDynamicName(x&&x.name)):[]}
+function dynamicValueMap(student){const out={student:{},parent:{}};for(const x of (student&&student.customFields)||[]){const p=parseDynamicName(x&&x.name);if(p)out[p.section][p.key]=String(x.value||"")}return out}
+function dynamicFieldsForView(student,fields){const values=dynamicValueMap(student);for(const s of ["student","parent"])fields[s]=(fields[s]||[]).map(f=>({...f,value:values[s][f.key]||""}));student.customFields=stripDynamic(student.customFields);return student}
+function applyDynamicValues(existing,definitions,values){const out=stripDynamic(existing),map=values&&typeof values==="object"?values:{};for(const raw of Array.isArray(definitions)?definitions:[]){const f=cleanDynamicField(raw);if(!f)continue;const sec=map[f.section],value=sec&&sec[f.key]!=null?String(sec[f.key]).trim():"";if(value)out.push({name:dynamicStorageName(f.section,f.key),value})}return out}
+
+
 
 // ======================================================
 // ENTRY PAGE
@@ -752,12 +770,14 @@ app.get(
 
         try {
             const academicState = await getSessionState();
+            const dynamicFields = await getDynamicFields();
 
             res.render(
                 "admin/add-student",
                 {
                     user: req.session.user,
-                    academicState
+                    academicState,
+                    dynamicFields
                 }
             );
         } catch (error) {
@@ -812,7 +832,9 @@ app.post(
 
                 customFieldName,
 
-                customFieldValue
+                customFieldValue,
+                dynamicFieldDefinitions,
+                dynamicFieldValues
 
             } = req.body;
 
@@ -941,66 +963,18 @@ app.post(
 
 
             // ------------------------------------------
-            // CUSTOM FIELDS
+            // CUSTOM FIELDS / DYNAMIC FIELDS
             // ------------------------------------------
-
-            let customFields = [];
-
-
-            if (
-                Array.isArray(
-                    customFieldName
-                ) &&
-                Array.isArray(
-                    customFieldValue
-                )
-            ) {
-
-                for (
-                    let i = 0;
-                    i < customFieldName.length;
-                    i++
-                ) {
-
-                    const fieldName =
-                        String(
-                            customFieldName[i] || ""
-                        ).trim();
-
-
-                    const fieldValue =
-                        String(
-                            customFieldValue[i] || ""
-                        ).trim();
-
-
-                    if (
-                        fieldName &&
-                        fieldValue
-                    ) {
-
-                        customFields.push({
-
-                            name:
-                                fieldName,
-
-                            value:
-                                fieldValue
-
-                        });
-
-                    }
-
-                }
-
-            }
-
+            let customFields=[];
+            if(Array.isArray(customFieldName)&&Array.isArray(customFieldValue)){for(let i=0;i<customFieldName.length;i++){const fieldName=String(customFieldName[i]||"").trim(),fieldValue=String(customFieldValue[i]||"").trim();if(fieldName&&fieldValue)customFields.push({name:fieldName,value:fieldValue})}}
+            const parsedDynamicDefinitions=parseJson(dynamicFieldDefinitions,[]);
+            const parsedDynamicValues=parseJson(dynamicFieldValues,{});
 
             // ------------------------------------------
             // CREATE STUDENT
             // ------------------------------------------
 
-            await Student.create({
+            const createdStudent = await Student.create({
 
                 name:
                     String(
@@ -1062,9 +1036,11 @@ app.post(
 
                 submittedDocuments,
 
-                customFields
+                customFields: applyDynamicValues(customFields, parsedDynamicDefinitions, parsedDynamicValues)
 
             });
+
+            await saveDynamicDefinitions(parsedDynamicDefinitions, createdStudent._id);
 
 
             console.log(
@@ -1685,6 +1661,8 @@ app.get(
                 .lean();
 
             const academicState = await getSessionState();
+            const dynamicFields = await getDynamicFields(student._id);
+            dynamicFieldsForView(student, dynamicFields);
 
             res.render(
                 "admin/student-details",
@@ -1697,7 +1675,9 @@ app.get(
 
                     academicHistory,
 
-                    academicState
+                    academicState,
+
+                    dynamicFields
 
                 }
             );
@@ -1771,6 +1751,8 @@ app.get(
 
 
             const academicState = await getSessionState();
+            const dynamicFields = await getDynamicFields(student._id);
+            dynamicFieldsForView(student, dynamicFields);
 
             res.render(
                 "admin/student-update",
@@ -1781,7 +1763,9 @@ app.get(
 
                     student,
 
-                    academicState
+                    academicState,
+
+                    dynamicFields
 
                 }
             );
@@ -1878,7 +1862,9 @@ app.post(
                 serialNo,
                 uid,
                 schoolJoinSession,
-                status
+                status,
+                dynamicFieldDefinitions,
+                dynamicFieldValues
             } = req.body;
 
 
@@ -2049,113 +2035,18 @@ app.post(
 
 
             // ------------------------------------------
-            // CUSTOM FIELDS
+            // CUSTOM FIELDS / DYNAMIC FIELDS
             // ------------------------------------------
-
-            // ------------------------------------------
-// CUSTOM FIELDS / ADDITIONAL INFORMATION
-// ------------------------------------------
-
-let customFields = [];
-
-let customNames =
-    req.body.customFieldName;
-
-let customValues =
-    req.body.customFieldValue;
-
-
-// ------------------------------------------
-// NORMALIZE SINGLE VALUE TO ARRAY
-// ------------------------------------------
-
-if (
-    !Array.isArray(customNames)
-) {
-
-    customNames =
-        customNames !== undefined
-            ? [customNames]
-            : [];
-
-}
-
-
-if (
-    !Array.isArray(customValues)
-) {
-
-    customValues =
-        customValues !== undefined
-            ? [customValues]
-            : [];
-
-}
-
-
-// ------------------------------------------
-// BUILD CUSTOM FIELDS
-// ------------------------------------------
-
-const customFieldCount =
-    Math.max(
-        customNames.length,
-        customValues.length
-    );
-
-
-for (
-    let i = 0;
-    i < customFieldCount;
-    i++
-) {
-
-    const fieldName =
-        String(
-            customNames[i] || ""
-        ).trim();
-
-
-    const fieldValue =
-        String(
-            customValues[i] || ""
-        ).trim();
-
-
-    if (
-        fieldName &&
-        fieldValue
-    ) {
-
-        customFields.push({
-
-            name:
-                fieldName,
-
-            value:
-                fieldValue
-
-        });
-
-    }
-
-}
-
-
-// ------------------------------------------
-// KEEP EXISTING DATA ONLY IF NO CUSTOM
-// FIELDS WERE SUBMITTED AT ALL
-// ------------------------------------------
-
-if (
-    customFieldCount === 0
-) {
-
-    customFields =
-        existingStudent.customFields ||
-        [];
-
-}
+            let customFields=[];
+            let customNames=req.body.customFieldName;
+            let customValues=req.body.customFieldValue;
+            if(!Array.isArray(customNames))customNames=customNames!==undefined?[customNames]:[];
+            if(!Array.isArray(customValues))customValues=customValues!==undefined?[customValues]:[];
+            const customFieldCount=Math.max(customNames.length,customValues.length);
+            for(let i=0;i<customFieldCount;i++){const fieldName=String(customNames[i]||"").trim(),fieldValue=String(customValues[i]||"").trim();if(fieldName&&fieldValue)customFields.push({name:fieldName,value:fieldValue})}
+            if(customFieldCount===0)customFields=stripDynamic(existingStudent.customFields||[]);
+            const parsedDynamicDefinitions=parseJson(dynamicFieldDefinitions,[]);
+            const parsedDynamicValues=parseJson(dynamicFieldValues,{});
 
             // ------------------------------------------
             // UPDATE STUDENT
@@ -2248,7 +2139,7 @@ if (
 
 
             existingStudent.customFields =
-                customFields;
+                applyDynamicValues(customFields, parsedDynamicDefinitions, parsedDynamicValues);
 
 
             // ------------------------------------------
@@ -2256,6 +2147,8 @@ if (
             // ------------------------------------------
 
             await existingStudent.save();
+
+            await saveDynamicDefinitions(parsedDynamicDefinitions, existingStudent._id);
 
 
             // ------------------------------------------
