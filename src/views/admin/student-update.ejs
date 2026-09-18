@@ -1016,6 +1016,54 @@
 /* DYNAMIC FIELD BUILDER */
 .section-add-field{margin-left:auto}.dynamic-section-fields{display:contents}.dynamic-field-group{position:relative}.dynamic-field-group .dynamic-remove{position:absolute;right:24px;top:34px;width:25px;height:25px;border:0;border-radius:6px;background:rgba(255,104,120,.06);color:#ff7180;cursor:pointer;font-size:13px}.dynamic-field-group .dynamic-remove:hover{background:rgba(255,104,120,.12)}.field-builder-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:1000}.field-builder-modal.open{display:flex}.field-builder-card{width:min(470px,100%);padding:22px;border:1px solid var(--border);border-radius:14px;background:#0d1018;box-shadow:0 25px 80px rgba(0,0,0,.55)}.field-builder-card h3{font-size:14px;color:#f5f7ff}.field-builder-card>p{margin-top:6px;color:#70788a;font-size:8px;line-height:1.5}.builder-group{margin-top:16px}.builder-group>label{display:block;margin-bottom:7px;color:#858c9c;font-size:8px;font-weight:600}.builder-group input,.builder-group select{width:100%;height:41px;padding:0 11px;border:1px solid var(--border);border-radius:8px;outline:none;background:rgba(255,255,255,.025);color:#e8ebf3;font-size:9px}.builder-group select option{background:#11141c;color:white}.scope-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}.scope-choice label{position:relative;margin:0;cursor:pointer}.scope-choice input{position:absolute;opacity:0;pointer-events:none}.scope-choice span{display:block;padding:12px;border:1px solid var(--border);border-radius:9px;color:#858c9c;font-size:8px;line-height:1.5}.scope-choice strong{display:block;margin-bottom:3px;color:#dfe3ed;font-size:9px}.scope-choice input:checked+span{border-color:rgba(104,124,255,.5);background:rgba(104,124,255,.08);color:#aeb8ff}.builder-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:19px}.builder-cancel,.builder-create{padding:9px 13px;border-radius:8px;font-size:8px;cursor:pointer}.builder-cancel{border:1px solid var(--border);background:rgba(255,255,255,.025);color:#737a8b}.builder-create{border:0;background:linear-gradient(135deg,#566fff,#824cff);color:white;font-weight:600}@media(max-width:600px){.scope-choice{grid-template-columns:1fr}.section-add-field{width:100%;margin-left:0}}
 
+
+        /* =====================================================
+           AUTO FIELDS FROM STUDENT RECORD
+           These fields are rendered from the actual student
+           object, so newly-added fields can appear on Edit too.
+        ===================================================== */
+        .auto-fields-note {
+            padding: 12px 18px 0;
+            color: #4f5869;
+            font-size: 7px;
+        }
+
+        .auto-field-group {
+            position: relative;
+        }
+
+        .auto-field-group .auto-field-badge {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 5px;
+            border: 1px solid rgba(104,124,255,.15);
+            border-radius: 4px;
+            color: #6674b8;
+            font-size: 5px;
+            letter-spacing: .3px;
+            text-transform: none;
+            vertical-align: middle;
+        }
+
+        .auto-field-group textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            resize: vertical;
+            background: rgba(255,255,255,.025);
+            color: #e8ebf3;
+            font-family: inherit;
+            font-size: 9px;
+        }
+
+        .auto-field-group textarea:focus {
+            border-color: rgba(104,124,255,.55);
+            box-shadow: 0 0 0 3px rgba(104,124,255,.05);
+        }
+
         /* ============================
            MOBILE
         ============================ */
@@ -1396,6 +1444,135 @@
             <input type="hidden" name="dynamicFieldDefinitions" id="dynamicFieldDefinitions">
             <input type="hidden" name="dynamicFieldValues" id="dynamicFieldValues">
 
+            <%
+                /*
+                 * AUTO FIELD SYSTEM
+                 * -----------------
+                 * Any scalar field already present on the student
+                 * document but not hardcoded below is rendered here.
+                 *
+                 * IMPORTANT:
+                 * The input name is the ORIGINAL MongoDB/student
+                 * property name. Therefore the existing update route
+                 * can continue reading req.body.<fieldName>.
+                 */
+                const autoFieldLabels = {
+                    studentAadhaar: "Student Aadhaar",
+                    studentAadhar: "Student Aadhaar",
+                    aadhaar: "Aadhaar",
+                    aadhar: "Aadhaar",
+                    aadhaarNumber: "Aadhaar Number",
+                    aadharNumber: "Aadhaar Number",
+                    admissionNumber: "Admission Number",
+                    admissionNo: "Admission Number",
+                    rollNumber: "Roll Number",
+                    rollNo: "Roll Number",
+                    registrationNumber: "Registration Number",
+                    registrationNo: "Registration Number",
+                    dateOfBirth: "Date of Birth",
+                    dob: "Date of Birth",
+                    gender: "Gender",
+                    category: "Category",
+                    bloodGroup: "Blood Group",
+                    address: "Address",
+                    city: "City",
+                    state: "State",
+                    pinCode: "PIN Code",
+                    pincode: "PIN Code",
+                    email: "Email",
+                    phone: "Phone",
+                    alternateMobile: "Alternate Mobile",
+                    emergencyContact: "Emergency Contact",
+                    nationality: "Nationality",
+                    religion: "Religion",
+                    motherTongue: "Mother Tongue",
+                    fatherOccupation: "Father Occupation",
+                    motherOccupation: "Mother Occupation",
+                    guardianName: "Guardian Name",
+                    guardianMobile: "Guardian Mobile",
+                    guardianAadhaar: "Guardian Aadhaar"
+                };
+
+                const hardcodedStudentFields = new Set([
+                    "_id","__v","name","class","studentClass","academicSession",
+                    "mobile","status","fatherName","motherName",
+                    "fatherAadhaar","motherAadhaar","submittedDocuments",
+                    "customFields","dynamicFields","createdAt","updatedAt",
+                    "created_at","updated_at","password","passwordHash",
+                    "otp","otpHash","resetToken","resetTokenExpiry",
+                    "profileImage","photo","image","documents",
+                    "attendance","results","fees","library","homework",
+                    "tests","notifications","sessions","loginHistory"
+                ]);
+
+                const parentFieldNames = new Set([
+                    "fatherName","motherName","fatherAadhaar","motherAadhaar",
+                    "fatherOccupation","motherOccupation","guardianName",
+                    "guardianMobile","guardianAadhaar","guardianOccupation"
+                ]);
+
+                function prettyAutoLabel(key) {
+                    if (autoFieldLabels[key]) return autoFieldLabels[key];
+
+                    return String(key)
+                        .replace(/([a-z])([A-Z])/g, "$1 $2")
+                        .replace(/[_-]+/g, " ")
+                        .replace(/\b\w/g, function(ch) { return ch.toUpperCase(); });
+                }
+
+                function autoInputType(key, value) {
+                    const k = String(key).toLowerCase();
+
+                    if (k.includes("email")) return "email";
+                    if (k === "dob" || k.includes("dateofbirth")) return "date";
+                    if (
+                        k.includes("mobile") ||
+                        k.includes("phone") ||
+                        k.includes("aadhaar") ||
+                        k.includes("aadhar") ||
+                        k.includes("pincode") ||
+                        k.includes("pin_code")
+                    ) return "tel";
+
+                    if (typeof value === "number") return "number";
+
+                    return "text";
+                }
+
+                const autoStudentFields = [];
+                const autoParentFields = [];
+
+                if (student) {
+                    Object.keys(student).forEach(function(key) {
+                        if (hardcodedStudentFields.has(key)) return;
+
+                        const value = student[key];
+
+                        // Do not render objects/arrays as normal inputs.
+                        if (
+                            value !== null &&
+                            typeof value === "object"
+                        ) return;
+
+                        if (parentFieldNames.has(key)) {
+                            autoParentFields.push({
+                                key: key,
+                                label: prettyAutoLabel(key),
+                                type: autoInputType(key, value),
+                                value: value == null ? "" : value
+                            });
+                        } else {
+                            autoStudentFields.push({
+                                key: key,
+                                label: prettyAutoLabel(key),
+                                type: autoInputType(key, value),
+                                value: value == null ? "" : value
+                            });
+                        }
+                    });
+                }
+            %>
+
 
             <!-- =============================================
                  BASIC INFORMATION
@@ -1609,6 +1786,24 @@
 
 
                 </div>
+                    <% if (autoStudentFields.length > 0) { %>
+                        <% autoStudentFields.forEach(function(field) { %>
+                            <div class="form-group auto-field-group">
+                                <label>
+                                    <%= field.label %>
+                                    <span class="auto-field-badge">AUTO</span>
+                                </label>
+                                <input
+                                    type="<%= field.type %>"
+                                    name="<%= field.key %>"
+                                    value="<%= field.value %>"
+                                    placeholder="Enter <%= field.label %>"
+                                    <% if (field.type === "tel") { %>inputmode="numeric"<% } %>
+                                >
+                            </div>
+                        <% }); %>
+                    <% } %>
+
                     <div class="dynamic-section-fields" id="studentDynamicFields">
                         <% if (dynamicFields && dynamicFields.student) { %>
                             <% dynamicFields.student.forEach(function(field) { %>
@@ -1725,6 +1920,24 @@
 
 
                 </div>
+                    <% if (autoParentFields.length > 0) { %>
+                        <% autoParentFields.forEach(function(field) { %>
+                            <div class="form-group auto-field-group">
+                                <label>
+                                    <%= field.label %>
+                                    <span class="auto-field-badge">AUTO</span>
+                                </label>
+                                <input
+                                    type="<%= field.type %>"
+                                    name="<%= field.key %>"
+                                    value="<%= field.value %>"
+                                    placeholder="Enter <%= field.label %>"
+                                    <% if (field.type === "tel") { %>inputmode="numeric"<% } %>
+                                >
+                            </div>
+                        <% }); %>
+                    <% } %>
+
                     <div class="dynamic-section-fields" id="parentDynamicFields">
                         <% if (dynamicFields && dynamicFields.parent) { %>
                             <% dynamicFields.parent.forEach(function(field) { %>

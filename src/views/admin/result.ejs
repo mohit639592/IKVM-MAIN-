@@ -1,0 +1,4825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IKVM — Auto Result Generator + School Result Card</title>
+
+<style>
+/* =========================================================
+   GLOBAL / ADMIN GENERATOR
+========================================================= */
+:root{
+    --bg:#080d17;
+    --panel:#101827;
+    --panel2:#151f30;
+    --border:#29364b;
+    --border2:#344158;
+    --text:#edf3ff;
+    --muted:#9aa8bd;
+    --blue:#3b82f6;
+    --green:#22c55e;
+    --yellow:#fbbf24;
+    --red:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    font-family:Inter,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.header,.admin-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:0 8px 30px rgba(0,0,0,.25);
+}
+
+.header{
+    padding:25px;
+    margin-bottom:18px;
+}
+
+.header h1{
+    font-size:25px;
+    margin-bottom:7px;
+}
+
+.header p{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.5;
+}
+
+.admin-card{
+    padding:21px;
+    margin-bottom:18px;
+}
+
+.admin-card h2{
+    font-size:18px;
+    margin-bottom:15px;
+}
+
+.row{
+    display:flex;
+    gap:12px;
+    align-items:end;
+}
+
+.group{
+    flex:1;
+}
+
+label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:#b9c5d8;
+    margin-bottom:6px;
+}
+
+input,select{
+    width:100%;
+    padding:10px;
+    border:1px solid #34435a;
+    border-radius:8px;
+    background:#0b1422;
+    color:#fff;
+    outline:none;
+}
+
+input:focus,select:focus{
+    border-color:var(--blue);
+    box-shadow:0 0 0 3px #3b82f622;
+}
+
+button{
+    border:0;
+    border-radius:8px;
+    padding:10px 15px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.primary{background:var(--blue);color:white}
+.secondary{background:#202b3d;color:#e5edf9}
+.success{background:#16a34a;color:#fff}
+.danger{background:#3a1c24;color:#ff9da8}
+.dark{background:#111827;color:#fff}
+
+button:active{
+    transform:translateY(1px);
+}
+
+.hidden{
+    display:none!important;
+}
+
+.muted{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.5;
+}
+
+/* =========================================================
+   STUDENTS
+========================================================= */
+
+.student-head,
+.student-row{
+    display:grid;
+    grid-template-columns:45px minmax(0,1fr) 180px;
+    gap:10px;
+    align-items:center;
+}
+
+.student-head{
+    padding:10px;
+    background:var(--panel2);
+    font-size:12px;
+    font-weight:800;
+}
+
+.student-row{
+    padding:9px;
+    border-bottom:1px solid #202b3b;
+}
+
+/* =========================================================
+   SUBJECT SETTINGS
+========================================================= */
+
+.subject-card{
+    border:1px solid var(--border);
+    border-radius:10px;
+    margin-top:12px;
+    padding:14px;
+    background:#0d1523;
+}
+
+.subject-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+}
+
+.subject-title strong{
+    font-size:15px;
+}
+
+.subject-title span{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.subject-name{
+    margin-bottom:11px;
+}
+
+.component-grid{
+    display:grid;
+    grid-template-columns:repeat(6,minmax(125px,1fr));
+    gap:9px;
+}
+
+.component{
+    background:#111b2b;
+    border:1px solid #26344a;
+    border-radius:9px;
+    padding:10px;
+}
+
+.component b{
+    font-size:11px;
+}
+
+.component .cap{
+    font-size:10px;
+    color:#91a0b6;
+    margin-top:4px;
+}
+
+.component input{
+    margin-top:6px;
+}
+
+.include-box{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin:0;
+    color:#b9c5d8;
+    font-size:11px;
+}
+
+.include-box input{
+    width:auto;
+    margin:0;
+}
+
+.range-box,
+.notice,
+.error-box{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:9px;
+    font-size:12px;
+}
+
+.range-box{
+    background:#0d2440;
+    border:1px solid #1e4d82;
+    color:#a9d1ff;
+}
+
+.notice{
+    background:#111c2c;
+    border:1px solid var(--border);
+    color:#aebbd0;
+}
+
+.error-box{
+    display:none;
+    background:#3a1717;
+    border:1px solid #6d2929;
+    color:#ffb4b4;
+}
+
+/* =========================================================
+   GENERATED RESULTS
+========================================================= */
+
+.generated-card{
+    border:1px solid var(--border2);
+    border-radius:11px;
+    overflow:hidden;
+    margin-top:14px;
+}
+
+.generated-title{
+    background:#0b1220;
+    padding:14px 17px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.generated-title strong{
+    font-size:15px;
+}
+
+.target{
+    color:#a9c9f7;
+    font-size:12px;
+}
+
+.generated-scroll{
+    overflow-x:auto;
+}
+
+.generated-table{
+    width:100%;
+    min-width:1050px;
+    border-collapse:collapse;
+}
+
+.generated-table th,
+.generated-table td{
+    padding:8px;
+    text-align:center;
+    border-bottom:1px solid #253044;
+    font-size:11px;
+}
+
+.generated-table th{
+    background:#151f30;
+    color:#cad7e8;
+    font-size:10px;
+}
+
+.generated-table td{
+    color:#e2e9f4;
+}
+
+.generated-table .mark{
+    width:55px;
+    text-align:center;
+    padding:6px;
+}
+
+.generated-table .subject-cell{
+    text-align:left;
+    min-width:130px;
+}
+
+.generated-table .total-row td,
+.generated-table .total-row th{
+    font-weight:800;
+    background:#111b2b;
+}
+
+.adjustment{
+    padding:13px 16px;
+    background:#241d0b;
+    border-top:1px solid #55451d;
+    color:#e7d39b;
+}
+
+.adjustment strong{
+    color:#f6c85f;
+}
+
+.actions{
+    display:flex;
+    gap:9px;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+    margin-top:12px;
+}
+
+.result-action-row{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    padding:12px;
+    border-top:1px solid var(--border);
+}
+
+/* =========================================================
+   RESULT CARD VIEW
+========================================================= */
+
+#resultView{
+    display:none;
+    margin-top:18px;
+}
+
+.result-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    background:#111b2d;
+    border:1px solid #293851;
+    border-radius:12px;
+    padding:12px;
+}
+
+.result-toolbar h2{
+    font-size:16px;
+}
+
+.result-toolbar p{
+    color:#9eacc1;
+    font-size:11px;
+    margin-top:3px;
+}
+
+.result-toolbar-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+/* =========================================================
+   SCHOOL RESULT CARD
+
+   IMPORTANT:
+   The left marks table and right final panel are independent
+   grid columns. The right panel is NOT placed inside a row
+   of the marks table. This prevents the large white gap.
+========================================================= */
+
+.print-page{
+    background:#fff;
+    color:#111;
+    padding:10px;
+    overflow:auto;
+}
+
+.school-card{
+    width:100%;
+    max-width:1400px;
+    margin:0 auto;
+    background:#fff;
+    color:#111;
+    padding:10px 12px 12px;
+    font-family:"Times New Roman",serif;
+}
+
+.school-header{
+    position:relative;
+    text-align:center;
+    margin-bottom:3px;
+}
+
+.school-logo{
+    position:absolute;
+    left:0;
+    top:-2px;
+    width:48px;
+    height:48px;
+    border:2px solid #222;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font:700 7px Arial;
+}
+
+.school-name{
+    font-size:29px;
+    line-height:1;
+    font-weight:900;
+}
+
+.report-title{
+    margin-top:4px;
+    font-size:17px;
+    font-weight:800;
+}
+
+.student-info{
+    width:100%;
+    border-collapse:collapse;
+    font-size:11px;
+}
+
+.student-info td{
+    height:18px;
+    padding:1px 5px;
+    border-bottom:1px dotted #333;
+}
+
+.student-info .label{
+    font-weight:800;
+    white-space:nowrap;
+}
+
+.card-layout{
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 230px;
+    align-items:start;
+    margin-top:5px;
+}
+
+.card-left{
+    min-width:0;
+}
+
+.marks-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+.marks-table th,
+.marks-table td{
+    border:1px solid #222;
+    text-align:center;
+    vertical-align:middle;
+    padding:1px;
+    font-size:8.5px;
+    height:25px;
+}
+
+.marks-table th{
+    font-weight:800;
+}
+
+.marks-table .sno{
+    width:30px;
+}
+
+.marks-table .subject{
+    width:125px;
+}
+
+.marks-table .mm{
+    width:29px;
+}
+
+.marks-table .obt{
+    width:33px;
+}
+
+.marks-table .total{
+    width:38px;
+}
+
+.marks-table .final-mm{
+    width:38px;
+}
+
+.marks-table .final-obt{
+    width:43px;
+}
+
+.marks-table .subject-text{
+    text-align:left;
+    padding-left:5px;
+    font-weight:700;
+}
+
+.card-mark-input{
+    width:100%;
+    height:20px;
+    margin:0;
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    color:#111;
+    text-align:center;
+    font:inherit;
+    font-weight:700;
+}
+
+.card-mark-input:focus{
+    background:#edf5ff;
+    outline:1px solid #2563eb;
+}
+
+.card-remark{
+    width:100%;
+    height:20px;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    color:#111;
+    text-align:center;
+    font:8px "Times New Roman",serif;
+}
+
+.card-remark:focus{
+    outline:1px solid #2563eb;
+    background:#edf5ff;
+}
+
+.blank-row td{
+    height:27px;
+}
+
+.total-row td{
+    height:29px;
+    font-weight:800;
+}
+
+.final-side{
+    width:230px;
+    align-self:stretch;
+}
+
+.final-table{
+    width:100%;
+    height:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+.final-table td{
+    border:1px solid #222;
+}
+
+.final-head{
+    height:52px;
+    text-align:center;
+    font-size:11px;
+    font-weight:800;
+}
+
+.final-title{
+    height:47px;
+    text-align:center;
+    font-size:12px;
+    font-weight:900;
+}
+
+.final-field{
+    height:68px;
+    padding:12px 8px;
+    font-size:10px;
+    vertical-align:middle;
+}
+
+.final-line{
+    display:inline-block;
+    min-width:95px;
+    border-bottom:1px dotted #222;
+    min-height:13px;
+}
+
+.final-result-box{
+    height:62px;
+    text-align:center;
+    vertical-align:middle;
+    font-size:12px;
+    font-weight:900;
+}
+
+.principal-box{
+    height:190px;
+    text-align:center;
+    vertical-align:middle;
+    font-size:11px;
+    line-height:1.7;
+}
+
+.bottom-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+.bottom-table td{
+    border:1px solid #222;
+    height:29px;
+    font-size:9px;
+}
+
+.bottom-label{
+    width:166px;
+    padding-left:6px;
+    font-weight:700;
+    text-align:left;
+}
+
+.bottom-edit{
+    width:100%;
+    height:22px;
+    border:0;
+    background:transparent;
+    color:#111;
+    font:9px "Times New Roman",serif;
+}
+
+.bottom-edit:focus{
+    outline:1px solid #2563eb;
+    background:#edf5ff;
+}
+
+
+/* =========================================================
+   CLASS 11 RESULT CARD — same school-card design, new marks layout
+========================================================= */
+.class11-school-card{font-family:"Times New Roman",serif;}
+.class11-school-card .school-name{font-size:27px;}
+.class11-school-card .report-title{font-size:17px;}
+.class11-card-layout{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 185px;gap:0;align-items:stretch;margin-top:5px;}
+.class11-card-left{min-width:0;}
+.class11-marks-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.class11-marks-table th,.class11-marks-table td{border:1px solid #222;text-align:center;vertical-align:middle;padding:1px;font-size:7.2px;height:24px;}
+.class11-marks-table th{font-weight:800;}
+.class11-marks-table .c11-sno{width:25px;}
+.class11-marks-table .c11-subject{width:105px;}
+.class11-marks-table .c11-mm{width:27px;}
+.class11-marks-table .c11-obt{width:34px;}
+.class11-marks-table .c11-total{width:34px;}
+.class11-marks-table .c11-final{width:38px;}
+.class11-marks-table .c11-remark{width:65px;}
+.class11-marks-table .subject-text{text-align:left;padding-left:4px;font-weight:700;}
+.class11-card-input{width:100%;height:19px;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:#111;text-align:center;font:inherit;font-weight:700;}
+.class11-card-input:focus{outline:1px solid #2563eb;background:#edf5ff;}
+.class11-card-remark{width:100%;height:19px;border:0;background:transparent;color:#111;text-align:center;font:7px "Times New Roman",serif;}
+.class11-card-remark:focus{outline:1px solid #2563eb;background:#edf5ff;}
+.class11-bottom-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.class11-bottom-table td{border:1px solid #222;height:23px;font-size:7.5px;}
+.class11-bottom-label{width:105px;padding-left:4px;font-weight:700;text-align:left;}
+.class11-final-side{width:185px;}
+.class11-final-side .final-table{width:100%;height:100%;border-collapse:collapse;table-layout:fixed;}
+.class11-final-side .final-table td{border:1px solid #222;}
+.class11-final-side .final-head{height:34px;font-size:8px;}
+.class11-final-side .final-title{height:34px;font-size:9px;}
+.class11-final-side .final-field{height:45px;padding:7px 5px;font-size:8px;}
+.class11-final-side .final-line{min-width:68px;}
+.class11-final-side .final-result-box{height:40px;font-size:9px;}
+.class11-final-side .principal-box{height:105px;font-size:8px;line-height:1.45;}
+.class11-extra-info{display:grid;grid-template-columns:1fr 1fr 1fr;border-left:1px solid #222;border-right:1px solid #222;border-bottom:1px solid #222;}
+.class11-extra-info div{min-height:22px;border-right:1px solid #222;padding:2px 4px;font-size:7.5px;}
+.class11-extra-info div:last-child{border-right:0;}
+.class11-extra-info input{height:18px;border:0;background:transparent;color:#111;font:7.5px "Times New Roman",serif;padding:0;}
+.class11-extra-info input:focus{outline:1px solid #2563eb;background:#edf5ff;}
+@media print{
+ .class11-school-card .school-name{font-size:21px;} .class11-school-card .report-title{font-size:12px;}
+ .class11-marks-table th,.class11-marks-table td{font-size:6.5px;height:21px;} .class11-marks-table .subject-text{font-size:6.8px;}
+ .class11-card-layout{grid-template-columns:minmax(0,1fr) 160px;} .class11-final-side{width:160px;}
+ .class11-final-side .final-field{height:39px;font-size:7px;padding:5px 4px;} .class11-final-side .final-head{height:30px;font-size:7px;} .class11-final-side .final-title{height:30px;font-size:8px;} .class11-final-side .principal-box{height:90px;font-size:7px;}
+ .class11-bottom-table td,.class11-extra-info div{font-size:6.5px;}
+}
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print{
+    @page{
+        size:A4 landscape;
+        margin:5mm;
+    }
+
+    body{
+        background:#fff;
+        padding:0;
+    }
+
+    .header,
+    .admin-card,
+    .result-toolbar{
+        display:none!important;
+    }
+
+    #resultView{
+        display:block!important;
+        margin:0;
+    }
+
+    .print-page{
+        padding:0;
+        overflow:visible;
+    }
+
+    .school-card{
+        max-width:none;
+        width:100%;
+        padding:0;
+    }
+
+    .school-name{
+        font-size:23px;
+    }
+
+    .report-title{
+        font-size:14px;
+    }
+
+    .student-info{
+        font-size:8px;
+    }
+
+    .student-info td{
+        height:15px;
+    }
+
+    .card-layout{
+        grid-template-columns:minmax(0,1fr) 190px;
+    }
+
+    .final-side{
+        width:190px;
+    }
+
+    .marks-table th,
+    .marks-table td{
+        font-size:6.5px;
+        height:21px;
+        padding:1px;
+    }
+
+    .marks-table .subject{
+        font-size:7px;
+    }
+
+    .marks-table .sno{
+        width:25px;
+    }
+
+    .marks-table .subject{
+        width:105px;
+    }
+
+    .marks-table .mm{
+        width:23px;
+    }
+
+    .marks-table .obt{
+        width:26px;
+    }
+
+    .marks-table .total{
+        width:31px;
+    }
+
+    .marks-table .final-mm{
+        width:34px;
+    }
+
+    .marks-table .final-obt{
+        width:37px;
+    }
+
+    .card-mark-input{
+        height:17px;
+        font-size:6.5px;
+    }
+
+    .card-remark{
+        height:17px;
+        font-size:6px;
+    }
+
+    .blank-row td{
+        height:21px;
+    }
+
+    .total-row td{
+        height:22px;
+    }
+
+    .final-head{
+        height:40px;
+        font-size:7.5px;
+    }
+
+    .final-title{
+        height:36px;
+        font-size:8.5px;
+    }
+
+    .final-field{
+        height:52px;
+        padding:7px 5px;
+        font-size:7.5px;
+    }
+
+    .final-line{
+        min-width:72px;
+    }
+
+    .final-result-box{
+        height:42px;
+        font-size:8.5px;
+    }
+
+    .principal-box{
+        height:120px;
+        font-size:7.5px;
+    }
+
+    .bottom-table td{
+        height:22px;
+        font-size:7px;
+    }
+
+    .bottom-label{
+        width:120px;
+    }
+
+    .bottom-edit{
+        height:17px;
+        font-size:7px;
+    }
+}
+
+@media(max-width:900px){
+    body{padding:12px}
+
+    .component-grid{
+        grid-template-columns:repeat(3,minmax(125px,1fr));
+    }
+
+    .card-layout{
+        grid-template-columns:1fr;
+    }
+
+    .final-side{
+        width:100%;
+    }
+
+    .generated-table{
+        min-width:1050px;
+    }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- =========================================================
+     MAIN GENERATOR
+========================================================= -->
+
+<div class="header">
+    <h1>IKVM — Term Based Auto Result Generator</h1>
+    <p>
+        FA-1 + FA-2 + S.A.-1 = Term 1 /100
+        &nbsp; | &nbsp;
+        FA-3 + FA-4 + S.A.-2 = Term 2 /100
+        &nbsp; | &nbsp;
+        Final = /200
+    </p>
+</div>
+
+
+<!-- STUDENTS -->
+
+<div class="admin-card">
+    <h2>1. Result Class & Students</h2>
+    <div class="notice">
+        Select the class once. Students are loaded automatically from the existing IKVM student database.
+        No student name needs to be entered manually.
+    </div>
+    <div class="row result-class-row">
+        <div class="group">
+            <label>Result Class (choose once)</label>
+            <select id="resultClass" onchange="applyResultClass()">
+                <option value="1st" selected>Class 1</option>
+                <option value="2nd">Class 2</option>
+                <option value="3rd">Class 3</option>
+                <option value="4th">Class 4</option>
+                <option value="5th">Class 5</option>
+                <option value="6th">Class 6</option>
+                <option value="7th">Class 7</option>
+                <option value="8th">Class 8</option>
+                <option value="9th">Class 9</option>
+                <option value="11th">Class 11</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card hidden" id="studentsCard">
+    <h2>Students Loaded From Database</h2>
+    <div class="student-head">
+        <div>#</div>
+        <div>Student Details</div>
+        <div>Target Overall %</div>
+    </div>
+    <div id="studentsContainer"></div>
+</div>
+
+
+<!-- SUBJECTS -->
+
+<div class="admin-card">
+
+    <h2>2. Subject & Assessment Settings</h2>
+
+    <div class="notice">
+        Each included subject is <b>200 marks</b>:
+        Term 1 = FA-1 (20) + FA-2 (20) + S.A.-1 (60);
+        Term 2 = FA-3 (20) + FA-4 (20) + S.A.-2 (60).
+        Set realistic minimum and maximum marks for every component.
+    </div>
+
+    <div id="subjectsContainer"></div>
+
+    <button
+        id="addSubjectButton"
+        class="secondary"
+        style="margin-top:13px"
+        onclick="addSubject()"
+    >
+        + Add Subject
+    </button>
+
+    <div class="range-box" id="rangeBox">
+        Possible overall percentage range will appear here.
+    </div>
+
+    <div class="error-box" id="generatorError"></div>
+
+</div>
+
+
+<!-- GENERATE -->
+
+<div class="admin-card">
+
+    <h2>3. Generate Result</h2>
+
+    <div class="notice">
+        The generator distributes the required total marks across all six
+        assessment components while respecting every component's minimum
+        and maximum. Whole-number marks are used.
+    </div>
+
+    <div class="actions">
+
+        <button
+            class="primary"
+            onclick="generateResults()"
+        >
+            Generate Result
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- GENERATED RESULTS -->
+
+<div class="admin-card hidden" id="previewCard">
+
+    <h2>4. Generated Results</h2>
+
+    <p class="muted">
+        First generate the results here. Click <b>See Result</b> to open
+        the school's actual result-card design.
+    </p>
+
+    <div id="resultsContainer"></div>
+
+    <div class="actions">
+
+        <button
+            class="secondary"
+            onclick="generateResults()"
+        >
+            Regenerate
+        </button>
+
+        <button
+            class="success"
+            onclick="downloadAllResultsPDF()"
+        >
+            ⬇ Download All Results PDF
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     RESULT CARD VIEW
+========================================================= -->
+
+<div id="resultView">
+
+    <div class="result-toolbar">
+
+        <div>
+            <h2 id="resultViewTitle">
+                School Result Card
+            </h2>
+
+            <p>
+                Generated result • Edit marks if required • Percentage updates immediately
+            </p>
+        </div>
+
+        <div class="result-toolbar-actions">
+
+            <button
+                class="secondary"
+                onclick="backToGeneratedResults()"
+            >
+                ← Back to Results
+            </button>
+
+            <button
+                class="success"
+                onclick="downloadResultPDF(currentResultIndex)"
+            >
+                ⬇ Download PDF
+            </button>
+
+            <button
+                class="primary"
+                onclick="window.print()"
+            >
+                🖨 Print Result
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="print-page">
+
+        <div
+            class="school-card"
+            id="schoolResultCard"
+        ></div>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GENERATOR DATA
+========================================================= */
+
+const COMPONENTS = [
+
+    {
+        key:"fa1",
+        label:"FA-1",
+        max:20
+    },
+
+    {
+        key:"fa2",
+        label:"FA-2",
+        max:20
+    },
+
+    {
+        key:"sa1",
+        label:"S.A.-1",
+        max:60
+    },
+
+    {
+        key:"fa3",
+        label:"FA-3",
+        max:20
+    },
+
+    {
+        key:"fa4",
+        label:"FA-4",
+        max:20
+    },
+
+    {
+        key:"sa2",
+        label:"S.A.-2",
+        max:60
+    }
+
+];
+
+
+const DEFAULT_SUBJECTS = [
+
+    {
+        name:"Hindi",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"Mathematics",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"English",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"EVS/S.St.",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"Science",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"Sanskrit",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"Computer",
+        ranges:[[0,20],[0,20],[0,60],[0,20],[0,20],[0,60]]
+    },
+
+    {
+        name:"Drawing",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"Physical Edu.",
+        ranges:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]]
+    },
+
+    {
+        name:"Moral Education",
+        ranges:[[0,20],[0,20],[0,60],[0,20],[0,20],[0,60]]
+    }
+
+];
+
+
+let generatedResults = [];
+
+let currentResultIndex = -1;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function esc(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+function numberValue(value){
+
+    const n = Number(value);
+
+    return Number.isFinite(n)
+        ? n
+        : 0;
+
+}
+
+
+function wholeNumber(value){
+
+    return Math.round(numberValue(value));
+
+}
+
+
+function gradeFromPercentage(p){
+
+    if(p >= 90) return "A+";
+    if(p >= 80) return "A";
+    if(p >= 70) return "B+";
+    if(p >= 60) return "B";
+    if(p >= 50) return "C";
+    if(p >= 40) return "D";
+
+    return "E";
+
+}
+
+
+/* =========================================================
+   SUBJECTS
+========================================================= */
+
+function legacy_addSubject(data){
+
+    const subject =
+        data ||
+        {
+            name:"Subject",
+            ranges:[
+                [8,19],
+                [8,19],
+                [25,55],
+                [8,19],
+                [8,19],
+                [25,55]
+            ]
+        };
+
+
+    const card =
+        document.createElement("div");
+
+    card.className = "subject-card";
+
+
+    card.innerHTML = `
+
+        <div class="subject-title">
+
+            <strong>Subject</strong>
+
+            <div style="
+                display:flex;
+                align-items:center;
+                gap:10px;
+            ">
+
+                <label class="include-box">
+
+                    <input
+                        class="includeFinal"
+                        type="checkbox"
+                        checked
+                    >
+
+                    Include in Final %
+
+                </label>
+
+
+                <button
+                    class="danger"
+                    onclick="
+                        this.closest('.subject-card').remove();
+                        updateRange();
+                    "
+                >
+                    Remove
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="subject-name">
+
+            <label>
+                Subject Name
+
+                <input
+                    class="subjectName"
+                    value="${esc(subject.name)}"
+                    placeholder="Subject Name"
+                >
+
+            </label>
+
+        </div>
+
+
+        <div class="component-grid">
+
+            ${COMPONENTS.map((component,index)=>`
+
+                <div class="component">
+
+                    <b>${component.label}</b>
+
+                    <div class="cap">
+                        Maximum ${component.max}
+                    </div>
+
+
+                    <input
+                        class="componentMin"
+                        type="number"
+                        min="0"
+                        max="${component.max}"
+                        value="${subject.ranges[index][0]}"
+                        title="Minimum"
+                    >
+
+
+                    <input
+                        class="componentMax"
+                        type="number"
+                        min="0"
+                        max="${component.max}"
+                        value="${subject.ranges[index][1]}"
+                        title="Maximum"
+                    >
+
+
+                    <div class="cap">
+                        Min / Max
+                    </div>
+
+                </div>
+
+            `).join("")}
+
+        </div>
+
+    `;
+
+
+    document
+        .getElementById("subjectsContainer")
+        .appendChild(card);
+
+
+    updateRange();
+
+}
+
+
+/* =========================================================
+   READ SUBJECT SETTINGS
+========================================================= */
+
+function legacy_getSubjects(){
+
+    return [
+
+        ...document.querySelectorAll(".subject-card")
+
+    ].map(card=>{
+
+        const name =
+            card.querySelector(".subjectName")
+                ?.value
+                .trim() ||
+            "Subject";
+
+
+        const minInputs =
+            [
+                ...card.querySelectorAll(".componentMin")
+            ];
+
+
+        const maxInputs =
+            [
+                ...card.querySelectorAll(".componentMax")
+            ];
+
+
+        const mins =
+            minInputs.map(
+                input =>
+                    wholeNumber(input.value)
+            );
+
+
+        const maxs =
+            maxInputs.map(
+                input =>
+                    wholeNumber(input.value)
+            );
+
+
+        const include =
+            card.querySelector(".includeFinal")
+                ?.checked !== false;
+
+
+        return {
+            name,
+            mins,
+            maxs,
+            include
+        };
+
+    }).filter(
+        subject =>
+            subject.mins.length === COMPONENTS.length &&
+            subject.maxs.length === COMPONENTS.length
+    );
+
+}
+
+
+/* =========================================================
+   VALIDATE SETTINGS
+========================================================= */
+
+function legacy_validateSubjects(){
+
+    const subjects = getSubjects();
+
+
+    if(!subjects.length){
+
+        return "Add at least one subject.";
+
+    }
+
+
+    for(
+        let subjectIndex=0;
+        subjectIndex<subjects.length;
+        subjectIndex++
+    ){
+
+        const subject =
+            subjects[subjectIndex];
+
+
+        for(
+            let componentIndex=0;
+            componentIndex<COMPONENTS.length;
+            componentIndex++
+        ){
+
+            const maximum =
+                COMPONENTS[componentIndex].max;
+
+
+            let min =
+                Math.max(
+                    0,
+                    Math.min(
+                        maximum,
+                        wholeNumber(
+                            subject.mins[componentIndex]
+                        )
+                    )
+                );
+
+
+            let max =
+                Math.max(
+                    0,
+                    Math.min(
+                        maximum,
+                        wholeNumber(
+                            subject.maxs[componentIndex]
+                        )
+                    )
+                );
+
+
+            subject.mins[componentIndex] = min;
+
+            subject.maxs[componentIndex] = max;
+
+
+            if(min > max){
+
+                return `
+                    ${subject.name} —
+                    ${COMPONENTS[componentIndex].label}:
+                    minimum cannot be greater than maximum.
+                `;
+
+            }
+
+        }
+
+    }
+
+
+    if(!subjects.some(s=>s.include)){
+
+        return "Select at least one subject to include in Final %.";
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   TOTAL BOUNDS
+========================================================= */
+
+function legacy_getBounds(){
+
+    const subjects =
+        getSubjects()
+            .filter(s=>s.include);
+
+
+    let minimum = 0;
+    let maximum = 0;
+
+
+    subjects.forEach(subject=>{
+
+        subject.mins.forEach(
+            value =>
+                minimum += numberValue(value)
+        );
+
+
+        subject.maxs.forEach(
+            value =>
+                maximum += numberValue(value)
+        );
+
+    });
+
+
+    const total =
+        subjects.length * 200;
+
+
+    return {
+        minimum,
+        maximum,
+        total
+    };
+
+}
+
+
+/* =========================================================
+   POSSIBLE RANGE
+========================================================= */
+
+function legacy_updateRange(){
+
+    const error =
+        validateSubjects();
+
+
+    const rangeBox =
+        document.getElementById("rangeBox");
+
+
+    const errorBox =
+        document.getElementById("generatorError");
+
+
+    if(error){
+
+        if(
+            error.includes("minimum") ||
+            error.includes("at least") ||
+            error.includes("Final")
+        ){
+
+            errorBox.style.display = "block";
+
+            errorBox.textContent = "⚠️ " + error;
+
+        }
+
+    }else{
+
+        errorBox.style.display = "none";
+
+    }
+
+
+    const bounds =
+        getBounds();
+
+
+    if(bounds.total <= 0){
+
+        rangeBox.textContent =
+            "Select at least one subject to see the possible percentage.";
+
+        return;
+
+    }
+
+
+    const minPercentage =
+        bounds.minimum /
+        bounds.total *
+        100;
+
+
+    const maxPercentage =
+        bounds.maximum /
+        bounds.total *
+        100;
+
+
+    rangeBox.innerHTML = `
+
+        <b>Possible generated overall percentage:</b>
+
+        ${minPercentage.toFixed(2)}%
+
+        -
+
+        ${maxPercentage.toFixed(2)}%
+
+        &nbsp;
+
+        <span style="opacity:.7">
+            (${getSubjects().filter(s=>s.include).length}
+            subject(s) included)
+        </span>
+
+    `;
+
+}
+
+
+/* =========================================================
+   EXACT CONSTRAINED ALLOCATION
+========================================================= */
+
+function shuffled(array){
+
+    const result = [...array];
+
+
+    for(
+        let i=result.length-1;
+        i>0;
+        i--
+    ){
+
+        const j =
+            Math.floor(
+                Math.random() * (i+1)
+            );
+
+
+        [
+            result[i],
+            result[j]
+        ] = [
+            result[j],
+            result[i]
+        ];
+
+    }
+
+
+    return result;
+
+}
+
+
+function allocateExactTotal(
+    total,
+    mins,
+    maxs
+){
+
+    const minSum =
+        mins.reduce(
+            (a,b)=>a+b,
+            0
+        );
+
+    const maxSum =
+        maxs.reduce(
+            (a,b)=>a+b,
+            0
+        );
+
+    /*
+      IMPORTANT:
+      The old version could return null even when a valid
+      distribution existed because it visited every component
+      only once and randomly allocated too little.
+
+      This version keeps distributing until the exact required
+      total is reached. Therefore, if total is between the
+      mathematical minimum and maximum, generation succeeds.
+    */
+
+    if(
+        total < minSum ||
+        total > maxSum
+    ){
+        return null;
+    }
+
+    const values = [...mins];
+
+    const capacities =
+        maxs.map(
+            (maximum,index)=>
+                Math.max(
+                    0,
+                    maximum - mins[index]
+                )
+        );
+
+    let remaining =
+        total - minSum;
+
+    while(remaining > 0){
+
+        const available = [];
+
+        for(
+            let i=0;
+            i<capacities.length;
+            i++
+        ){
+            if(capacities[i] > 0){
+                available.push(i);
+            }
+        }
+
+        if(!available.length){
+            return null;
+        }
+
+        /*
+          Pick a random component that still has room.
+        */
+        const index =
+            available[
+                Math.floor(
+                    Math.random() *
+                    available.length
+                )
+            ];
+
+        const add =
+            Math.min(
+                capacities[index],
+                remaining
+            );
+
+        /*
+          Add at least 1 mark.
+          Randomize the amount while keeping enough room
+          for the remaining total.
+        */
+        const amount =
+            add <= 1
+                ? add
+                : 1 +
+                  Math.floor(
+                      Math.random() * add
+                  );
+
+        values[index] += amount;
+
+        capacities[index] -= amount;
+
+        remaining -= amount;
+    }
+
+    return values;
+}
+
+
+/* =========================================================
+   GENERATE ONE STUDENT
+========================================================= */
+
+function legacy_generateStudentResult(
+    student,
+    subjects
+){
+
+    const included =
+        subjects.filter(
+            s=>s.include
+        );
+
+
+    const bounds =
+        getBounds();
+
+
+    const target =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                numberValue(
+                    student.target
+                )
+            )
+        );
+
+
+    /*
+      The result card has 10 subjects × 200 = 2000
+      when all 10 are included.
+
+      For a custom number of subjects:
+      total = included subjects × 200.
+    */
+
+    const desiredTotal =
+        Math.round(
+            bounds.total *
+            target /
+            100
+        );
+
+
+    const mins = [];
+
+    const maxs = [];
+
+
+    included.forEach(
+        subject=>{
+
+            subject.mins.forEach(
+                value =>
+                    mins.push(
+                        wholeNumber(value)
+                    )
+            );
+
+
+            subject.maxs.forEach(
+                value =>
+                    maxs.push(
+                        wholeNumber(value)
+                    )
+            );
+
+        }
+    );
+
+
+    const generatedValues =
+        allocateExactTotal(
+            desiredTotal,
+            mins,
+            maxs
+        );
+
+
+    if(!generatedValues){
+
+        return null;
+
+    }
+
+
+    const resultSubjects = [];
+
+    let cursor = 0;
+
+
+    included.forEach(
+        subject=>{
+
+            const marks =
+                [];
+
+
+            for(
+                let i=0;
+                i<COMPONENTS.length;
+                i++
+            ){
+
+                marks.push(
+                    generatedValues[cursor++]
+                );
+
+            }
+
+
+            resultSubjects.push({
+
+                name:subject.name,
+
+                marks,
+
+                mins:[
+                    ...subject.mins
+                ],
+
+                maxs:[
+                    ...subject.maxs
+                ],
+
+                include:true,
+
+                remark:""
+
+            });
+
+        }
+    );
+
+
+    const obtained =
+        resultSubjects.reduce(
+            (sum,subject)=>
+                sum +
+                subject.marks.reduce(
+                    (a,b)=>a+b,
+                    0
+                ),
+            0
+        );
+
+
+    const total =
+        resultSubjects.length *
+        200;
+
+
+    const percentage =
+        total > 0
+            ? obtained / total * 100
+            : 0;
+
+
+    return {
+
+        name:student.name,
+
+        target,
+
+        rollNo:"",
+        srNo:"",
+        fatherName:"",
+        className:"3rd",
+        section:"",
+        attendance:"",
+        rank:"",
+
+        subjects:resultSubjects,
+
+        obtained,
+
+        total,
+
+        percentage,
+
+        grade:
+            gradeFromPercentage(
+                percentage
+            ),
+
+        result:
+            percentage >= 33
+                ? "PASS"
+                : "FAIL"
+
+    };
+
+}
+
+
+/* =========================================================
+   GENERATE ALL
+========================================================= */
+
+function applyStudentDatabaseMeta(result,student){
+    if(!result||!student)return result;
+    result.studentId=student.id||student._id||"";
+    result.name=student.name||result.name||"";
+    // Father name is shown only in the student-selection list.
+    // It is intentionally NOT used in the generated result.
+    result.fatherName="";
+    result.srNo="";
+    result.rollNo="";
+    result.uid="";
+    result.session=student.academicSession||student.schoolJoinSession||result.session||"";
+    result.className=isClass11()?"11th":selectedResultClass;
+    return result;
+}
+
+function getDatabaseStudentInputs(){
+    return [...document.querySelectorAll(".student-row")].map(row=>({
+        id:row.dataset.studentId||"",
+        name:row.dataset.studentName||"",
+        fatherName:row.dataset.fatherName||"",
+        serialNo:row.dataset.serialNo||"",
+        uid:row.dataset.uid||"",
+        academicSession:row.dataset.academicSession||"",
+        class:row.dataset.classNumber||"",
+        targetInput:row.querySelector(".studentTarget")
+    }));
+}
+
+function validateDatabaseStudents(){
+    const rows=getDatabaseStudentInputs();
+    const errorBox=document.getElementById("generatorError");
+    if(!rows.length){
+        errorBox.style.display="block";
+        errorBox.textContent="⚠️ No students were loaded from the database. Please select the class again.";
+        return null;
+    }
+    const bounds=getBounds();
+    const minPercentage=bounds.total?bounds.minimum/bounds.total*100:0;
+    const maxPercentage=bounds.total?bounds.maximum/bounds.total*100:0;
+    const students=[];
+    for(const row of rows){
+        const name=row.name.trim();
+        const rawTarget=row.targetInput?.value??"";
+        const target=numberValue(rawTarget);
+        if(!name){errorBox.style.display="block";errorBox.textContent="⚠️ A student record has no name.";return null;}
+        if(rawTarget===""||target<0||target>100){errorBox.style.display="block";errorBox.textContent=`⚠️ Enter a valid target percentage for ${name}.`;return null;}
+        if(target<minPercentage||target>maxPercentage){errorBox.style.display="block";errorBox.textContent=`${name}: ${target.toFixed(2)}% cannot be generated. Possible range is ${minPercentage.toFixed(2)}% - ${maxPercentage.toFixed(2)}%.`;return null;}
+        students.push({id:row.id,name,fatherName:row.fatherName,serialNo:row.serialNo,uid:row.uid,academicSession:row.academicSession,class:row.class,target});
+    }
+    return {students};
+}
+
+function legacy_generateResults(){
+    const error=validateSubjects();
+    const errorBox=document.getElementById("generatorError");
+    if(error){errorBox.style.display="block";errorBox.textContent="⚠️ "+error;return;}
+    const prepared=validateDatabaseStudents();
+    if(!prepared)return;
+    const subjects=getSubjects();
+    generatedResults=[];
+    for(const student of prepared.students){
+        const result=generateStudentResult(student,subjects);
+        if(!result){errorBox.style.display="block";errorBox.textContent=`Could not generate a valid result for ${student.name}.`;return;}
+        applyStudentDatabaseMeta(result,student);
+        generatedResults.push(result);
+    }
+    errorBox.style.display="none";
+    renderGeneratedResults();
+    document.getElementById("previewCard").classList.remove("hidden");
+    document.getElementById("previewCard").scrollIntoView({behavior:"smooth"});
+}
+
+function legacy_calculateResult(
+    result
+){
+
+    const obtained =
+        result.subjects.reduce(
+            (
+                sum,
+                subject
+            ) =>
+                sum +
+                subject.marks.reduce(
+                    (a,b)=>a+b,
+                    0
+                ),
+            0
+        );
+
+
+    const total =
+        result.subjects.length *
+        200;
+
+
+    const percentage =
+        total > 0
+            ? obtained / total * 100
+            : 0;
+
+
+    return {
+
+        obtained,
+
+        total,
+
+        percentage,
+
+        grade:
+            gradeFromPercentage(
+                percentage
+            ),
+
+        result:
+            percentage >= 33
+                ? "PASS"
+                : "FAIL"
+
+    };
+
+}
+
+
+/* =========================================================
+   RENDER GENERATED RESULTS
+========================================================= */
+
+function legacy_renderGeneratedResults(){
+
+    const container =
+        document.getElementById(
+            "resultsContainer"
+        );
+
+
+    container.innerHTML = "";
+
+
+    generatedResults.forEach(
+        (result,resultIndex)=>{
+
+            const calculation =
+                calculateResult(
+                    result
+                );
+
+
+            result.obtained =
+                calculation.obtained;
+
+            result.total =
+                calculation.total;
+
+            result.percentage =
+                calculation.percentage;
+
+            result.grade =
+                calculation.grade;
+
+            result.result =
+                calculation.result;
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "generated-card";
+
+
+            card.id =
+                `generated-${resultIndex}`;
+
+
+            let rows = "";
+
+
+            result.subjects.forEach(
+                (subject,subjectIndex)=>{
+
+                    const term1 =
+                        subject.marks[0] +
+                        subject.marks[1] +
+                        subject.marks[2];
+
+
+                    const term2 =
+                        subject.marks[3] +
+                        subject.marks[4] +
+                        subject.marks[5];
+
+
+                    const final =
+                        term1 + term2;
+
+
+                    rows += `
+
+                        <tr>
+
+                            <td class="subject-cell">
+                                <b>${esc(subject.name)}</b>
+                            </td>
+
+                            ${subject.marks.map(
+                                (
+                                    mark,
+                                    componentIndex
+                                ) => `
+
+                                <td>
+
+                                    <input
+                                        class="mark"
+                                        type="number"
+                                        min="0"
+                                        max="${COMPONENTS[componentIndex].max}"
+                                        value="${mark}"
+                                        oninput="
+                                            editGeneratedMark(
+                                                ${resultIndex},
+                                                ${subjectIndex},
+                                                ${componentIndex},
+                                                this.value
+                                            )
+                                        "
+                                    >
+
+                                </td>
+
+                            `).join("")}
+
+
+                            <td
+                                id="
+                                    generated-t1-
+                                    ${resultIndex}-
+                                    ${subjectIndex}
+                                "
+                            >
+                                ${term1}/100
+                            </td>
+
+
+                            <td
+                                id="
+                                    generated-t2-
+                                    ${resultIndex}-
+                                    ${subjectIndex}
+                                "
+                            >
+                                ${term2}/100
+                            </td>
+
+
+                            <td
+                                id="
+                                    generated-final-
+                                    ${resultIndex}-
+                                    ${subjectIndex}
+                                "
+                            >
+                                ${final}/200
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            );
+
+
+            card.innerHTML = `
+
+                <div class="generated-title">
+
+                    <strong>
+                        ${esc(result.name)}
+                    </strong>
+
+                    <span class="target">
+
+                        Target:
+                        ${result.target.toFixed(2)}%
+
+                        &nbsp; | &nbsp;
+
+                        Generated:
+                        <span
+                            id="generated-percent-${resultIndex}"
+                        >
+                            ${result.percentage.toFixed(2)}%
+                        </span>
+
+                    </span>
+
+                </div>
+
+
+                <div class="generated-scroll">
+
+                    <table class="generated-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Subject</th>
+
+                                <th>FA-1 /20</th>
+                                <th>FA-2 /20</th>
+                                <th>S.A.-1 /60</th>
+
+                                <th>Term 1 /100</th>
+
+                                <th>FA-3 /20</th>
+                                <th>FA-4 /20</th>
+                                <th>S.A.-2 /60</th>
+
+                                <th>Term 2 /100</th>
+
+                                <th>Final /200</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            ${rows}
+
+
+                            <tr class="total-row">
+
+                                <th>
+                                    TOTAL
+                                </th>
+
+                                <th colspan="3"></th>
+
+                                <th
+                                    id="generated-grand-t1-${resultIndex}"
+                                >
+                                    -
+                                </th>
+
+                                <th colspan="3"></th>
+
+                                <th
+                                    id="generated-grand-t2-${resultIndex}"
+                                >
+                                    -
+                                </th>
+
+                                <th
+                                    id="generated-grand-final-${resultIndex}"
+                                >
+                                    ${result.obtained}/${result.total}
+                                </th>
+
+                            </tr>
+
+
+                            <tr class="total-row">
+
+                                <th
+                                    colspan="9"
+                                    style="text-align:right"
+                                >
+                                    Overall Percentage
+                                </th>
+
+                                <th
+                                    id="generated-overall-${resultIndex}"
+                                >
+                                    ${result.percentage.toFixed(2)}%
+                                </th>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div
+                    class="adjustment"
+                    id="generated-adjustment-${resultIndex}"
+                ></div>
+
+
+                <div class="result-action-row">
+
+                    <button
+                        class="primary"
+                        onclick="
+                            seeResult(
+                                ${resultIndex}
+                            )
+                        "
+                    >
+                        See Result
+                    </button>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                card
+            );
+
+
+            updateGeneratedResultUI(
+                resultIndex
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   EDIT GENERATED MARK
+========================================================= */
+
+function legacy_editGeneratedMark(
+    resultIndex,
+    subjectIndex,
+    componentIndex,
+    value
+){
+
+    const result =
+        generatedResults[resultIndex];
+
+
+    const subject =
+        result.subjects[subjectIndex];
+
+
+    const maximum =
+        COMPONENTS[componentIndex].max;
+
+
+    let mark =
+        numberValue(value);
+
+
+    mark =
+        Math.max(
+            0,
+            Math.min(
+                maximum,
+                mark
+            )
+        );
+
+
+    subject.marks[componentIndex] =
+        mark;
+
+
+    updateGeneratedResultUI(
+        resultIndex
+    );
+
+
+    /*
+      If the result card is currently open for this student,
+      update that card too.
+    */
+
+    if(
+        currentResultIndex === resultIndex
+    ){
+
+        renderSchoolResultCard(
+            resultIndex
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GENERATED RESULT UI
+========================================================= */
+
+function legacy_updateGeneratedResultUI(
+    resultIndex
+){
+
+    const result =
+        generatedResults[resultIndex];
+
+
+    const calculation =
+        calculateResult(
+            result
+        );
+
+
+    result.obtained =
+        calculation.obtained;
+
+    result.total =
+        calculation.total;
+
+    result.percentage =
+        calculation.percentage;
+
+    result.grade =
+        calculation.grade;
+
+    result.result =
+        calculation.result;
+
+
+    result.subjects.forEach(
+        (subject,subjectIndex)=>{
+
+            const term1 =
+                subject.marks[0] +
+                subject.marks[1] +
+                subject.marks[2];
+
+
+            const term2 =
+                subject.marks[3] +
+                subject.marks[4] +
+                subject.marks[5];
+
+
+            const final =
+                term1 + term2;
+
+
+            const t1 =
+                document.getElementById(
+                    `generated-t1-${resultIndex}-${subjectIndex}`
+                );
+
+
+            const t2 =
+                document.getElementById(
+                    `generated-t2-${resultIndex}-${subjectIndex}`
+                );
+
+
+            const finalElement =
+                document.getElementById(
+                    `generated-final-${resultIndex}-${subjectIndex}`
+                );
+
+
+            if(t1)
+                t1.textContent =
+                    `${term1}/100`;
+
+
+            if(t2)
+                t2.textContent =
+                    `${term2}/100`;
+
+
+            if(finalElement)
+                finalElement.textContent =
+                    `${final}/200`;
+
+        }
+    );
+
+
+    const grandTerm1 =
+        result.subjects.reduce(
+            (sum,subject)=>
+                sum +
+                subject.marks[0] +
+                subject.marks[1] +
+                subject.marks[2],
+            0
+        );
+
+
+    const grandTerm2 =
+        result.subjects.reduce(
+            (sum,subject)=>
+                sum +
+                subject.marks[3] +
+                subject.marks[4] +
+                subject.marks[5],
+            0
+        );
+
+
+    const gt1 =
+        document.getElementById(
+            `generated-grand-t1-${resultIndex}`
+        );
+
+
+    const gt2 =
+        document.getElementById(
+            `generated-grand-t2-${resultIndex}`
+        );
+
+
+    const gf =
+        document.getElementById(
+            `generated-grand-final-${resultIndex}`
+        );
+
+
+    const gp =
+        document.getElementById(
+            `generated-percent-${resultIndex}`
+        );
+
+
+    const go =
+        document.getElementById(
+            `generated-overall-${resultIndex}`
+        );
+
+
+    if(gt1)
+        gt1.textContent =
+            `${grandTerm1}/${result.subjects.length*100}`;
+
+
+    if(gt2)
+        gt2.textContent =
+            `${grandTerm2}/${result.subjects.length*100}`;
+
+
+    if(gf)
+        gf.textContent =
+            `${result.obtained}/${result.total}`;
+
+
+    if(gp)
+        gp.textContent =
+            `${result.percentage.toFixed(2)}%`;
+
+
+    if(go)
+        go.textContent =
+            `${result.percentage.toFixed(2)}%`;
+
+
+    updateAdjustment(
+        resultIndex
+    );
+
+}
+
+
+/* =========================================================
+   TARGET ADJUSTMENT SUGGESTION
+========================================================= */
+
+function updateAdjustment(
+    resultIndex
+){
+
+    const result =
+        generatedResults[resultIndex];
+
+
+    const calculation =
+        calculateResult(
+            result
+        );
+
+
+    const targetMarks =
+        calculation.total *
+        result.target /
+        100;
+
+
+    const difference =
+        targetMarks -
+        calculation.obtained;
+
+
+    const box =
+        document.getElementById(
+            `generated-adjustment-${resultIndex}`
+        );
+
+
+    if(!box)
+        return;
+
+
+    if(Math.abs(difference) < 0.0001){
+
+        box.innerHTML = `
+
+            <strong>
+                ✓ Target matched
+            </strong>
+
+            <div style="margin-top:5px">
+
+                Current percentage is exactly
+                ${result.target.toFixed(2)}%.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const direction =
+        difference > 0
+            ? "increase"
+            : "decrease";
+
+
+    box.innerHTML = `
+
+        <strong>
+            💡 Target adjustment
+        </strong>
+
+        <div style="margin-top:5px">
+
+            Current:
+            <b>${calculation.percentage.toFixed(2)}%</b>
+
+            &nbsp; | &nbsp;
+
+            Target:
+            <b>${result.target.toFixed(2)}%</b>
+
+            <br>
+
+            To return to the target,
+            <b>
+                ${direction}
+                ${Math.abs(difference).toFixed(2)}
+                total marks
+            </b>
+            across the subjects.
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SEE RESULT
+========================================================= */
+
+function legacy_seeResult(
+    resultIndex
+){
+
+    if(
+        !generatedResults[resultIndex]
+    ){
+
+        return;
+
+    }
+
+
+    currentResultIndex =
+        resultIndex;
+
+
+    const result =
+        generatedResults[resultIndex];
+
+
+    document.getElementById(
+        "resultViewTitle"
+    ).textContent =
+        `${result.name} — School Result Card`;
+
+
+    document.getElementById(
+        "resultView"
+    ).style.display =
+        "block";
+
+
+    renderSchoolResultCard(
+        resultIndex
+    );
+
+
+    document.getElementById(
+        "resultView"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =========================================================
+   BACK TO GENERATED RESULTS
+========================================================= */
+
+function backToGeneratedResults(){
+
+    document.getElementById(
+        "resultView"
+    ).style.display =
+        "none";
+
+
+    currentResultIndex = -1;
+
+
+    document.getElementById(
+        "previewCard"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =========================================================
+   SCHOOL CARD MARK HELPERS
+========================================================= */
+
+function cardInputHtml(
+    resultIndex,
+    subjectIndex,
+    componentIndex,
+    value
+){
+
+    const maximum =
+        COMPONENTS[componentIndex].max;
+
+
+    return `
+
+        <input
+            class="card-mark-input"
+            type="number"
+            min="0"
+            max="${maximum}"
+            value="${value}"
+            data-result="${resultIndex}"
+            data-subject="${subjectIndex}"
+            data-component="${componentIndex}"
+        >
+
+    `;
+
+}
+
+
+/* =========================================================
+   RENDER SCHOOL RESULT CARD
+========================================================= */
+
+function legacy_renderSchoolResultCard(
+    resultIndex
+){
+
+    const result =
+        generatedResults[resultIndex];
+
+
+    const calculation =
+        calculateResult(
+            result
+        );
+
+
+    const subjects =
+        result.subjects;
+
+
+    const totals =
+        [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ];
+
+
+    subjects.forEach(
+        subject=>{
+
+            subject.marks.forEach(
+                (mark,index)=>
+                    totals[index] +=
+                    numberValue(mark)
+            );
+
+        }
+    );
+
+
+    const term1Total =
+        totals[0] +
+        totals[1] +
+        totals[2];
+
+
+    const term2Total =
+        totals[3] +
+        totals[4] +
+        totals[5];
+
+
+    let subjectRows = "";
+
+
+    subjects.forEach(
+        (
+            subject,
+            subjectIndex
+        )=>{
+
+            const term1 =
+                subject.marks[0] +
+                subject.marks[1] +
+                subject.marks[2];
+
+
+            const term2 =
+                subject.marks[3] +
+                subject.marks[4] +
+                subject.marks[5];
+
+
+            const final =
+                term1 +
+                term2;
+
+
+            subjectRows += `
+
+                <tr>
+
+                    <td>
+                        ${subjectIndex+1}.
+                    </td>
+
+
+                    <td class="subject-text">
+                        ${esc(subject.name)}
+                    </td>
+
+
+                    <td>20</td>
+
+                    <td>
+                        ${cardInputHtml(
+                            resultIndex,
+                            subjectIndex,
+                            0,
+                            subject.marks[0]
+                        )}
+                    </td>
+
+
+                    <td>20</td>
+
+                    <td>
+                        ${cardInputHtml(
+                            resultIndex,
+                            subjectIndex,
+                            1,
+                            subject.marks[1]
+                        )}
+                    </td>
+
+
+                    <td>60</td>
+
+                    <td>
+                        ${cardInputHtml(
+                            resultIndex,
+                            subjectIndex,
+                            2,
+                            subject.marks[2]
+                        )}
+                    </td>
+
+
+                    <td
+                        id="
+                            card-term1-
+                            ${resultIndex}-
+                            ${subjectIndex}
+                        "
+                    >
+                        ${term1}
+                    </td>
+
+
+                    <td>20</td>
+
+                    <td>
+                        ${cardInputHtml(
+                            resultIndex,
+                            subjectIndex,
+                            3,
+                            subject.marks[3]
+                        )}
+                    </td>
+
+
+                    <td>20</td>
+
+                    <td>
+                        ${cardInputHtml(
+                            resultIndex,
+                            subjectIndex,
+                            4,
+                            subject.marks[4]
+                        )}
+                    </td>
+
+
+                    <td>60</td>
+
+                    <td>
+                        ${cardInputHtml(
+                            resultIndex,
+                            subjectIndex,
+                            5,
+                            subject.marks[5]
+                        )}
+                    </td>
+
+
+                    <td
+                        id="
+                            card-term2-
+                            ${resultIndex}-
+                            ${subjectIndex}
+                        "
+                    >
+                        ${term2}
+                    </td>
+
+
+                    <td>200</td>
+
+
+                    <td
+                        id="
+                            card-final-
+                            ${resultIndex}-
+                            ${subjectIndex}
+                        "
+                    >
+                        ${final}
+                    </td>
+
+
+                    <td>
+
+                        <input
+                            class="card-remark"
+                            data-remark-result="${resultIndex}"
+                            data-remark-subject="${subjectIndex}"
+                            value="${esc(subject.remark || "")}"
+                        >
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    /*
+      The card is designed for the 10-subject school format.
+      If fewer subjects are selected, the unused rows remain blank.
+    */
+
+    const blankRows =
+        Math.max(
+            0,
+            10 - subjects.length
+        );
+
+
+    for(
+        let i=0;
+        i<blankRows;
+        i++
+    ){
+
+        subjectRows += `
+
+            <tr class="blank-row">
+
+                <td>${subjects.length+i+1}.</td>
+
+                <td></td>
+
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td>
+
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td><td></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    document.getElementById(
+        "schoolResultCard"
+    ).innerHTML = `
+
+        <div class="school-header">
+
+            <div class="school-logo">
+                S.D.I.C.
+            </div>
+
+
+            <div class="school-name">
+                Smt. DEVO DEVI INTERMEDIATE COLLEGE
+            </div>
+
+
+            <div class="report-title">
+                PROGRESS REPORT
+                <span>
+                    20 ........ - 20 ........
+                </span>
+            </div>
+
+        </div>
+
+
+        <table class="student-info">
+
+            <tr>
+
+                <td class="label">
+                    Roll No.
+                </td>
+
+                <td>
+                    <input
+                        class="bottom-edit"
+                        id="cardRollNo"
+                        value="${esc(result.rollNo || "")}"
+                        placeholder="................................"
+                    >
+                </td>
+
+
+                <td class="label">
+                    Student's Name
+                </td>
+
+                <td>
+                    ${esc(result.name)}
+                </td>
+
+
+                <td class="label">
+                    Class
+                </td>
+
+                <td>
+                    <input
+                        class="bottom-edit"
+                        id="cardClass"
+                        value="${esc(result.className || "3rd")}"
+                    >
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td class="label">
+                    S.R. No.
+                </td>
+
+                <td>
+                    <input
+                        class="bottom-edit"
+                        id="cardSR"
+                        value="${esc(result.srNo || "")}"
+                        placeholder="................................"
+                    >
+                </td>
+
+
+                <td class="label">
+                    Father's Name
+                </td>
+
+                <td>
+                    <input
+                        class="bottom-edit"
+                        id="cardFather"
+                        value="${esc(result.fatherName || "")}"
+                        placeholder="................................"
+                    >
+                </td>
+
+
+                <td class="label">
+                    Section
+                </td>
+
+                <td>
+                    <input
+                        class="bottom-edit"
+                        id="cardSection"
+                        value="${esc(result.section || "")}"
+                        placeholder="................................"
+                    >
+                </td>
+
+            </tr>
+
+        </table>
+
+
+        <div class="card-layout">
+
+
+            <!-- LEFT -->
+
+            <div class="card-left">
+
+                <table class="marks-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th
+                                class="sno"
+                                rowspan="2"
+                            >
+                                S.<br>No.
+                            </th>
+
+
+                            <th
+                                class="subject"
+                                rowspan="2"
+                            >
+                                Subject
+                            </th>
+
+
+                            <th colspan="2">
+                                F.A. 1
+                            </th>
+
+
+                            <th colspan="2">
+                                F.A. 2
+                            </th>
+
+
+                            <th colspan="2">
+                                S.A. I
+                            </th>
+
+
+                            <th
+                                class="total"
+                                rowspan="2"
+                            >
+                                Total
+                            </th>
+
+
+                            <th colspan="2">
+                                F.A. 3
+                            </th>
+
+
+                            <th colspan="2">
+                                F.A. 4
+                            </th>
+
+
+                            <th colspan="2">
+                                S.A. II
+                            </th>
+
+
+                            <th
+                                class="total"
+                                rowspan="2"
+                            >
+                                Total
+                            </th>
+
+
+                            <th
+                                class="final-mm"
+                                rowspan="2"
+                            >
+                                Final<br>M.M.
+                            </th>
+
+
+                            <th
+                                class="final-obt"
+                                rowspan="2"
+                            >
+                                Final<br>M.Obt.
+                            </th>
+
+
+                            <th rowspan="2">
+                                Remark
+                            </th>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th class="mm">
+                                M.M.
+                            </th>
+
+                            <th class="obt">
+                                M.Obt.
+                            </th>
+
+
+                            <th class="mm">
+                                M.M.
+                            </th>
+
+                            <th class="obt">
+                                M.Obt.
+                            </th>
+
+
+                            <th class="mm">
+                                M.M.
+                            </th>
+
+                            <th class="obt">
+                                M.Obt.
+                            </th>
+
+
+                            <th class="mm">
+                                M.M.
+                            </th>
+
+                            <th class="obt">
+                                M.Obt.
+                            </th>
+
+
+                            <th class="mm">
+                                M.M.
+                            </th>
+
+                            <th class="obt">
+                                M.Obt.
+                            </th>
+
+
+                            <th class="mm">
+                                M.M.
+                            </th>
+
+                            <th class="obt">
+                                M.Obt.
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        ${subjectRows}
+
+
+                        <tr class="total-row">
+
+                            <td>
+                                12.
+                            </td>
+
+
+                            <td class="subject-text">
+                                TOTAL
+                            </td>
+
+
+                            <td>
+                                200
+                            </td>
+
+                            <td id="card-total-fa1">
+                                ${totals[0]}
+                            </td>
+
+
+                            <td>
+                                200
+                            </td>
+
+                            <td id="card-total-fa2">
+                                ${totals[1]}
+                            </td>
+
+
+                            <td>
+                                600
+                            </td>
+
+                            <td id="card-total-sa1">
+                                ${totals[2]}
+                            </td>
+
+
+                            <td id="card-total-term1">
+                                ${term1Total}
+                            </td>
+
+
+                            <td>
+                                200
+                            </td>
+
+                            <td id="card-total-fa3">
+                                ${totals[3]}
+                            </td>
+
+
+                            <td>
+                                200
+                            </td>
+
+                            <td id="card-total-fa4">
+                                ${totals[4]}
+                            </td>
+
+
+                            <td>
+                                600
+                            </td>
+
+                            <td id="card-total-sa2">
+                                ${totals[5]}
+                            </td>
+
+
+                            <td id="card-total-term2">
+                                ${term2Total}
+                            </td>
+
+
+                            <td>
+                                2000
+                            </td>
+
+
+                            <td id="card-total-final">
+                                ${calculation.obtained}
+                            </td>
+
+
+                            <td></td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <table class="bottom-table">
+
+                    <tr>
+
+                        <td class="bottom-label">
+                            Class Teacher's Remark
+                        </td>
+
+                        <td colspan="18">
+
+                            <input
+                                class="bottom-edit"
+                                id="teacherRemark"
+                                value="${esc(result.teacherRemark || "")}"
+                            >
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="bottom-label">
+                            Sign. Class Teacher
+                        </td>
+
+                        <td colspan="18"></td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="bottom-label">
+                            Sign. Checker
+                        </td>
+
+                        <td colspan="18"></td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="bottom-label">
+                            Sign. Principal
+                        </td>
+
+                        <td colspan="18"></td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="bottom-label">
+                            Date
+                        </td>
+
+                        <td colspan="18"></td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="bottom-label">
+                            Sign. Parents
+                        </td>
+
+                        <td colspan="18"></td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+            <!-- RIGHT -->
+
+            <div class="final-side">
+
+                <table class="final-table">
+
+                    <tr>
+
+                        <td class="final-head">
+                            Remark
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="final-title">
+                            FINAL RESULT
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="final-field">
+
+                            <b>Attendance</b>
+
+                            <span class="final-line">
+                                <input
+                                    class="bottom-edit"
+                                    id="cardAttendance"
+                                    value="${esc(result.attendance || "")}"
+                                >
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="final-field">
+
+                            <b>Percentage</b>
+
+                            <span
+                                class="final-line"
+                                id="cardPercentage"
+                            >
+                                ${calculation.percentage.toFixed(2)}%
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="final-field">
+
+                            <b>Rank</b>
+
+                            <span class="final-line">
+
+                                <input
+                                    class="bottom-edit"
+                                    id="cardRank"
+                                    value="${esc(result.rank || "")}"
+                                >
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="final-field">
+
+                            <b>Grade</b>
+
+                            <span
+                                class="final-line"
+                                id="cardGrade"
+                            >
+                                ${calculation.grade}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td
+                            class="final-result-box"
+                            id="cardResult"
+                        >
+                            ${calculation.result}
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td class="principal-box">
+
+                            <b>Principal</b>
+
+                            <br>
+
+                            (Sign. &amp; Seal)
+
+                            <br><br><br>
+
+                            <b>School Re-open</b>
+
+                            <br>
+
+                            On............................
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /*
+      Attach live editing events after the card exists.
+    */
+
+    document
+        .querySelectorAll(
+            ".card-mark-input"
+        )
+        .forEach(
+            input => {
+
+                input.addEventListener(
+                    "input",
+                    handleCardMarkInput
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".card-remark"
+        )
+        .forEach(
+            input => {
+
+                input.addEventListener(
+                    "input",
+                    event => {
+
+                        const resultIndex =
+                            Number(
+                                event.target.dataset
+                                    .remarkResult
+                            );
+
+
+                        const subjectIndex =
+                            Number(
+                                event.target.dataset
+                                    .remarkSubject
+                            );
+
+
+                        if(
+                            generatedResults[
+                                resultIndex
+                            ]?.subjects[
+                                subjectIndex
+                            ]
+                        ){
+
+                            generatedResults[
+                                resultIndex
+                            ].subjects[
+                                subjectIndex
+                            ].remark =
+                                event.target.value;
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+    const roll =
+        document.getElementById(
+            "cardRollNo"
+        );
+
+
+    const sr =
+        document.getElementById(
+            "cardSR"
+        );
+
+
+    const father =
+        document.getElementById(
+            "cardFather"
+        );
+
+
+    const classInput =
+        document.getElementById(
+            "cardClass"
+        );
+
+
+    const section =
+        document.getElementById(
+            "cardSection"
+        );
+
+
+    const attendance =
+        document.getElementById(
+            "cardAttendance"
+        );
+
+
+    const rank =
+        document.getElementById(
+            "cardRank"
+        );
+
+
+    const teacherRemark =
+        document.getElementById(
+            "teacherRemark"
+        );
+
+
+    const bindValue =
+        (
+            element,
+            property
+        ) => {
+
+            if(!element)
+                return;
+
+
+            element.addEventListener(
+                "input",
+                () => {
+
+                    result[property] =
+                        element.value;
+
+                }
+            );
+
+        };
+
+
+    bindValue(
+        roll,
+        "rollNo"
+    );
+
+
+    bindValue(
+        sr,
+        "srNo"
+    );
+
+
+    bindValue(
+        father,
+        "fatherName"
+    );
+
+
+    bindValue(
+        classInput,
+        "className"
+    );
+
+
+    bindValue(
+        section,
+        "section"
+    );
+
+
+    bindValue(
+        attendance,
+        "attendance"
+    );
+
+
+    bindValue(
+        rank,
+        "rank"
+    );
+
+
+    bindValue(
+        teacherRemark,
+        "teacherRemark"
+    );
+
+}
+
+
+/* =========================================================
+   CARD MARK EDIT
+========================================================= */
+
+function handleCardMarkInput(
+    event
+){
+
+    const input =
+        event.target;
+
+
+    const resultIndex =
+        Number(
+            input.dataset.result
+        );
+
+
+    const subjectIndex =
+        Number(
+            input.dataset.subject
+        );
+
+
+    const componentIndex =
+        Number(
+            input.dataset.component
+        );
+
+
+    const result =
+        generatedResults[
+            resultIndex
+        ];
+
+
+    if(!result)
+        return;
+
+
+    const subject =
+        result.subjects[
+            subjectIndex
+        ];
+
+
+    if(!subject)
+        return;
+
+
+    const maximum =
+        COMPONENTS[
+            componentIndex
+        ].max;
+
+
+    let value =
+        numberValue(
+            input.value
+        );
+
+
+    value =
+        Math.max(
+            0,
+            Math.min(
+                maximum,
+                value
+            )
+        );
+
+
+    input.value =
+        value;
+
+
+    subject.marks[
+        componentIndex
+    ] = value;
+
+
+    /*
+      Update the generated result data.
+    */
+
+    const calculation =
+        calculateResult(
+            result
+        );
+
+
+    result.obtained =
+        calculation.obtained;
+
+    result.total =
+        calculation.total;
+
+    result.percentage =
+        calculation.percentage;
+
+    result.grade =
+        calculation.grade;
+
+    result.result =
+        calculation.result;
+
+
+    updateSchoolCardTotals(
+        resultIndex
+    );
+
+
+    /*
+      Also update the generated-result section
+      when the admin goes back.
+    */
+
+    updateGeneratedResultUI(
+        resultIndex
+    );
+
+}
+
+
+/* =========================================================
+   UPDATE SCHOOL CARD TOTALS
+========================================================= */
+
+function updateSchoolCardTotals(
+    resultIndex
+){
+
+    const result =
+        generatedResults[
+            resultIndex
+        ];
+
+
+    const calculation =
+        calculateResult(
+            result
+        );
+
+
+    const totals =
+        [0,0,0,0,0,0];
+
+
+    result.subjects.forEach(
+        (
+            subject,
+            subjectIndex
+        )=>{
+
+            subject.marks.forEach(
+                (
+                    mark,
+                    componentIndex
+                )=>{
+
+                    totals[
+                        componentIndex
+                    ] +=
+                        numberValue(mark);
+
+                }
+            );
+
+
+            const term1 =
+                subject.marks[0] +
+                subject.marks[1] +
+                subject.marks[2];
+
+
+            const term2 =
+                subject.marks[3] +
+                subject.marks[4] +
+                subject.marks[5];
+
+
+            const final =
+                term1 +
+                term2;
+
+
+            const t1 =
+                document.getElementById(
+                    `card-term1-${resultIndex}-${subjectIndex}`
+                );
+
+
+            const t2 =
+                document.getElementById(
+                    `card-term2-${resultIndex}-${subjectIndex}`
+                );
+
+
+            const f =
+                document.getElementById(
+                    `card-final-${resultIndex}-${subjectIndex}`
+                );
+
+
+            if(t1)
+                t1.textContent =
+                    term1;
+
+
+            if(t2)
+                t2.textContent =
+                    term2;
+
+
+            if(f)
+                f.textContent =
+                    final;
+
+        }
+    );
+
+
+    const set =
+        (
+            id,
+            value
+        )=>{
+
+            const element =
+                document.getElementById(id);
+
+            if(element)
+                element.textContent =
+                    value;
+
+        };
+
+
+    set(
+        "card-total-fa1",
+        totals[0]
+    );
+
+
+    set(
+        "card-total-fa2",
+        totals[1]
+    );
+
+
+    set(
+        "card-total-sa1",
+        totals[2]
+    );
+
+
+    set(
+        "card-total-term1",
+        totals[0] +
+        totals[1] +
+        totals[2]
+    );
+
+
+    set(
+        "card-total-fa3",
+        totals[3]
+    );
+
+
+    set(
+        "card-total-fa4",
+        totals[4]
+    );
+
+
+    set(
+        "card-total-sa2",
+        totals[5]
+    );
+
+
+    set(
+        "card-total-term2",
+        totals[3] +
+        totals[4] +
+        totals[5]
+    );
+
+
+    set(
+        "card-total-final",
+        calculation.obtained
+    );
+
+
+    set(
+        "cardPercentage",
+        calculation.percentage.toFixed(2)+"%"
+    );
+
+
+    set(
+        "cardGrade",
+        calculation.grade
+    );
+
+
+    set(
+        "cardResult",
+        calculation.result
+    );
+
+}
+
+
+/* =========================================================
+   CLASS-AWARE RESULT EXTENSION
+========================================================= */
+
+let selectedResultClass = "1st";
+
+const CLASS11_COMPONENTS = [
+    { key:"halfWritten", label:"Half-Yearly Written", max:100 },
+    { key:"halfPractical", label:"Half-Yearly Practical", max:30 },
+    { key:"annualWritten", label:"Annual Written", max:100 },
+    { key:"annualPractical", label:"Annual Practical", max:30 }
+];
+
+const CLASS11_SUBJECTS = [
+    { name:"हिन्दी", ranges:[[0,100],[0,30],[0,100],[0,30]] },
+    { name:"अंग्रेजी", ranges:[[0,100],[0,30],[0,100],[0,30]] },
+    { name:"गणित/जीव विज्ञान", ranges:[[0,100],[0,30],[0,100],[0,30]] },
+    { name:"भौतिक", ranges:[[0,100],[0,30],[0,100],[0,30]] },
+    { name:"रसायन विज्ञान", ranges:[[0,100],[0,30],[0,100],[0,30]] }
+];
+
+function isClass11(){ return selectedResultClass === "11th"; }
+function activeComponents(){ return isClass11() ? CLASS11_COMPONENTS : COMPONENTS; }
+
+async function applyResultClass(){
+    const selector=document.getElementById("resultClass");
+    selectedResultClass=selector ? selector.value : "1st";
+    const box=document.getElementById("subjectsContainer");
+    if(!box)return;
+    box.innerHTML="";
+    if(isClass11()) CLASS11_SUBJECTS.forEach(subject=>addSubject(subject));
+    else DEFAULT_SUBJECTS.forEach(subject=>addSubject(subject));
+    const addButton=document.getElementById("addSubjectButton");
+    if(addButton) addButton.style.display=isClass11()?"none":"inline-block";
+    document.querySelectorAll(".class11-remove").forEach(button=>{button.style.display=isClass11()?"none":"inline-block";});
+    updateRange();
+    await loadStudentsFromIKVM();
+}
+
+async function loadStudentsFromIKVM(){
+    const selector=document.getElementById("resultClass");
+    const container=document.getElementById("studentsContainer");
+    const card=document.getElementById("studentsCard");
+    if(!selector||!container||!card)return;
+    card.classList.remove("hidden");
+    container.innerHTML='<div class="notice" style="margin-top:10px">Loading students from the IKVM database...</div>';
+    try{
+        const response=await fetch(`/api/admin/results/students?class=${encodeURIComponent(selector.value)}`,{headers:{"Accept":"application/json"}});
+        if(!response.ok)throw new Error(`Server returned ${response.status}`);
+        const data=await response.json();
+        if(!data.success)throw new Error(data.message||"Unable to load students");
+        renderStudentsFromDatabase(data.students||[]);
+    }catch(error){
+        console.error("Result student loading error:",error);
+        container.innerHTML=`<div class="error-box" style="display:block">⚠️ ${esc(error.message||"Unable to load students from database")}</div>`;
+    }
+}
+
+function renderStudentsFromDatabase(students){
+    const container=document.getElementById("studentsContainer");
+    const card=document.getElementById("studentsCard");
+    if(!container||!card)return;
+    container.innerHTML="";
+    if(!students.length){
+        container.innerHTML='<div class="notice" style="margin-top:10px">No active students found for the selected class.</div>';
+        card.classList.remove("hidden");
+        return;
+    }
+    students.forEach((student,index)=>{
+        const row=document.createElement("div");
+        row.className="student-row";
+        row.dataset.studentId=student._id||"";
+        row.dataset.studentName=student.name||"";
+        row.dataset.fatherName=student.fatherName||"";
+        row.dataset.serialNo=student.serialNo||"";
+        row.dataset.uid=student.uid||"";
+        row.dataset.academicSession=student.academicSession||student.schoolJoinSession||"";
+        row.dataset.classNumber=student.class||"";
+        row.innerHTML=`<div>${index+1}</div><div><b>${esc(student.name||"Unnamed Student")}</b><div class="muted">Father: ${esc(student.fatherName||"-")}</div></div><input class="studentTarget" type="number" min="0" max="100" step="0.01" placeholder="Example: 85">`;
+        container.appendChild(row);
+    });
+    card.classList.remove("hidden");
+}
+
+function addSubject(data){
+    const components=activeComponents();
+    const defaults=isClass11()?[[0,100],[0,30],[0,100],[0,30]]:[[8,19],[8,19],[25,55],[8,19],[8,19],[25,55]];
+    const subject=data||{name:"Subject",ranges:defaults};
+    const card=document.createElement("div"); card.className="subject-card";
+    card.innerHTML=`<div class="subject-title"><strong>Subject</strong><div style="display:flex;align-items:center;gap:10px;"><label class="include-box"><input class="includeFinal" type="checkbox" checked> Include in Final %</label><button class="danger class11-remove" onclick="this.closest('.subject-card').remove();updateRange();">Remove</button></div></div><div class="subject-name"><label>Subject Name <input class="subjectName" value="${esc(subject.name)}" placeholder="Subject Name"></label></div><div class="component-grid">${components.map((component,index)=>`<div class="component"><b>${component.label}</b><div class="cap">Maximum ${component.max}</div><input class="componentMin" type="number" min="0" max="${component.max}" value="${subject.ranges[index]?.[0]??0}" title="Minimum"><input class="componentMax" type="number" min="0" max="${component.max}" value="${subject.ranges[index]?.[1]??component.max}" title="Maximum"><div class="cap">Min / Max</div></div>`).join("")}</div>`;
+    document.getElementById("subjectsContainer").appendChild(card); updateRange();
+}
+
+function getSubjects(){
+    const components=activeComponents();
+    return [...document.querySelectorAll(".subject-card")].map(card=>({
+        name:card.querySelector(".subjectName")?.value.trim()||"Subject",
+        mins:[...card.querySelectorAll(".componentMin")].map(i=>wholeNumber(i.value)),
+        maxs:[...card.querySelectorAll(".componentMax")].map(i=>wholeNumber(i.value)),
+        include:card.querySelector(".includeFinal")?.checked!==false
+    })).filter(s=>s.mins.length===components.length&&s.maxs.length===components.length);
+}
+
+function validateSubjects(){
+    const subjects=getSubjects(),components=activeComponents();
+    if(!subjects.length)return "Add at least one subject.";
+    for(const subject of subjects){
+        for(let i=0;i<components.length;i++){
+            const maximum=components[i].max,min=Math.max(0,Math.min(maximum,wholeNumber(subject.mins[i]))),max=Math.max(0,Math.min(maximum,wholeNumber(subject.maxs[i])));
+            subject.mins[i]=min;subject.maxs[i]=max;
+            if(min>max)return `${subject.name} — ${components[i].label}: minimum cannot be greater than maximum.`;
+        }
+    }
+    if(!subjects.some(s=>s.include))return "Select at least one subject to include in Final %.";
+    return "";
+}
+
+function getBounds(){
+    const subjects=getSubjects().filter(s=>s.include);let minimum=0,maximum=0;
+    subjects.forEach(s=>{s.mins.forEach(v=>minimum+=numberValue(v));s.maxs.forEach(v=>maximum+=numberValue(v));});
+    // Final marks remain /200 in both systems. For Class 11 the practical maximum
+    // is allowed in the component settings, but generated totals are capped at /200.
+    return {minimum,maximum,total:subjects.length*200};
+}
+
+function updateRange(){
+    const error=validateSubjects(),rangeBox=document.getElementById("rangeBox"),errorBox=document.getElementById("generatorError");
+    if(error){errorBox.style.display="block";errorBox.textContent="⚠️ "+error;}else errorBox.style.display="none";
+    const bounds=getBounds(); if(bounds.total<=0){rangeBox.textContent="Select at least one subject to see the possible percentage.";return;}
+    const minP=bounds.minimum/bounds.total*100,maxP=Math.min(100,bounds.maximum/bounds.total*100);
+    rangeBox.innerHTML=`<b>Possible generated overall percentage:</b> ${minP.toFixed(2)}% - ${maxP.toFixed(2)}% &nbsp; <span style="opacity:.7">(${getSubjects().filter(s=>s.include).length} subject(s) included)</span>`;
+}
+
+function generateClass11Marks(total,subjects){
+    const mins=subjects.map(s=>s.mins),maxs=subjects.map(s=>s.maxs);
+    const minTotal=mins.reduce((a,s)=>a+s.reduce((x,y)=>x+y,0),0);
+    if(total<minTotal||total>subjects.length*200)return null;
+    const output=[];
+    let remaining=total;
+    for(let i=0;i<subjects.length;i++){
+        const subjectsLeft=subjects.length-i-1;
+        const minRest=mins.slice(i+1).reduce((a,s)=>a+s.reduce((x,y)=>x+y,0),0);
+        const maxRest=(subjects.length-i-1)*200;
+        let subjectTotal=Math.round(remaining/(subjectsLeft+1));
+        subjectTotal=Math.max(0,Math.min(200,subjectTotal));
+        subjectTotal=Math.max(subjectTotal,remaining-maxRest);
+        subjectTotal=Math.min(subjectTotal,remaining-minRest);
+        let half=Math.floor(subjectTotal/2),annual=subjectTotal-half;
+        if(annual>100){annual=100;half=subjectTotal-annual;}
+        if(half>100){half=100;annual=subjectTotal-half;}
+        const halfMin=mins[i][0]+mins[i][1],halfMax=Math.min(100,maxs[i][0]+maxs[i][1]);
+        const annualMin=mins[i][2]+mins[i][3],annualMax=Math.min(100,maxs[i][2]+maxs[i][3]);
+        half=Math.max(halfMin,Math.min(halfMax,half));annual=subjectTotal-half;
+        if(annual<annualMin){annual=annualMin;half=subjectTotal-annual;}
+        if(annual>annualMax){annual=annualMax;half=subjectTotal-annual;}
+        if(half<halfMin||half>halfMax||annual<annualMin||annual>annualMax)return null;
+        let hw=Math.min(maxs[i][0],Math.max(mins[i][0],Math.floor(half*0.65))),hp=half-hw;
+        if(hp<mins[i][1]){hp=mins[i][1];hw=half-hp;} if(hp>maxs[i][1]){hp=maxs[i][1];hw=half-hp;}
+        let aw=Math.min(maxs[i][2],Math.max(mins[i][2],Math.floor(annual*0.65))),ap=annual-aw;
+        if(ap<mins[i][3]){ap=mins[i][3];aw=annual-ap;} if(ap>maxs[i][3]){ap=maxs[i][3];aw=annual-ap;}
+        if(hw<mins[i][0]||hw>maxs[i][0]||hp<mins[i][1]||hp>maxs[i][1]||aw<mins[i][2]||aw>maxs[i][2]||ap<mins[i][3]||ap>maxs[i][3])return null;
+        output.push([hw,hp,aw,ap]); remaining-=subjectTotal;
+    }
+    return remaining===0?output:null;
+}
+
+function generateStudentResult(student,subjects){
+    if(!isClass11()){
+        const result=legacy_generateStudentResult(student,subjects);
+        if(result){
+            result.className=selectedResultClass;
+            result.fatherName="";
+            result.srNo="";
+            result.rollNo="";
+            result.uid="";
+        }
+        return result;
+    }
+    const included=subjects.filter(s=>s.include),target=Math.max(0,Math.min(100,numberValue(student.target))),total=included.length*200,desired=Math.round(total*target/100),marks=generateClass11Marks(desired,included);
+    if(!marks)return null;
+    const resultSubjects=included.map((s,i)=>({name:s.name,marks:marks[i],mins:[...s.mins],maxs:[...s.maxs],include:true,remark:""}));
+    const obtained=resultSubjects.reduce((sum,s)=>sum+s.marks.reduce((a,b)=>a+b,0),0),percentage=total?obtained/total*100:0;
+    return {name:student.name,target,rollNo:"",srNo:"",fatherName:"",className:"11th",section:"",attendance:"",rank:"",session:"2025-2026",boardRegistrationNo:"",studentRegistrationNo:"",teacherRemark:"",subjects:resultSubjects,obtained,total,percentage,grade:gradeFromPercentage(percentage),result:percentage>=33?"PASS":"FAIL"};
+}
+
+function generateResults(){
+    if(!isClass11())return legacy_generateResults();
+    const errorBox=document.getElementById("generatorError");
+    const error=validateSubjects();
+    if(error){errorBox.style.display="block";errorBox.textContent="⚠️ "+error;return;}
+    const prepared=validateDatabaseStudents();
+    if(!prepared)return;
+    const subjects=getSubjects();
+    generatedResults=[];
+    for(const student of prepared.students){
+        const result=generateStudentResult(student,subjects);
+        if(!result){errorBox.style.display="block";errorBox.textContent=`Could not generate a valid result for ${student.name}.`;return;}
+        applyStudentDatabaseMeta(result,student);
+        generatedResults.push(result);
+    }
+    errorBox.style.display="none";
+    renderGeneratedResults();
+    document.getElementById("previewCard").classList.remove("hidden");
+    document.getElementById("previewCard").scrollIntoView({behavior:"smooth"});
+}
+
+function calculateResult(result){
+    if(!isClass11()&&result?.className!=="11th")return legacy_calculateResult(result);
+    const obtained=(result.subjects||[]).reduce((sum,s)=>sum+(s.marks||[]).reduce((a,b)=>a+numberValue(b),0),0),total=(result.subjects||[]).length*200,percentage=total?obtained/total*100:0;
+    return {obtained,total,percentage,grade:gradeFromPercentage(percentage),result:percentage>=33?"PASS":"FAIL"};
+}
+
+function renderGeneratedResults(){
+    if(!isClass11())return legacy_renderGeneratedResults();
+    const container=document.getElementById("resultsContainer");container.innerHTML="";
+    generatedResults.forEach((result,resultIndex)=>{
+        Object.assign(result,calculateResult(result));let rows="";
+        result.subjects.forEach((s,si)=>{const m=s.marks,h=m[0]+m[1],a=m[2]+m[3],f=h+a;rows+=`<tr><td class="subject-cell"><b>${esc(s.name)}</b></td><td><input class="mark" type="number" min="0" max="100" value="${m[0]}" oninput="editGeneratedMark(${resultIndex},${si},0,this.value)"></td><td><input class="mark" type="number" min="0" max="30" value="${m[1]}" oninput="editGeneratedMark(${resultIndex},${si},1,this.value)"></td><td>${h}/100</td><td><input class="mark" type="number" min="0" max="100" value="${m[2]}" oninput="editGeneratedMark(${resultIndex},${si},2,this.value)"></td><td><input class="mark" type="number" min="0" max="30" value="${m[3]}" oninput="editGeneratedMark(${resultIndex},${si},3,this.value)"></td><td>${a}/100</td><td>${f}/200</td></tr>`;});
+        const card=document.createElement("div");card.className="generated-card";card.id=`generated-${resultIndex}`;card.innerHTML=`<div class="generated-title"><strong>${esc(result.name)} — Class 11</strong><span class="target">Target: ${result.target.toFixed(2)}% | Generated: <span id="generated-percent-${resultIndex}">${result.percentage.toFixed(2)}%</span></span></div><div class="generated-scroll"><table class="generated-table"><thead><tr><th>Subject</th><th>Half-Yearly Written /100</th><th>Half-Yearly Practical /30</th><th>Half-Yearly Total /100</th><th>Annual Written /100</th><th>Annual Practical /30</th><th>Annual Total /100</th><th>Full Year /200</th></tr></thead><tbody>${rows}<tr class="total-row"><th>TOTAL</th><th id="c11-hw-${resultIndex}"></th><th id="c11-hp-${resultIndex}"></th><th id="c11-half-${resultIndex}"></th><th id="c11-aw-${resultIndex}"></th><th id="c11-ap-${resultIndex}"></th><th id="c11-annual-${resultIndex}"></th><th id="c11-final-${resultIndex}"></th></tr><tr class="total-row"><th colspan="7" style="text-align:right">Overall Percentage</th><th id="c11-percent-${resultIndex}">${result.percentage.toFixed(2)}%</th></tr></tbody></table></div><div class="adjustment" id="generated-adjustment-${resultIndex}"></div><div class="result-action-row">
+    <button class="primary" onclick="seeResult(${resultIndex})">See Result</button>
+    <button class="success" onclick="downloadResultPDF(${resultIndex})">⬇ Download PDF</button>
+</div>`;container.appendChild(card);updateClass11GeneratedUI(resultIndex);
+    });
+}
+
+function editGeneratedMark(resultIndex,subjectIndex,componentIndex,value){
+    if(!isClass11()&&generatedResults[resultIndex]?.className!=="11th")return legacy_editGeneratedMark(resultIndex,subjectIndex,componentIndex,value);
+    const result=generatedResults[resultIndex],subject=result?.subjects?.[subjectIndex];if(!subject)return;
+    const m=subject.marks,raw=numberValue(value);
+    let max=CLASS11_COMPONENTS[componentIndex].max;
+    if(componentIndex===0)max=Math.min(100,100-numberValue(m[1]));
+    if(componentIndex===1)max=Math.min(30,100-numberValue(m[0]));
+    if(componentIndex===2)max=Math.min(100,100-numberValue(m[3]));
+    if(componentIndex===3)max=Math.min(30,100-numberValue(m[2]));
+    m[componentIndex]=Math.max(0,Math.min(max,raw));
+    updateGeneratedResultUI(resultIndex);
+}
+
+function updateClass11GeneratedUI(resultIndex){
+    const result=generatedResults[resultIndex];if(!result)return;Object.assign(result,calculateResult(result));let hw=0,hp=0,aw=0,ap=0;result.subjects.forEach(s=>{hw+=s.marks[0];hp+=s.marks[1];aw+=s.marks[2];ap+=s.marks[3];});const half=hw+hp,annual=aw+ap;const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};set(`c11-hw-${resultIndex}`,hw);set(`c11-hp-${resultIndex}`,hp);set(`c11-half-${resultIndex}`,`${half}/${result.subjects.length*100}`);set(`c11-aw-${resultIndex}`,aw);set(`c11-ap-${resultIndex}`,ap);set(`c11-annual-${resultIndex}`,`${annual}/${result.subjects.length*100}`);set(`c11-final-${resultIndex}`,`${result.obtained}/${result.total}`);set(`c11-percent-${resultIndex}`,`${result.percentage.toFixed(2)}%`);set(`generated-percent-${resultIndex}`,`${result.percentage.toFixed(2)}%`);const box=document.getElementById(`generated-adjustment-${resultIndex}`);if(box){const diff=result.total*result.target/100-result.obtained;box.innerHTML=Math.abs(diff)<.0001?`<strong>✓ Target matched</strong><div style="margin-top:5px">Current percentage is exactly ${result.target.toFixed(2)}%.</div>`:`<strong>💡 Target adjustment</strong><div style="margin-top:5px">Current: <b>${result.percentage.toFixed(2)}%</b> &nbsp; | &nbsp; Target: <b>${result.target.toFixed(2)}%</b><br>To return to the target, <b>${diff>0?"increase":"decrease"} ${Math.abs(diff).toFixed(2)} total marks</b> across the subjects.</div>`;}
+}
+
+function updateGeneratedResultUI(resultIndex){
+    if(!isClass11()&&generatedResults[resultIndex]?.className!=="11th")return legacy_updateGeneratedResultUI(resultIndex);
+    updateClass11GeneratedUI(resultIndex);if(currentResultIndex===resultIndex)renderSchoolResultCard(resultIndex);
+}
+
+function seeResult(resultIndex){
+    if(!generatedResults[resultIndex])return;currentResultIndex=resultIndex;const result=generatedResults[resultIndex];document.getElementById("resultViewTitle").textContent=`${result.name} — School Result Card`;document.getElementById("resultView").style.display="block";renderSchoolResultCard(resultIndex);document.getElementById("resultView").scrollIntoView({behavior:"smooth"});
+}
+
+function renderSchoolResultCard(resultIndex){
+    const result=generatedResults[resultIndex];if(!isClass11()&&result?.className!=="11th")return legacy_renderSchoolResultCard(resultIndex);renderClass11SchoolCard(resultIndex);
+}
+
+function renderClass11SchoolCard(resultIndex){
+    const result=generatedResults[resultIndex];if(!result)return;Object.assign(result,calculateResult(result));const subjects=result.subjects||[];let halfW=0,halfP=0,annualW=0,annualP=0,rows="";
+    subjects.forEach((s,i)=>{const m=s.marks||[0,0,0,0],h=m[0]+m[1],a=m[2]+m[3],f=h+a;halfW+=m[0];halfP+=m[1];annualW+=m[2];annualP+=m[3];rows+=`<tr><td>${i+1}.</td><td class="subject-text">${esc(s.name)}</td><td class="c11-mm">100</td><td class="c11-obt"><input class="class11-card-input" type="number" min="0" max="100" value="${m[0]}" data-ri="${resultIndex}" data-si="${i}" data-ci="0"></td><td class="c11-mm">30</td><td class="c11-obt"><input class="class11-card-input" type="number" min="0" max="30" value="${m[1]}" data-ri="${resultIndex}" data-si="${i}" data-ci="1"></td><td class="c11-total">${h}</td><td class="c11-mm">100</td><td class="c11-obt"><input class="class11-card-input" type="number" min="0" max="100" value="${m[2]}" data-ri="${resultIndex}" data-si="${i}" data-ci="2"></td><td class="c11-mm">30</td><td class="c11-obt"><input class="class11-card-input" type="number" min="0" max="30" value="${m[3]}" data-ri="${resultIndex}" data-si="${i}" data-ci="3"></td><td class="c11-total">${a}</td><td class="c11-final">200</td><td class="c11-final">${f}</td><td class="c11-remark"><input class="class11-card-remark" value="${esc(s.remark||"")}" data-ri="${resultIndex}" data-si="${i}"></td></tr>`;});
+    const n=subjects.length,half=halfW+halfP,annual=annualW+annualP,card=document.getElementById("schoolResultCard");
+    card.innerHTML=`<div class="school-card class11-school-card"><div class="school-header"><div class="school-logo">S.D.I.C.</div><div class="school-name">श्रीमती देवो देवी इंटर कॉलेज खायरा, छाता (मथुरा)</div><div class="report-title">प्रगति-पत्र <span>सत्र ${esc(result.session||"2025-2026")}</span></div></div><table class="student-info"><tr><td class="label">अनुक्रमांक</td><td><input class="bottom-edit" id="cardRollNo" value="${esc(result.rollNo||"")}"></td><td class="label">छात्र/छात्रा का नाम</td><td>${esc(result.name)}</td><td class="label">कक्षा व वर्ग</td><td><input class="bottom-edit" id="cardClass" value="11th"></td></tr><tr><td class="label">छात्र पंजीयन संख्या (S.R. No.)</td><td><input class="bottom-edit" id="cardSR" value="${esc(result.srNo||"")}"></td><td class="label">पिता का नाम</td><td><input class="bottom-edit" id="cardFather" value="${esc(result.fatherName||"")}"></td><td class="label">बोर्ड की रजिस्ट्रेशन संख्या</td><td><input class="bottom-edit" id="cardBoardReg" value="${esc(result.boardRegistrationNo||"")}"></td></tr></table><div class="class11-card-layout"><div class="class11-card-left"><table class="class11-marks-table"><thead><tr><th class="c11-sno" rowspan="2">S.<br>No.</th><th class="c11-subject" rowspan="2">विषय</th><th colspan="5">अर्धवार्षिक परीक्षा के प्राप्तांक</th><th colspan="5">वार्षिक परीक्षा के प्राप्तांक</th><th colspan="2">संपूर्ण वार्षिक परीक्षाफल</th><th class="c11-remark" rowspan="2">अर्द्धवार्षिक बैठक<br>अन्य टिप्पणी</th></tr><tr><th class="c11-mm">पूर्णांक</th><th class="c11-obt">लिखित प्राप्तांक</th><th class="c11-mm">पूर्णांक</th><th class="c11-obt">प्रायोगिक प्राप्तांक</th><th class="c11-total">योग</th><th class="c11-mm">पूर्णांक</th><th class="c11-obt">लिखित प्राप्तांक</th><th class="c11-mm">पूर्णांक</th><th class="c11-obt">प्रायोगिक प्राप्तांक</th><th class="c11-total">योग</th><th class="c11-final">पूर्णांक</th><th class="c11-final">प्राप्तांक</th></tr></thead><tbody>${rows}<tr class="total-row"><td></td><td class="subject-text">योग</td><td>${n*100}</td><td>${halfW}</td><td>${n*30}</td><td>${halfP}</td><td>${half}</td><td>${n*100}</td><td>${annualW}</td><td>${n*30}</td><td>${annualP}</td><td>${annual}</td><td>${n*200}</td><td>${result.obtained}</td><td></td></tr></tbody></table><div class="class11-extra-info"><div><b>नैतिक, खेल एवं शिक्षा</b></div><div><b>परीक्षाफल / %</b> ${result.percentage.toFixed(1)}%</div><div><b>कक्षा अध्यापक</b> <input id="teacherRemark" value="${esc(result.teacherRemark||"")}"></div></div><table class="class11-bottom-table"><tr><td class="class11-bottom-label">ह. कक्षाध्यापक</td><td colspan="14"></td></tr><tr><td class="class11-bottom-label">ह. प्रधानाचार्य</td><td colspan="14"></td></tr><tr><td class="class11-bottom-label">ह. अभिभावक</td><td colspan="14"></td></tr></table></div><div class="class11-final-side"><table class="final-table"><tr><td class="final-head">अर्द्धवार्षिक बैठक<br>अन्य टिप्पणी</td></tr><tr><td class="final-title">FINAL RESULT</td></tr><tr><td class="final-field"><b>Attendance</b><span class="final-line"><input class="bottom-edit" id="cardAttendance" value="${esc(result.attendance||"")}"></span></td></tr><tr><td class="final-field"><b>Percentage</b><span class="final-line" id="cardPercentage">${result.percentage.toFixed(2)}%</span></td></tr><tr><td class="final-field"><b>Rank</b><span class="final-line"><input class="bottom-edit" id="cardRank" value="${esc(result.rank||"")}"></span></td></tr><tr><td class="final-field"><b>Grade</b><span class="final-line" id="cardGrade">${result.grade}</span></td></tr><tr><td class="final-result-box" id="cardResult">${result.result}</td></tr><tr><td class="principal-box"><b>प्रधानाचार्य</b><br>(हस्ताक्षर एवं मुहर)<br><br><br><b>विद्यालय खुलेगा</b><br>दिनांक ........................</td></tr></table></div></div></div>`;
+    document.querySelectorAll(".class11-card-input").forEach(input=>input.addEventListener("input",e=>{const r=generatedResults[Number(e.target.dataset.ri)],sub=r?.subjects?.[Number(e.target.dataset.si)];if(!sub)return;const ci=Number(e.target.dataset.ci);let max=CLASS11_COMPONENTS[ci].max;
+        if(ci===0)max=Math.min(100,100-numberValue(sub.marks[1]));
+        if(ci===1)max=Math.min(30,100-numberValue(sub.marks[0]));
+        if(ci===2)max=Math.min(100,100-numberValue(sub.marks[3]));
+        if(ci===3)max=Math.min(30,100-numberValue(sub.marks[2]));
+        sub.marks[ci]=Math.max(0,Math.min(max,numberValue(e.target.value)));updateClass11GeneratedUI(resultIndex);renderClass11SchoolCard(resultIndex);}));
+    document.querySelectorAll(".class11-card-remark").forEach(input=>input.addEventListener("input",e=>{const r=generatedResults[Number(e.target.dataset.ri)],sub=r?.subjects?.[Number(e.target.dataset.si)];if(sub)sub.remark=e.target.value;}));
+    const bind=(id,prop)=>{const e=document.getElementById(id);if(!e)return;e.addEventListener("input",()=>generatedResults[resultIndex][prop]=e.value);};
+    bind("cardRollNo","rollNo");bind("cardSR","srNo");bind("cardFather","fatherName");bind("cardClass","className");bind("cardAttendance","attendance");bind("cardRank","rank");bind("teacherRemark","teacherRemark");bind("cardBoardReg","boardRegistrationNo");
+}
+
+
+/* =========================================================
+   PDF DOWNLOAD
+   - One student/result per A4 landscape page
+   - Individual PDF
+   - Combined PDF
+   - Uses the exact existing result-card DOM/design
+========================================================= */
+
+function waitForPdfRender(){
+    return new Promise(resolve=>{
+        requestAnimationFrame(()=>{
+            requestAnimationFrame(()=>{
+                setTimeout(resolve,120);
+            });
+        });
+    });
+}
+
+function getPdfFileName(result,index){
+    const safeName=String(result?.name||`Student-${index+1}`)
+        .replace(/[<>:"/\\|?*]+/g,"")
+        .replace(/\s+/g,"_")
+        .trim();
+
+    const className=String(
+        result?.className||selectedResultClass||"Result"
+    ).replace(/[^a-zA-Z0-9_-]+/g,"");
+
+    return `${safeName||`Student-${index+1}`}_${className}_Result.pdf`;
+}
+
+async function captureResultCanvas(resultIndex){
+    if(!generatedResults[resultIndex]) return null;
+
+    currentResultIndex=resultIndex;
+
+    const resultView=document.getElementById("resultView");
+    if(!resultView) throw new Error("Result view was not found.");
+
+    const oldDisplay=resultView.style.display;
+
+    try{
+        resultView.style.display="block";
+        renderSchoolResultCard(resultIndex);
+        await waitForPdfRender();
+
+        const card=document.getElementById("schoolResultCard");
+        if(!card) throw new Error("Result card was not found.");
+
+        return await html2canvas(card,{
+            scale:2,
+            useCORS:true,
+            backgroundColor:"#ffffff",
+            logging:false,
+            windowWidth:Math.max(card.scrollWidth,1400)
+        });
+    }finally{
+        resultView.style.display=oldDisplay;
+    }
+}
+
+function addCanvasToPdf(pdf,canvas){
+    const pageWidth=297;
+    const pageHeight=210;
+    const margin=5;
+
+    const maxWidth=pageWidth-margin*2;
+    const maxHeight=pageHeight-margin*2;
+
+    const ratio=Math.min(
+        maxWidth/canvas.width,
+        maxHeight/canvas.height
+    );
+
+    const imgWidth=canvas.width*ratio;
+    const imgHeight=canvas.height*ratio;
+
+    const x=(pageWidth-imgWidth)/2;
+    const y=(pageHeight-imgHeight)/2;
+
+    pdf.addImage(
+        canvas.toDataURL("image/jpeg",0.96),
+        "JPEG",
+        x,
+        y,
+        imgWidth,
+        imgHeight,
+        undefined,
+        "FAST"
+    );
+}
+
+async function downloadResultPDF(resultIndex){
+    if(!generatedResults[resultIndex]){
+        alert("Please generate the result first.");
+        return;
+    }
+
+    if(
+        typeof html2canvas==="undefined" ||
+        !window.jspdf?.jsPDF
+    ){
+        alert("PDF libraries are not loaded. Please check your internet connection and reload the page.");
+        return;
+    }
+
+    const result=generatedResults[resultIndex];
+
+    try{
+        const canvas=await captureResultCanvas(resultIndex);
+        const {jsPDF}=window.jspdf;
+
+        const pdf=new jsPDF({
+            orientation:"landscape",
+            unit:"mm",
+            format:"a4",
+            compress:true
+        });
+
+        addCanvasToPdf(pdf,canvas);
+        pdf.save(getPdfFileName(result,resultIndex));
+    }catch(error){
+        console.error("Individual PDF generation failed:",error);
+        alert("Could not create the PDF. Please try again.");
+    }
+}
+
+async function downloadAllResultsPDF(){
+    if(!generatedResults.length){
+        alert("Please generate the results first.");
+        return;
+    }
+
+    if(
+        typeof html2canvas==="undefined" ||
+        !window.jspdf?.jsPDF
+    ){
+        alert("PDF libraries are not loaded. Please check your internet connection and reload the page.");
+        return;
+    }
+
+    const button=[...document.querySelectorAll("button")]
+        .find(b=>b.textContent.includes("Download All Results PDF"));
+
+    const oldText=button?button.textContent:"";
+
+    try{
+        if(button){
+            button.disabled=true;
+            button.textContent="⏳ Creating PDF...";
+        }
+
+        const {jsPDF}=window.jspdf;
+
+        const pdf=new jsPDF({
+            orientation:"landscape",
+            unit:"mm",
+            format:"a4",
+            compress:true
+        });
+
+        for(let i=0;i<generatedResults.length;i++){
+            const canvas=await captureResultCanvas(i);
+
+            if(i>0){
+                pdf.addPage("a4","landscape");
+            }
+
+            addCanvasToPdf(pdf,canvas);
+        }
+
+        const className=String(
+            selectedResultClass||
+            generatedResults[0]?.className||
+            "Result"
+        ).replace(/[^a-zA-Z0-9_-]+/g,"");
+
+        pdf.save(`IKVM_All_${className}_Results.pdf`);
+
+        if(generatedResults.length){
+            currentResultIndex=0;
+            renderSchoolResultCard(0);
+        }
+    }catch(error){
+        console.error("All-results PDF generation failed:",error);
+        alert("Could not create the combined PDF. Please try again.");
+    }finally{
+        if(button){
+            button.disabled=false;
+            button.textContent=oldText||"⬇ Download All Results PDF";
+        }
+    }
+}
+
+function resetAll(){
+    generatedResults=[];
+    currentResultIndex=-1;
+    selectedResultClass="1st";
+    const selector=document.getElementById("resultClass");
+    if(selector)selector.value="1st";
+    const studentsContainer=document.getElementById("studentsContainer");
+    if(studentsContainer)studentsContainer.innerHTML="";
+    const studentsCard=document.getElementById("studentsCard");
+    if(studentsCard)studentsCard.classList.add("hidden");
+    document.getElementById("previewCard").classList.add("hidden");
+    document.getElementById("resultsContainer").innerHTML="";
+    document.getElementById("resultView").style.display="none";
+    document.getElementById("subjectsContainer").innerHTML="";
+    DEFAULT_SUBJECTS.forEach(subject=>addSubject(subject));
+    const addButton=document.getElementById("addSubjectButton");
+    if(addButton)addButton.style.display="inline-block";
+    loadStudentsFromIKVM();
+}
+
+/* =========================================================
+   SUBJECT SETTINGS LIVE RANGE
+========================================================= */
+
+document
+    .getElementById(
+        "subjectsContainer"
+    )
+    .addEventListener(
+        "input",
+        updateRange
+    );
+
+
+document
+    .getElementById(
+        "subjectsContainer"
+    )
+    .addEventListener(
+        "change",
+        updateRange
+    );
+
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+resetAll();
+
+</script>
+
+</body>
+</html>

@@ -12,7 +12,8 @@ const studentAcademicHistorySchema = new mongoose.Schema(
         session: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            match: /^\d{4}-\d{2}$/
         },
 
         class: {
@@ -24,8 +25,13 @@ const studentAcademicHistorySchema = new mongoose.Schema(
 
         statusAtEnd: {
             type: String,
-            enum: ["active", "deactive", "graduated"],
-            default: "active"
+            enum: [
+                "active",
+                "completed",
+                "graduated",
+                "deactive"
+            ],
+            default: "completed"
         },
 
         recordedAt: {
@@ -38,12 +44,29 @@ const studentAcademicHistorySchema = new mongoose.Schema(
     }
 );
 
+
+// One student cannot have two history records
+// for the same academic session.
 studentAcademicHistorySchema.index(
-    { studentId: 1, session: 1 },
-    { unique: true }
+    {
+        studentId: 1,
+        session: 1
+    },
+    {
+        unique: true
+    }
 );
 
-module.exports = mongoose.model(
-    "StudentAcademicHistory",
-    studentAcademicHistorySchema
-);
+
+// Useful for loading history quickly.
+studentAcademicHistorySchema.index({
+    studentId: 1,
+    session: -1
+});
+
+
+module.exports =
+    mongoose.model(
+        "StudentAcademicHistory",
+        studentAcademicHistorySchema
+    );

@@ -1433,7 +1433,8 @@
                                 type="text"
                                 name="aadhaar"
                                 inputmode="numeric"
-                                maxlength="12"
+                                maxlength="14"
+                                oninput="formatAadhaar(this)"
                                 placeholder="Enter 12 digit Aadhaar number"
                             >
 
@@ -1553,7 +1554,8 @@
                                 type="text"
                                 name="fatherAadhaar"
                                 inputmode="numeric"
-                                maxlength="12"
+                                maxlength="14"
+                                oninput="formatAadhaar(this)"
                                 placeholder="Enter father's Aadhaar"
                             >
 
@@ -1573,7 +1575,8 @@
                                 type="text"
                                 name="motherAadhaar"
                                 inputmode="numeric"
-                                maxlength="12"
+                                maxlength="14"
+                                oninput="formatAadhaar(this)"
                                 placeholder="Enter mother's Aadhaar"
                             >
 
@@ -1972,6 +1975,13 @@ function createDynamicField(){const label=document.getElementById("newFieldName"
 function renderDynamicFields(s){const c=document.getElementById(s+"DynamicFields");if(!c)return;c.innerHTML="";dynamicFieldState[s].forEach((f,index)=>{const w=document.createElement("div");w.className="form-group dynamic-field-group";const l=document.createElement("label");l.textContent=f.label;const b=document.createElement("span");b.className="optional";b.textContent=f.scope==="all"?"Permanent field":"This student only";l.appendChild(b);const i=document.createElement("input");i.type=f.type||"text";i.name="dynamic_"+s+"_"+f.key;i.dataset.dynamicSection=s;i.dataset.dynamicKey=f.key;i.value=f.value||"";i.placeholder="Enter "+f.label;const r=document.createElement("button");r.type="button";r.className="dynamic-remove";r.textContent="×";r.onclick=()=>{dynamicFieldState[s].splice(index,1);renderDynamicFields(s);syncDynamicFields()};w.append(l,i,r);c.appendChild(w)})}
 function syncDynamicFields(){const d=[];["student","parent"].forEach(s=>dynamicFieldState[s].forEach(f=>d.push({section:s,key:f.key,label:f.label,type:f.type||"text",scope:f.scope||"student"})));const v={};document.querySelectorAll("[data-dynamic-section][data-dynamic-key]").forEach(i=>{const s=i.dataset.dynamicSection,k=i.dataset.dynamicKey;if(!v[s])v[s]={};v[s][k]=i.value});document.getElementById("dynamicFieldDefinitions").value=JSON.stringify(d);document.getElementById("dynamicFieldValues").value=JSON.stringify(v)}
 const dynamicForm=document.querySelector('form[action="/admin/students"]');if(dynamicForm)dynamicForm.addEventListener("submit",syncDynamicFields);document.getElementById("fieldBuilderModal").addEventListener("click",e=>{if(e.target===e.currentTarget)closeFieldBuilder()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeFieldBuilder()});
+</script>
+
+<script>
+function formatAadhaar(input) {
+    let digits = input.value.replace(/\D/g, '').slice(0, 12);
+    input.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+}
 </script>
 </body>
 

@@ -288,7 +288,160 @@ app.post("/login", async (req, res) => {
     }
 
 });
+// ======================================================
+// RESULT GENERATOR PAGE
+// ======================================================
 
+app.get(
+    "/admin/results",
+    requireAdmin,
+    async (req, res) => {
+        try {
+
+            return res.render(
+                "admin/result",
+                {
+                    user: req.user
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Result page error:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Unable to open result system"
+                );
+        }
+    }
+);
+
+
+// ======================================================
+// RESULT STUDENTS API
+// ======================================================
+
+app.get(
+    "/api/admin/results/students",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const classValue =
+                String(
+                    req.query.class || ""
+                ).trim();
+
+
+            // ------------------------------------------
+            // CLASS REQUIRED
+            // ------------------------------------------
+
+            if (!classValue) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message: "Class is required"
+                    });
+
+            }
+
+
+            // ------------------------------------------
+            // CONVERT CLASS
+            // Example: "11th" -> 11
+            // ------------------------------------------
+
+            const classNumber =
+                parseInt(
+                    classValue.replace(/\D/g, ""),
+                    10
+                );
+
+
+            // ------------------------------------------
+            // VALIDATE CLASS
+            // ------------------------------------------
+
+            if (
+                !classNumber ||
+                classNumber < 1 ||
+                classNumber > 12
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message: "Invalid class"
+                    });
+
+            }
+
+
+            // ------------------------------------------
+            // LOAD ACTIVE STUDENTS
+            // ------------------------------------------
+
+            const students =
+                await Student.find({
+
+                    class: classNumber,
+
+                    status: {
+                        $ne: "inactive"
+                    }
+
+                })
+                .select(
+                    "name class academicSession schoolJoinSession fatherName"
+                )
+                .sort({
+                    name: 1
+                })
+                .lean();
+
+
+            // ------------------------------------------
+            // RESPONSE
+            // ------------------------------------------
+
+            return res.json({
+
+                success: true,
+
+                students
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Result students API error:",
+                error
+            );
+
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Unable to load students"
+                });
+
+        }
+
+    }
+);
 
 // ======================================================
 // SIGNUP / CREATE USER

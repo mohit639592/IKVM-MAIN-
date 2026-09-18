@@ -68,7 +68,7 @@ async function getSessionState() {
         targetSession,
         completedClasses,
         pendingClasses,
-        displaySession: promotionOpen ? targetSession : sourceSession
+        ddisplaySession: sourceSession
     };
 }
 
