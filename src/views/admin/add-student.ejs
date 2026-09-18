@@ -1437,6 +1437,15 @@
                                 oninput="formatAadhaar(this)"
                                 placeholder="Enter 12 digit Aadhaar number"
                             >
+                            <div
+    id="aadhaarStatus"
+    style="
+        margin-top:6px;
+        font-size:13px;
+        font-weight:600;
+        display:none;
+    ">
+</div>
 
                         </div>
 
@@ -1975,6 +1984,150 @@ function createDynamicField(){const label=document.getElementById("newFieldName"
 function renderDynamicFields(s){const c=document.getElementById(s+"DynamicFields");if(!c)return;c.innerHTML="";dynamicFieldState[s].forEach((f,index)=>{const w=document.createElement("div");w.className="form-group dynamic-field-group";const l=document.createElement("label");l.textContent=f.label;const b=document.createElement("span");b.className="optional";b.textContent=f.scope==="all"?"Permanent field":"This student only";l.appendChild(b);const i=document.createElement("input");i.type=f.type||"text";i.name="dynamic_"+s+"_"+f.key;i.dataset.dynamicSection=s;i.dataset.dynamicKey=f.key;i.value=f.value||"";i.placeholder="Enter "+f.label;const r=document.createElement("button");r.type="button";r.className="dynamic-remove";r.textContent="×";r.onclick=()=>{dynamicFieldState[s].splice(index,1);renderDynamicFields(s);syncDynamicFields()};w.append(l,i,r);c.appendChild(w)})}
 function syncDynamicFields(){const d=[];["student","parent"].forEach(s=>dynamicFieldState[s].forEach(f=>d.push({section:s,key:f.key,label:f.label,type:f.type||"text",scope:f.scope||"student"})));const v={};document.querySelectorAll("[data-dynamic-section][data-dynamic-key]").forEach(i=>{const s=i.dataset.dynamicSection,k=i.dataset.dynamicKey;if(!v[s])v[s]={};v[s][k]=i.value});document.getElementById("dynamicFieldDefinitions").value=JSON.stringify(d);document.getElementById("dynamicFieldValues").value=JSON.stringify(v)}
 const dynamicForm=document.querySelector('form[action="/admin/students"]');if(dynamicForm)dynamicForm.addEventListener("submit",syncDynamicFields);document.getElementById("fieldBuilderModal").addEventListener("click",e=>{if(e.target===e.currentTarget)closeFieldBuilder()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeFieldBuilder()});
+
+// ======================================================
+// LIVE AADHAAR DUPLICATE CHECK
+// ======================================================
+
+const aadhaarInput =
+    document.querySelector('input[name="aadhaar"]');
+
+const aadhaarStatus =
+    document.getElementById("aadhaarStatus");
+
+let aadhaarCheckTimer = null;
+let aadhaarCheckRequest = 0;
+
+if (aadhaarInput && aadhaarStatus) {
+
+    aadhaarInput.addEventListener(
+        "input",
+        function () {
+
+            const digits =
+                this.value.replace(/\D/g, "");
+
+            // Reset status while typing
+            clearTimeout(aadhaarCheckTimer);
+
+            aadhaarStatus.style.display = "none";
+            aadhaarStatus.textContent = "";
+
+            aadhaarInput.style.borderColor = "";
+
+            if (digits.length !== 12) {
+                aadhaarInput.setCustomValidity("");
+                return;
+            }
+
+            aadhaarStatus.style.display = "block";
+            aadhaarStatus.textContent =
+                "Checking Aadhaar...";
+
+            aadhaarStatus.style.color =
+                "#9ca3af";
+
+            aadhaarCheckTimer = setTimeout(
+                async () => {
+
+                    const requestId =
+                        ++aadhaarCheckRequest;
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/api/admin/students/check-aadhaar?aadhaar=" +
+                                encodeURIComponent(digits)
+                            );
+
+                        const data =
+                            await response.json();
+
+                        // Ignore old request
+                        if (
+                            requestId !==
+                            aadhaarCheckRequest
+                        ) {
+                            return;
+                        }
+
+                        if (!data.success) {
+                            throw new Error(
+                                data.message ||
+                                "Check failed"
+                            );
+                        }
+
+                        if (data.taken) {
+
+                            aadhaarStatus.style.display =
+                                "block";
+
+                            aadhaarStatus.style.color =
+                                "#ef4444";
+
+                            aadhaarStatus.textContent =
+                                "✕ Already Taken" +
+                                (
+                                    data.student
+                                        ? ` — ${data.student.name} (Class ${data.student.class})`
+                                        : ""
+                                );
+
+                            aadhaarInput.style.borderColor =
+                                "#ef4444";
+
+                            // Prevent form submission
+                            aadhaarInput.setCustomValidity(
+                                "This Aadhaar number is already registered."
+                            );
+
+                        } else {
+
+                            aadhaarStatus.style.display =
+                                "block";
+
+                            aadhaarStatus.style.color =
+                                "#22c55e";
+
+                            aadhaarStatus.textContent =
+                                "✓ Aadhaar is available";
+
+                            aadhaarInput.style.borderColor =
+                                "#22c55e";
+
+                            aadhaarInput.setCustomValidity("");
+                        }
+
+                    } catch (error) {
+
+                        console.error(
+                            "Aadhaar check error:",
+                            error
+                        );
+
+                        aadhaarStatus.style.display =
+                            "block";
+
+                        aadhaarStatus.style.color =
+                            "#f59e0b";
+
+                        aadhaarStatus.textContent =
+                            "Unable to check Aadhaar right now.";
+
+                        aadhaarInput.style.borderColor =
+                            "";
+
+                        aadhaarInput.setCustomValidity("");
+                    }
+
+                },
+                300
+            );
+        }
+    );
+}
 </script>
 
 <script>

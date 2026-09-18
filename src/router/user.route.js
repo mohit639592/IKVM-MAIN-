@@ -289,6 +289,82 @@ app.post("/login", async (req, res) => {
 
 });
 // ======================================================
+// CHECK STUDENT AADHAAR DUPLICATE
+// ======================================================
+app.get(
+    "/api/admin/students/check-aadhaar",
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const digits = String(
+                req.query.aadhaar || ""
+            ).replace(/\D/g, "");
+
+            // Do nothing until a complete Aadhaar is entered
+            if (digits.length !== 12) {
+                return res.json({
+                    success: true,
+                    taken: false
+                });
+            }
+
+            /*
+             * Compare after removing spaces from the
+             * Aadhaar stored in MongoDB.
+             *
+             * This handles both:
+             * 1234 5678 9012
+             * 123456789012
+             */
+            const existing = await Student.findOne({
+                $expr: {
+                    $eq: [
+                        {
+                            $replaceAll: {
+                                input: {
+                                    $ifNull: ["$aadhaar", ""]
+                                },
+                                find: " ",
+                                replacement: ""
+                            }
+                        },
+                        digits
+                    ]
+                }
+            })
+            .select("_id name class")
+            .lean();
+
+            if (existing) {
+                return res.json({
+                    success: true,
+                    taken: true,
+                    student: {
+                        name: existing.name,
+                        class: existing.class
+                    }
+                });
+            }
+
+            return res.json({
+                success: true,
+                taken: false
+            });
+
+        } catch (error) {
+            console.error(
+                "AADHAAR CHECK ERROR:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
+                message: "Unable to check Aadhaar."
+            });
+        }
+    }
+);
+// ======================================================
 // RESULT GENERATOR PAGE
 // ======================================================
 
