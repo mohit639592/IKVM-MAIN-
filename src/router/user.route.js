@@ -2511,7 +2511,1108 @@ app.post(
 
 
 // ======================================================
-// EXPORT
+// UPDATE ALL STUDENTS
 // ======================================================
+
+
+// ------------------------------------------------------
+// UPDATE ALL PAGE
+// ------------------------------------------------------
+
+app.get(
+    "/admin/students/update-all",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const dynamicFields =
+                await getDynamicFields();
+
+            /*
+             * IMPORTANT:
+             * Built-in fields are taken directly
+             * from the actual Student schema.
+             *
+             * No manual field list.
+             */
+
+            const ignoredFields = new Set([
+                "_id",
+                "__v",
+                "customFields",
+                "createdAt",
+                "updatedAt"
+            ]);
+
+            const builtInFields =
+                Object.entries(
+                    Student.schema.paths
+                )
+                .filter(
+                    ([key, path]) => {
+
+                        if (
+                            ignoredFields.has(key)
+                        ) {
+                            return false;
+                        }
+
+                        return [
+                            "String",
+                            "Number",
+                            "Boolean",
+                            "Date"
+                        ].includes(
+                            path.instance
+                        );
+                    }
+                )
+                .map(
+                    ([key, path]) => {
+
+                        let label =
+                            key
+                                .replace(
+                                    /([A-Z])/g,
+                                    " $1"
+                                )
+                                .replace(
+                                    /^./,
+                                    char =>
+                                        char.toUpperCase()
+                                );
+
+                        return {
+                            key,
+                            label,
+                            type:
+                                path.instance === "Number"
+                                    ? "number"
+                                    : path.instance === "Date"
+                                        ? "date"
+                                        : path.instance === "Boolean"
+                                            ? "checkbox"
+                                            : "text"
+                        };
+
+                    }
+                );
+
+
+            return res.render(
+                "admin/update-all-students",
+                {
+                    user:
+                        req.session.user,
+
+                    builtInFields,
+
+                    dynamicFields
+                }
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Update All Page Error:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Unable to load Update All Students."
+                );
+        }
+
+    }
+);
+
+
+// ------------------------------------------------------
+// GET STUDENTS FOR UPDATE ALL
+// ------------------------------------------------------
+
+app.get(
+    "/admin/api/students/update-all",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const studentClass =
+                Number(req.query.class);
+
+            const requestedFields =
+                String(
+                    req.query.fields || ""
+                )
+                .split(",")
+                .map(
+                    field =>
+                        field.trim()
+                )
+                .filter(Boolean);
+
+
+            // ------------------------------
+            // CLASS VALIDATION
+            // ------------------------------
+
+            if (
+                !Number.isInteger(
+                    studentClass
+                ) ||
+                studentClass < 1 ||
+                studentClass > 12
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid class."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // FIELD VALIDATION
+            // ------------------------------
+
+            if (
+                !requestedFields.length
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Please select at least one field."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // GET STUDENTS
+            // ------------------------------
+
+            const students =
+                await Student
+                    .find({
+                        class: studentClass
+                    })
+                    .sort({
+                        serialNo: 1,
+                        name: 1
+                    })
+                    .lean();
+
+
+            // ------------------------------
+            // GET DYNAMIC FIELD DEFINITIONS
+            // ------------------------------
+
+            const dynamicFields =
+                await getDynamicFields();
+
+
+            const dynamicMap =
+                new Map();
+
+
+            [
+                ...(dynamicFields.student || []),
+                ...(dynamicFields.parent || [])
+            ]
+            .forEach(
+                field => {
+
+                    if (
+                        field.scope === "all"
+                    ) {
+
+                        dynamicMap.set(
+                            `dynamic:${field.section}:${field.key}`,
+                            field
+                        );
+
+                    }
+
+                }
+            );
+
+
+            // ------------------------------
+            // PREPARE STUDENTS
+            // ------------------------------
+
+            const result =
+                students.map(
+                    student => {
+
+                        const dynamicValues =
+                            dynamicValueMap(
+                                student
+                            );
+
+                        const values = {};
+
+
+                        requestedFields
+                            .forEach(
+                                fieldKey => {
+
+                                    // Dynamic field
+                                    if (
+                                        fieldKey.startsWith(
+                                            "dynamic:"
+                                        )
+                                    ) {
+
+                                        const parts =
+                                            fieldKey.split(
+                                                ":"
+                                            );
+
+                                        const section =
+                                            parts[1];
+
+                                        const key =
+                                            parts
+                                                .slice(2)
+                                                .join(":");
+
+
+                                        values[fieldKey] =
+                                            dynamicValues
+                                                ?.[
+                                                    section
+                                                ]
+                                                ?.[
+                                                    key
+                                                ] || "";
+
+                                    }
+
+                                    // Normal schema field
+                                    else {
+
+                                        values[fieldKey] =
+                                            student[
+                                                fieldKey
+                                            ] ?? "";
+
+                                    }
+
+                                }
+                            );
+
+
+                        return {
+
+                            _id:
+                                student._id,
+
+                            name:
+                                student.name,
+
+                            class:
+                                student.class,
+
+                            serialNo:
+                                student.serialNo || "",
+
+                            values
+
+                        };
+
+                    }
+                );
+
+
+            return res.json({
+
+                success: true,
+
+                students: result
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Update All Student List Error:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to load students."
+
+            });
+
+        }
+
+    }
+);
+
+
+// ------------------------------------------------------
+// AADHAAR DUPLICATE CHECK
+// ------------------------------------------------------
+
+app.get(
+    "/admin/api/students/check-aadhaar",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const aadhaar =
+                String(
+                    req.query.aadhaar || ""
+                )
+                .replace(
+                    /\s+/g,
+                    ""
+                )
+                .trim();
+
+
+            const excludeId =
+                String(
+                    req.query.excludeId || ""
+                )
+                .trim();
+
+
+            if (!aadhaar) {
+
+                return res.json({
+
+                    success: true,
+
+                    available: true
+
+                });
+
+            }
+
+
+            const query = {
+
+                aadhaar
+
+            };
+
+
+            /*
+             * Don't consider the student's
+             * own Aadhaar as duplicate.
+             */
+
+            if (
+                mongoose.Types.ObjectId.isValid(
+                    excludeId
+                )
+            ) {
+
+                query._id = {
+
+                    $ne: excludeId
+
+                };
+
+            }
+
+
+            const existing =
+                await Student
+                    .findOne(query)
+                    .select(
+                        "name class serialNo"
+                    )
+                    .lean();
+
+
+            if (!existing) {
+
+                return res.json({
+
+                    success: true,
+
+                    available: true
+
+                });
+
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                available: false,
+
+                student: {
+
+                    name:
+                        existing.name,
+
+                    class:
+                        existing.class,
+
+                    serialNo:
+                        existing.serialNo || ""
+
+                }
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Aadhaar Check Error:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to check Aadhaar."
+
+            });
+
+        }
+
+    }
+);
+
+
+// ------------------------------------------------------
+// SAVE UPDATE ALL
+// ------------------------------------------------------
+
+app.post(
+    "/admin/api/students/update-all",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const updates =
+                Array.isArray(
+                    req.body.updates
+                )
+                    ? req.body.updates
+                    : [];
+
+
+            if (!updates.length) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "No student data received."
+
+                });
+
+            }
+
+
+            // ==================================================
+            // GET ALL VALID BUILT-IN SCHEMA FIELDS
+            // ==================================================
+
+            const ignoredFields =
+                new Set([
+                    "_id",
+                    "__v",
+                    "createdAt",
+                    "updatedAt",
+                    "customFields"
+                ]);
+
+
+            const allowedBuiltInFields =
+                new Set(
+                    Object.keys(
+                        Student.schema.paths
+                    )
+                    .filter(
+                        key =>
+                            !ignoredFields.has(
+                                key
+                            )
+                    )
+                );
+
+
+            // ==================================================
+            // GET DYNAMIC FIELDS
+            // ==================================================
+
+            const dynamicFields =
+                await getDynamicFields();
+
+
+            const allowedDynamicFields =
+                new Map();
+
+
+            [
+                ...(dynamicFields.student || []),
+                ...(dynamicFields.parent || [])
+            ]
+            .forEach(
+                field => {
+
+                    if (
+                        field.scope === "all"
+                    ) {
+
+                        allowedDynamicFields.set(
+
+                            `dynamic:${field.section}:${field.key}`,
+
+                            field
+
+                        );
+
+                    }
+
+                }
+            );
+
+
+            // ==================================================
+            // PREPARE STUDENTS
+            // ==================================================
+
+            const prepared = [];
+
+
+            for (
+                const item
+                of updates
+            ) {
+
+                if (
+                    !item ||
+                    !mongoose.Types.ObjectId.isValid(
+                        item.studentId
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const student =
+                    await Student.findById(
+                        item.studentId
+                    );
+
+
+                if (!student) {
+                    continue;
+                }
+
+
+                const values =
+                    item.values &&
+                    typeof item.values === "object"
+
+                        ? item.values
+
+                        : {};
+
+
+                const builtInChanges = {};
+
+                const dynamicChanges = [];
+
+
+                for (
+                    const [
+                        fieldKey,
+                        rawValue
+                    ]
+                    of Object.entries(
+                        values
+                    )
+                ) {
+
+
+                    // ------------------------------------------
+                    // NORMAL DATABASE FIELD
+                    // ------------------------------------------
+
+                    if (
+                        allowedBuiltInFields.has(
+                            fieldKey
+                        )
+                    ) {
+
+                        const schemaPath =
+                            Student.schema.paths[
+                                fieldKey
+                            ];
+
+
+                        let value =
+                            rawValue;
+
+
+                        if (
+                            schemaPath.instance ===
+                            "Number"
+                        ) {
+
+                            if (
+                                value === "" ||
+                                value === null ||
+                                value === undefined
+                            ) {
+
+                                value = null;
+
+                            } else {
+
+                                value =
+                                    Number(
+                                        value
+                                    );
+
+                            }
+
+                        }
+
+                        else if (
+                            schemaPath.instance ===
+                            "Boolean"
+                        ) {
+
+                            value =
+                                value === true ||
+                                value === "true";
+
+                        }
+
+                        else {
+
+                            value =
+                                value == null
+                                    ? ""
+                                    : String(
+                                        value
+                                    ).trim();
+
+                        }
+
+
+                        builtInChanges[
+                            fieldKey
+                        ] = value;
+
+
+                        continue;
+
+                    }
+
+
+                    // ------------------------------------------
+                    // DYNAMIC FIELD
+                    // ------------------------------------------
+
+                    if (
+                        allowedDynamicFields.has(
+                            fieldKey
+                        )
+                    ) {
+
+                        const field =
+                            allowedDynamicFields.get(
+                                fieldKey
+                            );
+
+
+                        dynamicChanges.push({
+
+                            field,
+
+                            value:
+                                rawValue == null
+                                    ? ""
+                                    : String(
+                                        rawValue
+                                    ).trim()
+
+                        });
+
+                    }
+
+                }
+
+
+                prepared.push({
+
+                    student,
+
+                    builtInChanges,
+
+                    dynamicChanges
+
+                });
+
+            }
+
+
+            // ==================================================
+            // AADHAAR VALIDATION
+            // ==================================================
+
+            const aadhaarOwners =
+                new Map();
+
+
+            for (
+                const item
+                of prepared
+            ) {
+
+                if (
+                    !Object.prototype
+                        .hasOwnProperty.call(
+                            item.builtInChanges,
+                            "aadhaar"
+                        )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const aadhaar =
+                    String(
+                        item.builtInChanges.aadhaar ||
+                        ""
+                    )
+                    .replace(
+                        /\s+/g,
+                        ""
+                    )
+                    .trim();
+
+
+                if (!aadhaar) {
+                    continue;
+                }
+
+
+                // ------------------------------------------
+                // DUPLICATE INSIDE SAME BULK UPDATE
+                // ------------------------------------------
+
+                if (
+                    aadhaarOwners.has(
+                        aadhaar
+                    ) &&
+                    String(
+                        aadhaarOwners.get(
+                            aadhaar
+                        )
+                    ) !== String(
+                        item.student._id
+                    )
+                ) {
+
+                    return res.status(409).json({
+
+                        success: false,
+
+                        type:
+                            "aadhaar_duplicate",
+
+                        message:
+                            "The same Aadhaar cannot be assigned to two students.",
+
+                        studentId:
+                            item.student._id
+
+                    });
+
+                }
+
+
+                aadhaarOwners.set(
+
+                    aadhaar,
+
+                    item.student._id
+
+                );
+
+
+                // ------------------------------------------
+                // CHECK DATABASE
+                // ------------------------------------------
+
+                const existing =
+                    await Student
+                        .findOne({
+
+                            aadhaar,
+
+                            _id: {
+                                $ne:
+                                    item.student._id
+                            }
+
+                        })
+                        .select(
+                            "name class serialNo"
+                        )
+                        .lean();
+
+
+                if (existing) {
+
+                    return res.status(409).json({
+
+                        success: false,
+
+                        type:
+                            "aadhaar_duplicate",
+
+                        message:
+                            `This Aadhaar is already taken by ${existing.name} from Class ${existing.class}.`,
+
+                        studentId:
+                            item.student._id,
+
+                        duplicate: {
+
+                            name:
+                                existing.name,
+
+                            class:
+                                existing.class,
+
+                            serialNo:
+                                existing.serialNo || ""
+
+                        }
+
+                    });
+
+                }
+
+            }
+
+
+            // ==================================================
+            // SAVE ALL STUDENTS
+            // ==================================================
+
+            let updatedCount = 0;
+
+
+            for (
+                const item
+                of prepared
+            ) {
+
+                const student =
+                    item.student;
+
+
+                // ------------------------------------------
+                // NORMAL FIELDS
+                // ------------------------------------------
+
+                for (
+                    const [
+                        fieldKey,
+                        value
+                    ]
+                    of Object.entries(
+                        item.builtInChanges
+                    )
+                ) {
+
+                    student[
+                        fieldKey
+                    ] = value;
+
+                }
+
+
+                // ------------------------------------------
+                // DYNAMIC FIELDS
+                // ------------------------------------------
+
+                if (
+                    item.dynamicChanges.length
+                ) {
+
+                    let customFields =
+                        stripDynamic(
+                            student.customFields
+                        );
+
+
+                    for (
+                        const change
+                        of item.dynamicChanges
+                    ) {
+
+                        const field =
+                            change.field;
+
+
+                        const storageName =
+                            dynamicStorageName(
+
+                                field.section,
+
+                                field.key
+
+                            );
+
+
+                        const index =
+                            customFields.findIndex(
+
+                                fieldValue =>
+                                    fieldValue.name ===
+                                    storageName
+
+                            );
+
+
+                        // ------------------------------
+                        // BLANK VALUE = REMOVE VALUE
+                        // ------------------------------
+
+                        if (
+                            change.value === ""
+                        ) {
+
+                            if (
+                                index !== -1
+                            ) {
+
+                                customFields.splice(
+                                    index,
+                                    1
+                                );
+
+                            }
+
+                        }
+
+                        // ------------------------------
+                        // VALUE EXISTS
+                        // ------------------------------
+
+                        else {
+
+                            if (
+                                index === -1
+                            ) {
+
+                                customFields.push({
+
+                                    name:
+                                        storageName,
+
+                                    value:
+                                        change.value
+
+                                });
+
+                            }
+
+                            else {
+
+                                customFields[
+                                    index
+                                ].value =
+                                    change.value;
+
+                            }
+
+                        }
+
+                    }
+
+
+                    student.customFields =
+                        customFields;
+
+                }
+
+
+                await student.save();
+
+                updatedCount++;
+
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                updatedCount,
+
+                message:
+                    `${updatedCount} student(s) updated successfully.`
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Update All Save Error:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to update students."
+
+            });
+
+        }
+
+    }
+);
+
 
 module.exports = app;

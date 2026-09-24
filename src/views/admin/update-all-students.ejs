@@ -1,0 +1,4340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Update All Students | IKVM</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        :root {
+
+            --bg: #06080d;
+            --panel: #0d1119;
+            --panel-2: #111620;
+            --panel-3: #151b27;
+
+            --border: rgba(255,255,255,.08);
+            --border-light: rgba(255,255,255,.12);
+
+            --text: #f1f3f8;
+            --muted: #7d8698;
+            --muted-2: #5d6677;
+
+            --purple: #6d72ff;
+            --purple-light: #8589ff;
+
+            --green: #24d39d;
+            --red: #ff626c;
+            --orange: #ffb45c;
+
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            color: var(--text);
+
+            background:
+
+                radial-gradient(
+                    circle at 15% -10%,
+                    rgba(103,109,255,.16),
+                    transparent 32%
+                ),
+
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(39,211,157,.055),
+                    transparent 28%
+                ),
+
+                var(--bg);
+
+            font-family:
+                Inter,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+        }
+
+
+        button,
+        input,
+        select {
+
+            font-family: inherit;
+
+        }
+
+
+        /* =====================================================
+           PAGE
+        ===================================================== */
+
+        .page {
+
+            width: min(
+                1500px,
+                calc(100% - 50px)
+            );
+
+            margin: 0 auto;
+
+            padding:
+                30px
+                0
+                80px;
+
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .topbar {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .heading-area {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+
+        }
+
+
+        .heading-icon {
+
+            width: 50px;
+            height: 50px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            color: #9296ff;
+
+            font-size: 21px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(109,114,255,.20),
+                    rgba(133,89,255,.08)
+                );
+
+            border:
+                1px solid
+                rgba(109,114,255,.25);
+
+            box-shadow:
+                0 10px 35px
+                rgba(90,90,255,.10);
+
+        }
+
+
+        .eyebrow {
+
+            color: #777dff;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 2px;
+
+        }
+
+
+        .page-title {
+
+            margin-top: 3px;
+
+            font-size: 28px;
+
+            font-weight: 750;
+
+            letter-spacing: -.7px;
+
+        }
+
+
+        .page-description {
+
+            margin-top: 5px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
+
+
+        .back-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            height: 42px;
+
+            padding: 0 15px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 10px;
+
+            background:
+                rgba(255,255,255,.025);
+
+            color: #aab2c4;
+
+            text-decoration: none;
+
+            font-size: 11px;
+
+            transition: .2s;
+
+        }
+
+
+        .back-btn:hover {
+
+            background:
+                rgba(255,255,255,.06);
+
+            color: white;
+
+            border-color:
+                var(--border-light);
+
+        }
+
+
+        /* =====================================================
+           SETUP CARD
+        ===================================================== */
+
+        .setup-card {
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.045),
+                    rgba(255,255,255,.012)
+                );
+
+            box-shadow:
+                0 25px 80px
+                rgba(0,0,0,.25);
+
+        }
+
+
+        .setup-header {
+
+            padding:
+                22px
+                24px;
+
+            border-bottom:
+                1px solid
+                var(--border);
+
+        }
+
+
+        .step-label {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--purple-light);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 1.3px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .step-number {
+
+            width: 22px;
+            height: 22px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 7px;
+
+            background:
+                rgba(109,114,255,.14);
+
+            font-size: 9px;
+
+        }
+
+
+        .setup-header h2 {
+
+            margin-top: 10px;
+
+            font-size: 18px;
+
+        }
+
+
+        .setup-header p {
+
+            margin-top: 5px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        /* =====================================================
+           SETUP CONTENT
+        ===================================================== */
+
+        .setup-content {
+
+            padding: 23px;
+
+        }
+
+
+        .class-area {
+
+            max-width: 250px;
+
+            margin-bottom: 24px;
+
+        }
+
+
+        .label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #929bad;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: .8px;
+
+        }
+
+
+        .class-select {
+
+            width: 100%;
+
+            height: 46px;
+
+            padding:
+                0
+                13px;
+
+            border:
+                1px solid
+                #293143;
+
+            border-radius: 10px;
+
+            outline: none;
+
+            color: white;
+
+            background: #0a0e15;
+
+            font-size: 12px;
+
+            cursor: pointer;
+
+        }
+
+
+        .class-select:focus {
+
+            border-color:
+                rgba(109,114,255,.75);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(109,114,255,.08);
+
+        }
+
+
+        /* =====================================================
+           FIELD SECTION
+        ===================================================== */
+
+        .field-heading {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .field-heading-left h3 {
+
+            font-size: 13px;
+
+        }
+
+
+        .field-heading-left p {
+
+            margin-top: 3px;
+
+            color: var(--muted-2);
+
+            font-size: 10px;
+
+        }
+
+
+        .field-actions {
+
+            display: flex;
+
+            gap: 8px;
+
+        }
+
+
+        .small-action {
+
+            height: 32px;
+
+            padding:
+                0
+                11px;
+
+            border:
+                1px solid
+                #2a3142;
+
+            border-radius: 8px;
+
+            color: #929bad;
+
+            background:
+                #0b0f16;
+
+            font-size: 9px;
+
+            cursor: pointer;
+
+            transition: .2s;
+
+        }
+
+
+        .small-action:hover {
+
+            color: white;
+
+            border-color:
+                #444d61;
+
+        }
+
+
+        /* =====================================================
+           FIELD GRID
+        ===================================================== */
+
+        .field-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(
+                        150px,
+                        1fr
+                    )
+                );
+
+            gap: 9px;
+
+        }
+
+
+        .field-option {
+
+            position: relative;
+
+            cursor: pointer;
+
+        }
+
+
+        .field-option input {
+
+            position: absolute;
+
+            opacity: 0;
+
+            pointer-events: none;
+
+        }
+
+
+        .field-card {
+
+            min-height: 50px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding:
+                0
+                13px;
+
+            border:
+                1px solid
+                #252d3d;
+
+            border-radius: 10px;
+
+            background:
+                #0b0f16;
+
+            color: #858ea1;
+
+            transition: .18s;
+
+            user-select: none;
+
+        }
+
+
+        .field-icon {
+
+            width: 27px;
+            height: 27px;
+
+            flex: 0 0 27px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 8px;
+
+            background:
+                #151b27;
+
+            color: #667084;
+
+            font-size: 10px;
+
+        }
+
+
+        .field-name {
+
+            color: inherit;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            line-height: 1.3;
+
+        }
+
+
+        .field-option:hover
+        .field-card {
+
+            border-color:
+                #3b4559;
+
+            color: #d5dae5;
+
+        }
+
+
+        .field-option input:checked
+        + .field-card {
+
+            border-color:
+                rgba(109,114,255,.65);
+
+            color: #f0f1ff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(109,114,255,.13),
+                    rgba(109,114,255,.04)
+                );
+
+            box-shadow:
+                0 8px 25px
+                rgba(90,90,255,.07);
+
+        }
+
+
+        .field-option input:checked
+        + .field-card
+        .field-icon {
+
+            background:
+                rgba(109,114,255,.16);
+
+            color:
+                var(--purple-light);
+
+        }
+
+
+        .check {
+
+            margin-left: auto;
+
+            width: 18px;
+            height: 18px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border:
+                1px solid
+                #333b4d;
+
+            border-radius: 6px;
+
+            color: transparent;
+
+            font-size: 10px;
+
+        }
+
+
+        .field-option input:checked
+        + .field-card
+        .check {
+
+            border-color:
+                var(--purple);
+
+            background:
+                var(--purple);
+
+            color: white;
+
+        }
+
+
+        /* =====================================================
+           SHOW BUTTON
+        ===================================================== */
+
+        .setup-footer {
+
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-top: 23px;
+
+            padding-top: 20px;
+
+            border-top:
+                1px solid
+                var(--border);
+
+        }
+
+
+        .show-btn {
+
+            min-width: 165px;
+
+            height: 46px;
+
+            padding:
+                0
+                20px;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #5963ff,
+                    #8557ff
+                );
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 12px 30px
+                rgba(91,99,255,.17);
+
+            transition: .2s;
+
+        }
+
+
+        .show-btn:hover {
+
+            transform:
+                translateY(-1px);
+
+            filter:
+                brightness(1.08);
+
+        }
+
+
+        .show-btn:disabled {
+
+            opacity: .5;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+
+        /* =====================================================
+           STATS
+        ===================================================== */
+
+        .stats {
+
+            display: none;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+
+            gap: 12px;
+
+            margin-top: 16px;
+
+        }
+
+
+        .stat-card {
+
+            padding:
+                17px
+                18px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 13px;
+
+            background:
+                rgba(13,17,25,.75);
+
+        }
+
+
+        .stat-label {
+
+            color: var(--muted-2);
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: .9px;
+
+        }
+
+
+        .stat-value {
+
+            margin-top: 6px;
+
+            color: white;
+
+            font-size: 20px;
+
+            font-weight: 750;
+
+        }
+
+
+        .stat-ready {
+
+            color:
+                var(--green);
+
+            font-size: 13px;
+
+        }
+
+
+        /* =====================================================
+           STUDENT CARD
+        ===================================================== */
+
+        .students-card {
+
+            display: none;
+
+            margin-top: 16px;
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 18px;
+
+            background:
+                rgba(10,14,21,.90);
+
+            box-shadow:
+                0 25px 80px
+                rgba(0,0,0,.27);
+
+        }
+
+
+        .students-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding:
+                19px
+                21px;
+
+            border-bottom:
+                1px solid
+                var(--border);
+
+        }
+
+
+        .students-title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+        }
+
+
+        .status-dot {
+
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+
+            background:
+                var(--green);
+
+            box-shadow:
+                0 0 13px
+                rgba(36,211,157,.7);
+
+        }
+
+
+        .students-title h2 {
+
+            font-size: 14px;
+
+        }
+
+
+        .students-title p {
+
+            margin-top: 3px;
+
+            color: var(--muted-2);
+
+            font-size: 9px;
+
+        }
+
+
+        .edit-status {
+
+            padding:
+                7px
+                10px;
+
+            border-radius: 7px;
+
+            color: #5cddb5;
+
+            background:
+                rgba(36,211,157,.07);
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .table-scroll {
+
+            overflow: auto;
+
+            max-height: 68vh;
+
+        }
+
+
+        .table-scroll::-webkit-scrollbar {
+
+            width: 8px;
+            height: 8px;
+
+        }
+
+
+        .table-scroll::-webkit-scrollbar-thumb {
+
+            background:
+                #293143;
+
+            border-radius: 20px;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            min-width: 1100px;
+
+            border-collapse: collapse;
+
+        }
+
+
+        th {
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 10;
+
+            padding:
+                13px
+                14px;
+
+            color: #7f88ff;
+
+            background:
+                #0c1018;
+
+            border-bottom:
+                1px solid
+                #252d3d;
+
+            text-align: left;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: .8px;
+
+            white-space: nowrap;
+
+        }
+
+
+        td {
+
+            padding:
+                13px
+                14px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.045);
+
+            vertical-align: top;
+
+        }
+
+
+        tbody tr {
+
+            transition: .15s;
+
+        }
+
+
+        tbody tr:hover td {
+
+            background:
+                rgba(255,255,255,.018);
+
+        }
+
+
+        /* =====================================================
+           STUDENT CELL
+        ===================================================== */
+
+        .student-cell {
+
+            min-width: 220px;
+
+        }
+
+
+        .student-info {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+        }
+
+
+        .avatar {
+
+            width: 38px;
+            height: 38px;
+
+            flex: 0 0 38px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            color: #8990ff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(109,114,255,.17),
+                    rgba(109,114,255,.06)
+                );
+
+            border:
+                1px solid
+                rgba(109,114,255,.15);
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+        }
+
+
+        .student-name {
+
+            color: #eef1f7;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+        }
+
+
+        .student-meta {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            margin-top: 5px;
+
+            color: var(--muted-2);
+
+            font-size: 8px;
+
+        }
+
+
+        .class-pill {
+
+            padding:
+                3px
+                6px;
+
+            border-radius: 5px;
+
+            color: #858cff;
+
+            background:
+                rgba(109,114,255,.09);
+
+        }
+
+
+        /* =====================================================
+           INPUT
+        ===================================================== */
+
+        .cell-input {
+
+            width: 180px;
+
+            height: 38px;
+
+            padding:
+                0
+                10px;
+
+            border:
+                1px solid
+                #293143;
+
+            border-radius: 8px;
+
+            outline: none;
+
+            color: #eef1f7;
+
+            background:
+                #080c12;
+
+            font-size: 10px;
+
+            transition: .18s;
+
+        }
+
+
+        .cell-input:focus {
+
+            border-color:
+                rgba(109,114,255,.7);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(109,114,255,.06);
+
+        }
+
+
+        .cell-input.changed {
+
+            border-color:
+                rgba(36,211,157,.55);
+
+            background:
+                rgba(36,211,157,.025);
+
+        }
+
+
+        /* =====================================================
+           AADHAAR
+        ===================================================== */
+
+        .aadhaar-wrapper {
+
+            width: 190px;
+
+        }
+
+
+        .aadhaar-input {
+
+            width: 100%;
+
+            letter-spacing:
+                1.2px;
+
+            font-family:
+                Consolas,
+                monospace;
+
+        }
+
+
+        .aadhaar-status {
+
+            min-height: 14px;
+
+            margin-top: 5px;
+
+            font-size: 8px;
+
+        }
+
+
+        .aadhaar-ok {
+
+            color:
+                var(--green);
+
+        }
+
+
+        .aadhaar-warning {
+
+            color:
+                var(--red);
+
+        }
+
+
+        .aadhaar-checking {
+
+            color:
+                var(--muted);
+
+        }
+
+
+        .aadhaar-error {
+
+            border-color:
+                rgba(255,98,108,.8)
+                !important;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(255,98,108,.07)
+                !important;
+
+        }
+
+
+        /* =====================================================
+           DOCUMENTS
+        ===================================================== */
+
+        .documents-box {
+
+            width: 270px;
+
+            min-height: 42px;
+
+            padding: 7px;
+
+            border:
+                1px solid
+                #293143;
+
+            border-radius: 9px;
+
+            background:
+                #080c12;
+
+        }
+
+
+        .document-list {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 6px;
+
+        }
+
+
+        .document-tag {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding:
+                7px
+                9px;
+
+            border-radius: 7px;
+
+            color: #cbd0dc;
+
+            background:
+                #151b26;
+
+            border:
+                1px solid
+                #252e3e;
+
+            font-size: 8px;
+
+        }
+
+
+        .document-remove {
+
+            width: 16px;
+            height: 16px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border: 0;
+
+            border-radius: 5px;
+
+            color: #727b8e;
+
+            background:
+                rgba(255,255,255,.04);
+
+            cursor: pointer;
+
+            font-size: 9px;
+
+        }
+
+
+        .document-remove:hover {
+
+            color: #ff737c;
+
+            background:
+                rgba(255,98,108,.1);
+
+        }
+
+
+        .document-empty {
+
+            color:
+                #5f6879;
+
+            padding:
+                5px;
+
+            font-size: 9px;
+
+        }
+
+
+        .document-add {
+
+            display: flex;
+
+            gap: 6px;
+
+            margin-top: 7px;
+
+        }
+
+
+        .document-add input {
+
+            min-width: 0;
+
+            flex: 1;
+
+            height: 31px;
+
+            padding:
+                0
+                8px;
+
+            border:
+                1px solid
+                #293143;
+
+            border-radius: 7px;
+
+            outline: none;
+
+            color: white;
+
+            background:
+                #0c1017;
+
+            font-size: 8px;
+
+        }
+
+
+        .document-add button {
+
+            width: 34px;
+
+            height: 31px;
+
+            border: 0;
+
+            border-radius: 7px;
+
+            color: white;
+
+            background:
+                #5862ef;
+
+            cursor: pointer;
+
+        }
+
+
+        /* =====================================================
+           ADDITIONAL INFORMATION
+        ===================================================== */
+
+        .custom-fields-box {
+
+            width: 270px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 7px;
+
+        }
+
+
+        .custom-field-row {
+
+            display: grid;
+
+            grid-template-columns:
+                105px
+                1fr;
+
+            gap: 6px;
+
+            align-items: center;
+
+        }
+
+
+        .custom-field-name {
+
+            color: #7f8899;
+
+            font-size: 8px;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+        }
+
+
+        .custom-field-input {
+
+            width: 100%;
+
+            height: 33px;
+
+            padding:
+                0
+                8px;
+
+            border:
+                1px solid
+                #293143;
+
+            border-radius: 7px;
+
+            outline: none;
+
+            color: white;
+
+            background:
+                #080c12;
+
+            font-size: 8px;
+
+        }
+
+
+        .custom-field-input:focus {
+
+            border-color:
+                rgba(109,114,255,.7);
+
+        }
+
+
+        .no-custom {
+
+            color:
+                #60697b;
+
+            font-size: 9px;
+
+        }
+
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        .loading {
+
+            display: none;
+
+            padding:
+                60px
+                20px;
+
+            text-align: center;
+
+        }
+
+
+        .spinner {
+
+            width: 30px;
+            height: 30px;
+
+            margin:
+                0 auto
+                12px;
+
+            border:
+                2px solid
+                #252d3d;
+
+            border-top-color:
+                #7278ff;
+
+            border-radius: 50%;
+
+            animation:
+                spin .7s linear infinite;
+
+        }
+
+
+        @keyframes spin {
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        .loading-text {
+
+            color:
+                #7d8698;
+
+            font-size: 10px;
+
+        }
+
+
+        /* =====================================================
+           EMPTY
+        ===================================================== */
+
+        .empty-row {
+
+            padding:
+                70px 20px;
+
+            text-align: center;
+
+            color:
+                #677083;
+
+            font-size: 10px;
+
+        }
+
+
+        /* =====================================================
+           SAVE BAR
+        ===================================================== */
+
+        .save-bar {
+
+            display: none;
+
+            position: sticky;
+
+            bottom: 20px;
+
+            z-index: 50;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-top: 16px;
+
+            padding:
+                13px
+                15px
+                13px
+                18px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.1);
+
+            border-radius: 13px;
+
+            background:
+                rgba(10,14,21,.92);
+
+            backdrop-filter:
+                blur(18px);
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,.45);
+
+        }
+
+
+        .save-message {
+
+            color:
+                #7e8798;
+
+            font-size: 10px;
+
+        }
+
+
+        .save-message strong {
+
+            color:
+                white;
+
+        }
+
+
+        .save-btn {
+
+            height: 40px;
+
+            padding:
+                0
+                18px;
+
+            border: 0;
+
+            border-radius: 9px;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #00a97e,
+                    #00ca97
+                );
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+        }
+
+
+        .save-btn:hover {
+
+            filter:
+                brightness(1.08);
+
+        }
+
+
+        .save-btn:disabled {
+
+            opacity: .5;
+
+            cursor: not-allowed;
+
+        }
+
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        .toast {
+
+            position: fixed;
+
+            right: 25px;
+
+            bottom: 25px;
+
+            z-index: 1000;
+
+            display: none;
+
+            max-width: 430px;
+
+            padding:
+                13px
+                16px;
+
+            border:
+                1px solid
+                #30394b;
+
+            border-radius: 10px;
+
+            color: #eef1f7;
+
+            background:
+                #111722;
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,.5);
+
+            font-size: 10px;
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media(max-width: 800px) {
+
+            .page {
+
+                width:
+                    calc(100% - 28px);
+
+                padding-top:
+                    18px;
+
+            }
+
+
+            .topbar {
+
+                align-items:
+                    flex-start;
+
+            }
+
+
+            .page-title {
+
+                font-size:
+                    23px;
+
+            }
+
+
+            .back-btn span {
+
+                display:
+                    none;
+
+            }
+
+
+            .field-grid {
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .setup-footer {
+
+                justify-content:
+                    stretch;
+
+            }
+
+
+            .show-btn {
+
+                width:
+                    100%;
+
+            }
+
+
+            .save-bar {
+
+                flex-direction:
+                    column;
+
+                align-items:
+                    stretch;
+
+            }
+
+
+            .save-btn {
+
+                width:
+                    100%;
+
+            }
+
+        }
+
+
+        @media(max-width: 500px) {
+
+            .field-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .heading-icon {
+
+                display:
+                    none;
+
+            }
+
+
+            .setup-content {
+
+                padding:
+                    16px;
+
+            }
+
+
+            .setup-header {
+
+                padding:
+                    18px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="page">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="topbar">
+
+        <div class="heading-area">
+
+            <div class="heading-icon">
+                ✦
+            </div>
+
+            <div>
+
+                <div class="eyebrow">
+                    IKVM · STUDENT MANAGEMENT
+                </div>
+
+                <div class="page-title">
+                    Update All Students
+                </div>
+
+                <div class="page-description">
+                    Update common information for multiple students at once.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="/admin/students"
+            class="back-btn"
+        >
+
+            ←
+
+            <span>
+                Back to Students
+            </span>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SETUP
+    ====================================================== -->
+
+    <section class="setup-card">
+
+
+        <div class="setup-header">
+
+            <div class="step-label">
+
+                <span class="step-number">
+                    01
+                </span>
+
+                SELECT DATA
+
+            </div>
+
+
+            <h2>
+                Choose what you want to update
+            </h2>
+
+
+            <p>
+                Select a class and choose the information
+                that should appear in the bulk editor.
+            </p>
+
+        </div>
+
+
+
+        <div class="setup-content">
+
+
+            <!-- CLASS -->
+
+            <div class="class-area">
+
+                <label class="label">
+                    Select Class
+                </label>
+
+
+                <select
+                    id="classSelect"
+                    class="class-select"
+                >
+
+                    <option value="">
+                        Select a class
+                    </option>
+
+
+                    <% for(
+                        let i = 1;
+                        i <= 12;
+                        i++
+                    ) { %>
+
+                        <option value="<%= i %>">
+                            Class <%= i %>
+                        </option>
+
+                    <% } %>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- FIELDS -->
+
+            <div class="field-heading">
+
+
+                <div class="field-heading-left">
+
+                    <h3>
+                        Information to Update
+                    </h3>
+
+                    <p>
+                        Select one or more fields.
+                    </p>
+
+                </div>
+
+
+                <div class="field-actions">
+
+                    <button
+                        type="button"
+                        class="small-action"
+                        id="selectAll"
+                    >
+                        Select All
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="small-action"
+                        id="clearAll"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <div
+                class="field-grid"
+                id="fieldGrid"
+            >
+
+
+                <!-- =========================================
+                     BUILT-IN FIELDS
+                ========================================== -->
+
+                <% (builtInFields || []).forEach(
+                    field => {
+                %>
+
+                    <label class="field-option">
+
+                        <input
+                            type="checkbox"
+                            value="<%= field.key %>"
+                            data-label="<%= field.label %>"
+                            data-type="builtin"
+                        >
+
+
+                        <div class="field-card">
+
+                            <div class="field-icon">
+                                ◇
+                            </div>
+
+
+                            <div class="field-name">
+                                <%= field.label %>
+                            </div>
+
+
+                            <div class="check">
+                                ✓
+                            </div>
+
+                        </div>
+
+                    </label>
+
+                <% }) %>
+
+
+
+                <!-- =========================================
+                     DYNAMIC STUDENT FIELDS
+                ========================================== -->
+
+                <% (
+                    dynamicFields &&
+                    dynamicFields.student
+                        ? dynamicFields.student
+                        : []
+                ).forEach(
+                    field => {
+
+                        if(
+                            field.scope !== "all"
+                        ) return;
+
+                %>
+
+                    <label class="field-option">
+
+                        <input
+                            type="checkbox"
+                            value="dynamic:student:<%= field.key %>"
+                            data-label="<%= field.label %>"
+                            data-type="dynamic-student"
+                            data-key="<%= field.key %>"
+                        >
+
+
+                        <div class="field-card">
+
+                            <div class="field-icon">
+                                ✦
+                            </div>
+
+
+                            <div class="field-name">
+                                <%= field.label %>
+                            </div>
+
+
+                            <div class="check">
+                                ✓
+                            </div>
+
+                        </div>
+
+                    </label>
+
+                <% }) %>
+
+
+
+                <!-- =========================================
+                     DYNAMIC PARENT FIELDS
+                ========================================== -->
+
+                <% (
+                    dynamicFields &&
+                    dynamicFields.parent
+                        ? dynamicFields.parent
+                        : []
+                ).forEach(
+                    field => {
+
+                        if(
+                            field.scope !== "all"
+                        ) return;
+
+                %>
+
+                    <label class="field-option">
+
+                        <input
+                            type="checkbox"
+                            value="dynamic:parent:<%= field.key %>"
+                            data-label="<%= field.label %>"
+                            data-type="dynamic-parent"
+                            data-key="<%= field.key %>"
+                        >
+
+
+                        <div class="field-card">
+
+                            <div class="field-icon">
+                                ◉
+                            </div>
+
+
+                            <div class="field-name">
+                                <%= field.label %>
+                            </div>
+
+
+                            <div class="check">
+                                ✓
+                            </div>
+
+                        </div>
+
+                    </label>
+
+                <% }) %>
+
+
+
+                <!-- =========================================
+                     DOCUMENTS
+                ========================================== -->
+
+                <label class="field-option">
+
+                    <input
+                        type="checkbox"
+                        value="submittedDocuments"
+                        data-label="Documents Submitted"
+                        data-type="documents"
+                    >
+
+
+                    <div class="field-card">
+
+                        <div class="field-icon">
+                            ▣
+                        </div>
+
+
+                        <div class="field-name">
+                            Documents Submitted
+                        </div>
+
+
+                        <div class="check">
+                            ✓
+                        </div>
+
+                    </div>
+
+                </label>
+
+
+
+                <!-- =========================================
+                     ADDITIONAL INFORMATION
+                ========================================== -->
+
+                <label class="field-option">
+
+                    <input
+                        type="checkbox"
+                        value="customFields"
+                        data-label="Additional Information"
+                        data-type="custom"
+                    >
+
+
+                    <div class="field-card">
+
+                        <div class="field-icon">
+                            ☷
+                        </div>
+
+
+                        <div class="field-name">
+                            Additional Information
+                        </div>
+
+
+                        <div class="check">
+                            ✓
+                        </div>
+
+                    </div>
+
+                </label>
+
+
+            </div>
+
+
+
+            <!-- FOOTER -->
+
+            <div class="setup-footer">
+
+                <button
+                    type="button"
+                    class="show-btn"
+                    id="showStudents"
+                >
+
+                    Show Students
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         STATS
+    ====================================================== -->
+
+    <div
+        class="stats"
+        id="stats"
+    >
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Students
+            </div>
+
+            <div
+                class="stat-value"
+                id="studentCount"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Selected Fields
+            </div>
+
+            <div
+                class="stat-value"
+                id="fieldCount"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Workspace
+            </div>
+
+            <div
+                class="stat-value stat-ready"
+            >
+                Ready
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         LOADING
+    ====================================================== -->
+
+    <div
+        class="loading"
+        id="loading"
+    >
+
+        <div class="spinner"></div>
+
+        <div class="loading-text">
+            Loading students...
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         STUDENTS
+    ====================================================== -->
+
+    <section
+        class="students-card"
+        id="studentsCard"
+    >
+
+
+        <div class="students-header">
+
+
+            <div class="students-title">
+
+                <div class="status-dot"></div>
+
+
+                <div>
+
+                    <h2>
+                        Student Records
+                    </h2>
+
+                    <p>
+                        Edit the selected information directly below.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="edit-status">
+                ● EDIT MODE
+            </div>
+
+        </div>
+
+
+
+        <div class="table-scroll">
+
+            <table>
+
+
+                <thead>
+
+                    <tr id="tableHead">
+
+                        <th>
+                            Student
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="studentBody"
+                ></tbody>
+
+
+            </table>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SAVE BAR
+    ====================================================== -->
+
+    <div
+        class="save-bar"
+        id="saveBar"
+    >
+
+        <div class="save-message">
+
+            <strong id="loadedStudents">
+                0
+            </strong>
+
+            students loaded.
+
+            Changes will be saved together.
+
+        </div>
+
+
+        <button
+            type="button"
+            class="save-btn"
+            id="saveAll"
+        >
+
+            ✓ Save All Changes
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     TOAST
+====================================================== -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+
+<script>
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const classSelect =
+    document.getElementById(
+        "classSelect"
+    );
+
+
+const fieldGrid =
+    document.getElementById(
+        "fieldGrid"
+    );
+
+
+const showStudents =
+    document.getElementById(
+        "showStudents"
+    );
+
+
+const studentsCard =
+    document.getElementById(
+        "studentsCard"
+    );
+
+
+const studentBody =
+    document.getElementById(
+        "studentBody"
+    );
+
+
+const tableHead =
+    document.getElementById(
+        "tableHead"
+    );
+
+
+const loading =
+    document.getElementById(
+        "loading"
+    );
+
+
+const stats =
+    document.getElementById(
+        "stats"
+    );
+
+
+const studentCount =
+    document.getElementById(
+        "studentCount"
+    );
+
+
+const fieldCount =
+    document.getElementById(
+        "fieldCount"
+    );
+
+
+const saveBar =
+    document.getElementById(
+        "saveBar"
+    );
+
+
+const saveAll =
+    document.getElementById(
+        "saveAll"
+    );
+
+
+const loadedStudents =
+    document.getElementById(
+        "loadedStudents"
+    );
+
+
+const toast =
+    document.getElementById(
+        "toast"
+    );
+
+
+let selectedFields = [];
+
+let currentStudents = [];
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message) {
+
+    toast.textContent =
+        message;
+
+    toast.style.display =
+        "block";
+
+
+    clearTimeout(
+        window.__toastTimer
+    );
+
+
+    window.__toastTimer =
+        setTimeout(
+            () => {
+
+                toast.style.display =
+                    "none";
+
+            },
+            3500
+        );
+
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   INITIALS
+========================================================= */
+
+function initials(name) {
+
+    const parts =
+        String(
+            name || "Student"
+        )
+        .trim()
+        .split(/\s+/);
+
+
+    if(
+        parts.length === 1
+    ) {
+
+        return parts[0]
+            .substring(
+                0,
+                2
+            )
+            .toUpperCase();
+
+    }
+
+
+    return (
+        parts[0][0] +
+        parts[
+            parts.length - 1
+        ][0]
+    ).toUpperCase();
+
+}
+
+
+/* =========================================================
+   AADHAAR
+========================================================= */
+
+function formatAadhaar(value) {
+
+    return String(
+        value || ""
+    )
+    .replace(
+        /\D/g,
+        ""
+    )
+    .slice(
+        0,
+        12
+    )
+    .replace(
+        /(\d{4})(\d{4})(\d{0,4})/,
+        "$1 $2 $3"
+    )
+    .trim();
+
+}
+
+
+/* =========================================================
+   GET FIELD VALUE
+========================================================= */
+
+function getFieldValue(
+    student,
+    field
+) {
+
+    if(
+        field.key ===
+        "submittedDocuments"
+    ) {
+
+        return (
+            student.submittedDocuments ||
+            student.values?.submittedDocuments ||
+            []
+        );
+
+    }
+
+
+    if(
+        field.key ===
+        "customFields"
+    ) {
+
+        return (
+            student.customFields ||
+            student.values?.customFields ||
+            []
+        );
+
+    }
+
+
+    if(
+        student.values &&
+        Object.prototype.hasOwnProperty.call(
+            student.values,
+            field.key
+        )
+    ) {
+
+        return student.values[
+            field.key
+        ];
+
+    }
+
+
+    if(
+        Object.prototype.hasOwnProperty.call(
+            student,
+            field.key
+        )
+    ) {
+
+        return student[
+            field.key
+        ];
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   SELECT ALL
+========================================================= */
+
+document
+    .getElementById("selectAll")
+    .addEventListener(
+        "click",
+        () => {
+
+            fieldGrid
+                .querySelectorAll(
+                    'input[type="checkbox"]'
+                )
+                .forEach(
+                    checkbox => {
+
+                        checkbox.checked =
+                            true;
+
+                    }
+                );
+
+        }
+    );
+
+
+/* =========================================================
+   CLEAR ALL
+========================================================= */
+
+document
+    .getElementById("clearAll")
+    .addEventListener(
+        "click",
+        () => {
+
+            fieldGrid
+                .querySelectorAll(
+                    'input[type="checkbox"]'
+                )
+                .forEach(
+                    checkbox => {
+
+                        checkbox.checked =
+                            false;
+
+                    }
+                );
+
+        }
+    );
+
+
+/* =========================================================
+   SHOW STUDENTS
+========================================================= */
+
+showStudents.addEventListener(
+    "click",
+    async () => {
+
+
+        const classValue =
+            classSelect.value;
+
+
+        selectedFields =
+            [
+                ...fieldGrid.querySelectorAll(
+                    'input[type="checkbox"]:checked'
+                )
+            ]
+            .map(
+                checkbox => ({
+
+                    key:
+                        checkbox.value,
+
+                    label:
+                        checkbox.dataset.label,
+
+                    type:
+                        checkbox.dataset.type,
+
+                    dynamicKey:
+                        checkbox.dataset.key ||
+                        null
+
+                })
+            );
+
+
+        if(!classValue) {
+
+            showToast(
+                "Please select a class first."
+            );
+
+            return;
+
+        }
+
+
+        if(
+            selectedFields.length === 0
+        ) {
+
+            showToast(
+                "Please select at least one field."
+            );
+
+            return;
+
+        }
+
+
+        showStudents.disabled =
+            true;
+
+        showStudents.innerHTML =
+            "Loading...";
+
+
+        loading.style.display =
+            "block";
+
+        studentsCard.style.display =
+            "none";
+
+
+        try {
+
+
+            const fields =
+                selectedFields
+                    .map(
+                        field =>
+                            field.key
+                    )
+                    .join(",");
+
+
+            const url =
+                `/admin/api/students/update-all?class=${encodeURIComponent(
+                    classValue
+                )}&fields=${encodeURIComponent(
+                    fields
+                )}`;
+
+
+            const response =
+                await fetch(
+                    url
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if(
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to load students."
+                );
+
+            }
+
+
+            currentStudents =
+                data.students ||
+                [];
+
+
+            renderStudents();
+
+
+        }
+        catch(error) {
+
+            showToast(
+                error.message
+            );
+
+        }
+        finally {
+
+            loading.style.display =
+                "none";
+
+            showStudents.disabled =
+                false;
+
+            showStudents.innerHTML =
+                "Show Students <span>→</span>";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   RENDER TABLE
+========================================================= */
+
+function renderStudents() {
+
+
+    tableHead.innerHTML =
+        `<th>Student</th>`;
+
+
+    selectedFields.forEach(
+        field => {
+
+            tableHead.innerHTML += `
+
+                <th>
+                    ${escapeHtml(
+                        field.label
+                    )}
+                </th>
+
+            `;
+
+        }
+    );
+
+
+    studentBody.innerHTML =
+        "";
+
+
+    if(
+        currentStudents.length === 0
+    ) {
+
+        studentBody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="${
+                        selectedFields.length + 1
+                    }"
+                    class="empty-row"
+                >
+
+                    No students found
+                    in this class.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        studentsCard.style.display =
+            "block";
+
+        stats.style.display =
+            "grid";
+
+        saveBar.style.display =
+            "none";
+
+        studentCount.textContent =
+            "0";
+
+        fieldCount.textContent =
+            selectedFields.length;
+
+        return;
+
+    }
+
+
+    currentStudents.forEach(
+        (
+            student,
+            index
+        ) => {
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.dataset.studentId =
+                student._id;
+
+
+            let html = `
+
+                <td
+                    class="student-cell"
+                >
+
+                    <div
+                        class="student-info"
+                    >
+
+                        <div
+                            class="avatar"
+                        >
+                            ${escapeHtml(
+                                initials(
+                                    student.name
+                                )
+                            )}
+                        </div>
+
+
+                        <div>
+
+                            <div
+                                class="student-name"
+                            >
+                                ${escapeHtml(
+                                    student.name
+                                )}
+                            </div>
+
+
+                            <div
+                                class="student-meta"
+                            >
+
+                                ${
+                                    student.serialNo
+                                        ? "SR " +
+                                          escapeHtml(
+                                              student.serialNo
+                                          )
+                                        : "Student " +
+                                          (index + 1)
+                                }
+
+                                <span
+                                    class="class-pill"
+                                >
+                                    Class ${
+                                        escapeHtml(
+                                            student.class
+                                        )
+                                    }
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+            `;
+
+
+            selectedFields.forEach(
+                field => {
+
+                    const value =
+                        getFieldValue(
+                            student,
+                            field
+                        );
+
+
+                    /* =====================================
+                       DOCUMENTS
+                    ====================================== */
+
+                    if(
+                        field.key ===
+                        "submittedDocuments"
+                    ) {
+
+                        const documents =
+                            Array.isArray(
+                                value
+                            )
+                                ? value
+                                : [];
+
+
+                        html += `
+
+                            <td>
+
+                                <div
+                                    class="documents-box"
+                                >
+
+                                    <div
+                                        class="document-list"
+                                    >
+
+                                        ${
+                                            documents.length
+                                                ? documents
+                                                    .map(
+                                                        (
+                                                            document,
+                                                            documentIndex
+                                                        ) => `
+
+                                                            <div
+                                                                class="document-tag"
+                                                            >
+
+                                                                <span>
+                                                                    ${escapeHtml(
+                                                                        document
+                                                                    )}
+                                                                </span>
+
+                                                                <button
+                                                                    type="button"
+                                                                    class="document-remove"
+                                                                    data-document-index="${documentIndex}"
+                                                                >
+                                                                    ×
+                                                                </button>
+
+                                                            </div>
+
+                                                        `
+                                                    )
+                                                    .join("")
+                                                : `
+                                                    <div
+                                                        class="document-empty"
+                                                    >
+                                                        No documents added
+                                                    </div>
+                                                `
+                                        }
+
+                                    </div>
+
+
+                                    <div
+                                        class="document-add"
+                                    >
+
+                                        <input
+                                            type="text"
+                                            class="new-document"
+                                            placeholder="Add document..."
+                                        >
+
+
+                                        <button
+                                            type="button"
+                                            class="add-document"
+                                        >
+                                            +
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                        `;
+
+                        return;
+
+                    }
+
+
+                    /* =====================================
+                       ADDITIONAL INFORMATION
+                    ====================================== */
+
+                    if(
+                        field.key ===
+                        "customFields"
+                    ) {
+
+                        const customFields =
+                            Array.isArray(
+                                value
+                            )
+                                ? value
+                                : [];
+
+
+                        html += `
+
+                            <td>
+
+                                <div
+                                    class="custom-fields-box"
+                                >
+
+                                    ${
+                                        customFields.length
+                                            ? customFields
+                                                .map(
+                                                    (
+                                                        customField,
+                                                        customIndex
+                                                    ) => `
+
+                                                        <div
+                                                            class="custom-field-row"
+                                                        >
+
+                                                            <div
+                                                                class="custom-field-name"
+                                                                title="${escapeHtml(
+                                                                    customField.name
+                                                                )}"
+                                                            >
+                                                                ${escapeHtml(
+                                                                    customField.name
+                                                                )}
+                                                            </div>
+
+
+                                                            <input
+                                                                type="text"
+
+                                                                class="custom-field-input"
+
+                                                                data-custom-index="${customIndex}"
+
+                                                                data-custom-name="${escapeHtml(
+                                                                    customField.name
+                                                                )}"
+
+                                                                value="${escapeHtml(
+                                                                    customField.value
+                                                                )}"
+                                                            >
+
+                                                        </div>
+
+                                                    `
+                                                )
+                                                .join("")
+                                            : `
+                                                <div
+                                                    class="no-custom"
+                                                >
+                                                    No additional information
+                                                </div>
+                                            `
+                                    }
+
+                                </div>
+
+                            </td>
+
+                        `;
+
+                        return;
+
+                    }
+
+
+                    /* =====================================
+                       AADHAAR
+                    ====================================== */
+
+                    if(
+                        field.key ===
+                        "aadhaar"
+                    ) {
+
+                        html += `
+
+                            <td>
+
+                                <div
+                                    class="aadhaar-wrapper"
+                                >
+
+                                    <input
+                                        type="text"
+
+                                        class="
+                                            cell-input
+                                            aadhaar-input
+                                        "
+
+                                        data-field="aadhaar"
+
+                                        value="${escapeHtml(
+                                            formatAadhaar(
+                                                value
+                                            )
+                                        )}"
+
+                                        maxlength="14"
+
+                                        inputmode="numeric"
+
+                                        autocomplete="off"
+                                    >
+
+
+                                    <div
+                                        class="aadhaar-status"
+                                    ></div>
+
+                                </div>
+
+                            </td>
+
+                        `;
+
+                        return;
+
+                    }
+
+
+                    /* =====================================
+                       NORMAL FIELD
+                    ====================================== */
+
+                    let displayValue =
+                        value;
+
+
+                    if(
+                        Array.isArray(
+                            displayValue
+                        )
+                    ) {
+
+                        displayValue =
+                            displayValue.join(
+                                ", "
+                            );
+
+                    }
+
+
+                    html += `
+
+                        <td>
+
+                            <input
+
+                                type="text"
+
+                                class="cell-input"
+
+                                data-field="${escapeHtml(
+                                    field.key
+                                )}"
+
+                                value="${escapeHtml(
+                                    displayValue
+                                )}"
+
+                            >
+
+                        </td>
+
+                    `;
+
+                }
+            );
+
+
+            row.innerHTML =
+                html;
+
+
+            studentBody.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    studentsCard.style.display =
+        "block";
+
+    stats.style.display =
+        "grid";
+
+    saveBar.style.display =
+        "flex";
+
+
+    studentCount.textContent =
+        currentStudents.length;
+
+
+    fieldCount.textContent =
+        selectedFields.length;
+
+
+    loadedStudents.textContent =
+        currentStudents.length;
+
+
+    attachInputChanges();
+
+    attachAadhaarChecks();
+
+    attachDocuments();
+
+}
+
+
+/* =========================================================
+   INPUT CHANGES
+========================================================= */
+
+function attachInputChanges() {
+
+    studentBody
+        .querySelectorAll(
+            ".cell-input, .custom-field-input"
+        )
+        .forEach(
+            input => {
+
+
+                const original =
+                    input.value;
+
+
+                input.addEventListener(
+                    "input",
+                    () => {
+
+                        if(
+                            input.value !==
+                            original
+                        ) {
+
+                            input.classList.add(
+                                "changed"
+                            );
+
+                        }
+                        else {
+
+                            input.classList.remove(
+                                "changed"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   AADHAAR CHECK
+========================================================= */
+
+function attachAadhaarChecks() {
+
+    studentBody
+        .querySelectorAll(
+            ".aadhaar-input"
+        )
+        .forEach(
+            input => {
+
+
+                let timer;
+
+
+                input.addEventListener(
+                    "input",
+                    () => {
+
+
+                        input.value =
+                            formatAadhaar(
+                                input.value
+                            );
+
+
+                        clearTimeout(
+                            timer
+                        );
+
+
+                        const row =
+                            input.closest(
+                                "tr"
+                            );
+
+
+                        const status =
+                            row.querySelector(
+                                ".aadhaar-status"
+                            );
+
+
+                        input.classList.remove(
+                            "aadhaar-error"
+                        );
+
+
+                        const clean =
+                            input.value.replace(
+                                /\s/g,
+                                ""
+                            );
+
+
+                        if(
+                            !clean
+                        ) {
+
+                            status.textContent =
+                                "";
+
+                            return;
+
+                        }
+
+
+                        if(
+                            clean.length !== 12
+                        ) {
+
+                            status.textContent =
+                                "Enter 12 digits";
+
+                            status.className =
+                                "aadhaar-status aadhaar-warning";
+
+                            return;
+
+                        }
+
+
+                        status.textContent =
+                            "Checking...";
+
+                        status.className =
+                            "aadhaar-status aadhaar-checking";
+
+
+                        timer =
+                            setTimeout(
+                                async () => {
+
+
+                                    try {
+
+
+                                        const response =
+                                            await fetch(
+
+                                                `/admin/api/students/check-aadhaar?aadhaar=${encodeURIComponent(
+                                                    clean
+                                                )}&excludeId=${encodeURIComponent(
+                                                    row.dataset.studentId
+                                                )}`
+
+                                            );
+
+
+                                        const data =
+                                            await response.json();
+
+
+                                        if(
+                                            data.available
+                                        ) {
+
+                                            status.textContent =
+                                                "✓ Aadhaar available";
+
+                                            status.className =
+                                                "aadhaar-status aadhaar-ok";
+
+                                        }
+                                        else {
+
+                                            status.textContent =
+                                                `⚠ Already taken by ${data.student.name} · Class ${data.student.class}`;
+
+                                            status.className =
+                                                "aadhaar-status aadhaar-warning";
+
+                                            input.classList.add(
+                                                "aadhaar-error"
+                                            );
+
+                                        }
+
+
+                                    }
+                                    catch(error) {
+
+                                        status.textContent =
+                                            "Unable to verify Aadhaar";
+
+                                        status.className =
+                                            "aadhaar-status aadhaar-warning";
+
+                                    }
+
+
+                                },
+                                450
+                            );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   DOCUMENTS
+========================================================= */
+
+function attachDocuments() {
+
+    studentBody
+        .querySelectorAll(
+            ".documents-box"
+        )
+        .forEach(
+            box => {
+
+
+                box.querySelectorAll(
+                    ".document-remove"
+                )
+                .forEach(
+                    button => {
+
+                        button.addEventListener(
+                            "click",
+                            () => {
+
+                                const tag =
+                                    button.closest(
+                                        ".document-tag"
+                                    );
+
+
+                                if(
+                                    tag
+                                ) {
+
+                                    tag.remove();
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                const addButton =
+                    box.querySelector(
+                        ".add-document"
+                    );
+
+
+                const input =
+                    box.querySelector(
+                        ".new-document"
+                    );
+
+
+                function addDocument() {
+
+                    const value =
+                        input.value.trim();
+
+
+                    if(
+                        !value
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const list =
+                        box.querySelector(
+                            ".document-list"
+                        );
+
+
+                    const empty =
+                        list.querySelector(
+                            ".document-empty"
+                        );
+
+
+                    if(
+                        empty
+                    ) {
+
+                        empty.remove();
+
+                    }
+
+
+                    const tag =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    tag.className =
+                        "document-tag";
+
+
+                    tag.innerHTML = `
+
+                        <span>
+                            ${escapeHtml(
+                                value
+                            )}
+                        </span>
+
+                        <button
+                            type="button"
+                            class="document-remove"
+                        >
+                            ×
+                        </button>
+
+                    `;
+
+
+                    tag.querySelector(
+                        ".document-remove"
+                    )
+                    .addEventListener(
+                        "click",
+                        () => {
+
+                            tag.remove();
+
+                        }
+                    );
+
+
+                    list.appendChild(
+                        tag
+                    );
+
+
+                    input.value =
+                        "";
+
+                    input.focus();
+
+                }
+
+
+                addButton.addEventListener(
+                    "click",
+                    addDocument
+                );
+
+
+                input.addEventListener(
+                    "keydown",
+                    event => {
+
+                        if(
+                            event.key ===
+                            "Enter"
+                        ) {
+
+                            event.preventDefault();
+
+                            addDocument();
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   COLLECT DOCUMENTS
+========================================================= */
+
+function collectDocuments(row) {
+
+    const tags =
+        row.querySelectorAll(
+            ".document-tag span"
+        );
+
+
+    return [
+        ...tags
+    ]
+    .map(
+        tag =>
+            tag.textContent.trim()
+    )
+    .filter(Boolean);
+
+}
+
+
+/* =========================================================
+   COLLECT CUSTOM FIELDS
+========================================================= */
+
+function collectCustomFields(
+    row,
+    student
+) {
+
+    const inputs =
+        row.querySelectorAll(
+            ".custom-field-input"
+        );
+
+
+    const original =
+        Array.isArray(
+            student.customFields
+        )
+            ? student.customFields
+            : (
+                Array.isArray(
+                    student.values?.customFields
+                )
+                    ? student.values.customFields
+                    : []
+            );
+
+
+    return original.map(
+        (
+            customField,
+            index
+        ) => {
+
+            const input =
+                row.querySelector(
+                    `.custom-field-input[data-custom-index="${index}"]`
+                );
+
+
+            return {
+
+                name:
+                    customField.name,
+
+                value:
+                    input
+                        ? input.value
+                        : customField.value
+
+            };
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   SAVE ALL
+========================================================= */
+
+saveAll.addEventListener(
+    "click",
+    async () => {
+
+
+        const rows =
+            [
+                ...studentBody.querySelectorAll(
+                    "tr[data-student-id]"
+                )
+            ];
+
+
+        if(
+            !rows.length
+        ) {
+
+            showToast(
+                "There are no students to update."
+            );
+
+            return;
+
+        }
+
+
+        const duplicateAadhaar =
+            studentBody.querySelector(
+                ".aadhaar-error"
+            );
+
+
+        if(
+            duplicateAadhaar
+        ) {
+
+            showToast(
+                "Please fix the duplicate Aadhaar before saving."
+            );
+
+            duplicateAadhaar.focus();
+
+            return;
+
+        }
+
+
+        const updates =
+            rows.map(
+                row => {
+
+
+                    const studentId =
+                        row.dataset.studentId;
+
+
+                    const student =
+                        currentStudents.find(
+                            item =>
+                                String(
+                                    item._id
+                                ) ===
+                                String(
+                                    studentId
+                                )
+                        );
+
+
+                    const values = {};
+
+
+                    row.querySelectorAll(
+                        ".cell-input"
+                    )
+                    .forEach(
+                        input => {
+
+
+                            const field =
+                                input.dataset.field;
+
+
+                            let value =
+                                input.value;
+
+
+                            if(
+                                field ===
+                                "aadhaar"
+                            ) {
+
+                                value =
+                                    value.replace(
+                                        /\s/g,
+                                        ""
+                                    );
+
+                            }
+
+
+                            values[field] =
+                                value;
+
+                        }
+                    );
+
+
+                    /* DOCUMENTS */
+
+                    if(
+                        selectedFields.some(
+                            field =>
+                                field.key ===
+                                "submittedDocuments"
+                        )
+                    ) {
+
+                        values.submittedDocuments =
+                            collectDocuments(
+                                row
+                            );
+
+                    }
+
+
+                    /* CUSTOM FIELDS */
+
+                    if(
+                        selectedFields.some(
+                            field =>
+                                field.key ===
+                                "customFields"
+                        )
+                    ) {
+
+                        values.customFields =
+                            collectCustomFields(
+                                row,
+                                student
+                            );
+
+                    }
+
+
+                    return {
+
+                        studentId,
+
+                        values
+
+                    };
+
+                }
+            );
+
+
+        saveAll.disabled =
+            true;
+
+        saveAll.textContent =
+            "Saving...";
+
+
+        try {
+
+
+            const response =
+                await fetch(
+
+                    "/admin/api/students/update-all",
+
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+                                updates
+                            })
+
+                    }
+
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if(
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to save changes."
+                );
+
+            }
+
+
+            showToast(
+                data.message ||
+                "All changes saved successfully."
+            );
+
+
+            setTimeout(
+                () => {
+
+                    showStudents.click();
+
+                },
+                800
+            );
+
+
+        }
+        catch(error) {
+
+            showToast(
+                error.message
+            );
+
+        }
+        finally {
+
+            saveAll.disabled =
+                false;
+
+            saveAll.textContent =
+                "✓ Save All Changes";
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
