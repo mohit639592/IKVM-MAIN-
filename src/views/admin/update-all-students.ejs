@@ -3756,57 +3756,60 @@ function attachAadhaarChecks() {
 
 
                                         const response =
-                                            await fetch(
-
-                                                `/admin/api/students/check-aadhaar?aadhaar=${encodeURIComponent(
-                                                    clean
-                                                )}&excludeId=${encodeURIComponent(
-                                                    row.dataset.studentId
-                                                )}`
-
-                                            );
+    await fetch(
+        `/api/admin/students/check-aadhaar?aadhaar=${encodeURIComponent(
+            clean
+        )}&excludeId=${encodeURIComponent(
+            row.dataset.studentId
+        )}`
+    );
 
 
                                         const data =
                                             await response.json();
 
 
-                                        if(
-                                            data.available
-                                        ) {
+                                        if (data.taken === false) {
 
-                                            status.textContent =
-                                                "✓ Aadhaar available";
+    status.textContent =
+        "✓ Aadhaar available";
 
-                                            status.className =
-                                                "aadhaar-status aadhaar-ok";
+    status.className =
+        "aadhaar-status aadhaar-ok";
 
-                                        }
-                                        else {
+    input.classList.remove(
+        "aadhaar-error"
+    );
 
-                                            status.textContent =
-                                                `⚠ Already taken by ${data.student.name} · Class ${data.student.class}`;
+} else if (data.taken === true) {
 
-                                            status.className =
-                                                "aadhaar-status aadhaar-warning";
+    status.textContent =
+        `⚠ Already taken by ${
+            data.student?.name || "another student"
+        } · Class ${
+            data.student?.class || "-"
+        }`;
 
-                                            input.classList.add(
-                                                "aadhaar-error"
-                                            );
+    status.className =
+        "aadhaar-status aadhaar-warning";
 
-                                        }
+    input.classList.add(
+        "aadhaar-error"
+    );
 
+}
 
-                                    }
-                                    catch(error) {
-
-                                        status.textContent =
-                                            "Unable to verify Aadhaar";
-
-                                        status.className =
-                                            "aadhaar-status aadhaar-warning";
 
                                     }
+                                    catch (error) {
+
+    status.textContent =
+        "Unable to verify Aadhaar";
+
+    status.className =
+        "aadhaar-status aadhaar-warning";
+
+}
 
 
                                 },

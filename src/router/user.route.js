@@ -2874,135 +2874,135 @@ app.get(
 // AADHAAR DUPLICATE CHECK
 // ------------------------------------------------------
 
-app.get(
-    "/admin/api/students/check-aadhaar",
-    requireAdmin,
-    async (req, res) => {
+// app.get(
+//     "/admin/api/students/check-aadhaar",
+//     requireAdmin,
+//     async (req, res) => {
 
-        try {
+//         try {
 
-            const aadhaar =
-                String(
-                    req.query.aadhaar || ""
-                )
-                .replace(
-                    /\s+/g,
-                    ""
-                )
-                .trim();
-
-
-            const excludeId =
-                String(
-                    req.query.excludeId || ""
-                )
-                .trim();
+//             const aadhaar =
+//                 String(
+//                     req.query.aadhaar || ""
+//                 )
+//                 .replace(
+//                     /\s+/g,
+//                     ""
+//                 )
+//                 .trim();
 
 
-            if (!aadhaar) {
-
-                return res.json({
-
-                    success: true,
-
-                    available: true
-
-                });
-
-            }
+//             const excludeId =
+//                 String(
+//                     req.query.excludeId || ""
+//                 )
+//                 .trim();
 
 
-            const query = {
+//             if (!aadhaar) {
 
-                aadhaar
+//                 return res.json({
 
-            };
+//                     success: true,
 
+//                     available: true
 
-            /*
-             * Don't consider the student's
-             * own Aadhaar as duplicate.
-             */
+//                 });
 
-            if (
-                mongoose.Types.ObjectId.isValid(
-                    excludeId
-                )
-            ) {
-
-                query._id = {
-
-                    $ne: excludeId
-
-                };
-
-            }
+//             }
 
 
-            const existing =
-                await Student
-                    .findOne(query)
-                    .select(
-                        "name class serialNo"
-                    )
-                    .lean();
+//             const query = {
+
+//                 aadhaar
+
+//             };
 
 
-            if (!existing) {
+//             /*
+//              * Don't consider the student's
+//              * own Aadhaar as duplicate.
+//              */
 
-                return res.json({
+//             if (
+//                 mongoose.Types.ObjectId.isValid(
+//                     excludeId
+//                 )
+//             ) {
 
-                    success: true,
+//                 query._id = {
 
-                    available: true
+//                     $ne: excludeId
 
-                });
+//                 };
 
-            }
-
-
-            return res.json({
-
-                success: true,
-
-                available: false,
-
-                student: {
-
-                    name:
-                        existing.name,
-
-                    class:
-                        existing.class,
-
-                    serialNo:
-                        existing.serialNo || ""
-
-                }
-
-            });
+//             }
 
 
-        } catch (error) {
+//             const existing =
+//                 await Student
+//                     .findOne(query)
+//                     .select(
+//                         "name class serialNo"
+//                     )
+//                     .lean();
 
-            console.error(
-                "Aadhaar Check Error:",
-                error
-            );
 
-            return res.status(500).json({
+//             if (!existing) {
 
-                success: false,
+//                 return res.json({
 
-                message:
-                    "Unable to check Aadhaar."
+//                     success: true,
 
-            });
+//                     available: true
 
-        }
+//                 });
 
-    }
-);
+//             }
+
+
+//             return res.json({
+
+//                 success: true,
+
+//                 available: false,
+
+//                 student: {
+
+//                     name:
+//                         existing.name,
+
+//                     class:
+//                         existing.class,
+
+//                     serialNo:
+//                         existing.serialNo || ""
+
+//                 }
+
+//             });
+
+
+//         } catch (error) {
+
+//             console.error(
+//                 "Aadhaar Check Error:",
+//                 error
+//             );
+
+//             return res.status(500).json({
+
+//                 success: false,
+
+//                 message:
+//                     "Unable to check Aadhaar."
+
+//             });
+
+//         }
+
+//     }
+// );
 
 
 // ------------------------------------------------------
@@ -3606,6 +3606,831 @@ app.post(
 
                 message:
                     "Unable to update students."
+
+            });
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// BULK ADD STUDENTS PAGE
+// ============================================================
+
+// ============================================================
+// ADD STUDENTS VIA LIST
+// ============================================================
+
+app.get(
+    "/admin/students/add-list",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            // --------------------------------------------------
+            // CURRENT ACADEMIC SESSION
+            // --------------------------------------------------
+
+            const academicState =
+                await getSessionState();
+
+
+            // --------------------------------------------------
+            // BUILT-IN OPTIONAL STUDENT FIELDS
+            // --------------------------------------------------
+
+            const builtInFields = [
+
+                {
+                    key: "academicSession",
+                    label: "Academic Session",
+                    type: "select"
+                },
+
+                {
+                    key: "status",
+                    label: "Status",
+                    type: "select"
+                },
+
+                {
+                    key: "graduationSession",
+                    label: "Graduation Session",
+                    type: "text"
+                },
+
+                {
+                    key: "serialNo",
+                    label: "Serial No",
+                    type: "text"
+                },
+
+                {
+                    key: "uid",
+                    label: "UID",
+                    type: "text"
+                },
+
+                {
+                    key: "aadhaar",
+                    label: "Aadhaar",
+                    type: "text"
+                },
+
+                {
+                    key: "mobile",
+                    label: "Mobile",
+                    type: "tel"
+                },
+
+                {
+                    key: "fatherAadhaar",
+                    label: "Father Aadhaar",
+                    type: "text"
+                },
+
+                {
+                    key: "motherAadhaar",
+                    label: "Mother Aadhaar",
+                    type: "text"
+                }
+
+            ];
+
+
+            // --------------------------------------------------
+            // LOAD REAL DYNAMIC FIELDS
+            // --------------------------------------------------
+            //
+            // DO NOT use:
+            //
+            // student: [],
+            // parent: []
+            //
+            // getDynamicFields() already exists in your router
+            // and reads studentFieldDefinitions.
+            // --------------------------------------------------
+
+            const dynamicFields =
+                await getDynamicFields();
+
+
+            // --------------------------------------------------
+            // RENDER
+            // --------------------------------------------------
+
+            return res.render(
+                "admin/add-students-list",
+                {
+
+                    user:
+                        req.session.user,
+
+                    academicState,
+
+                    builtInFields,
+
+                    dynamicFields
+
+                }
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Bulk Add Page Error:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Unable to open bulk add students page."
+                );
+
+        }
+
+    }
+);
+// ============================================================
+// CHECK AADHAAR AVAILABILITY
+// ============================================================
+
+// app.get(
+//     "/admin/api/students/check-aadhaar",
+//     requireAdmin,
+//     async (req, res) => {
+
+//         try {
+
+//             let {
+//                 aadhaar,
+//                 excludeId
+//             } = req.query;
+
+
+//             if (!aadhaar) {
+
+//                 return res.json({
+//                     available: true
+//                 });
+
+//             }
+
+
+//             // Remove spaces
+//             aadhaar =
+//                 String(aadhaar)
+//                     .replace(/\s/g, "")
+//                     .trim();
+
+
+//             // Aadhaar must contain exactly 12 digits
+//             if (
+//                 !/^\d{12}$/.test(aadhaar)
+//             ) {
+
+//                 return res.json({
+//                     available: true
+//                 });
+
+//             }
+
+
+//             const query = {
+
+//                 aadhaar: aadhaar
+
+//             };
+
+
+//             /*
+//              * Used when editing an existing student.
+//              *
+//              * For bulk ADD this will normally be empty.
+//              */
+
+//             if (
+//                 excludeId &&
+//                 /^[0-9a-fA-F]{24}$/.test(
+//                     excludeId
+//                 )
+//             ) {
+
+//                 query._id = {
+//                     $ne: excludeId
+//                 };
+
+//             }
+
+
+//             const student =
+//                 await Student
+//                     .findOne(query)
+//                     .select(
+//                         "name class academicSession"
+//                     )
+//                     .lean();
+
+
+//             if (!student) {
+
+//                 return res.json({
+
+//                     available: true,
+
+//                     student: null
+
+//                 });
+
+//             }
+
+
+//             return res.json({
+
+//                 available: false,
+
+//                 student: {
+
+//                     name:
+//                         student.name,
+
+//                     class:
+//                         student.class,
+
+//                     academicSession:
+//                         student.academicSession || ""
+
+//                 }
+
+//             });
+
+//         }
+//         catch (error) {
+
+//             console.error(
+//                 "Aadhaar Check Error:",
+//                 error
+//             );
+
+//             return res.status(500).json({
+
+//                 available: false,
+
+//                 message:
+//                     "Unable to check Aadhaar."
+
+//             });
+
+//         }
+
+//     }
+// );
+// ============================================================
+// BULK ADD STUDENTS
+// ============================================================
+
+app.post(
+    "/admin/api/students/bulk-add",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const {
+                students
+            } = req.body;
+
+
+            // ------------------------------------------------
+            // BASIC VALIDATION
+            // ------------------------------------------------
+
+            if (
+                !Array.isArray(students) ||
+                students.length === 0
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "No students were provided."
+
+                });
+
+            }
+
+
+            if (
+                students.length > 200
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Maximum 200 students can be added at once."
+
+                });
+
+            }
+
+
+            // ------------------------------------------------
+            // PREPARE STUDENTS
+            // ------------------------------------------------
+
+            const preparedStudents = [];
+
+
+            const aadhaarSet =
+                new Set();
+
+
+            for (
+                let i = 0;
+                i < students.length;
+                i++
+            ) {
+
+                const raw =
+                    students[i] || {};
+
+
+                // --------------------------------------------
+                // REQUIRED FIELDS
+                // --------------------------------------------
+
+                const name =
+                    String(
+                        raw.name || ""
+                    ).trim();
+
+
+                const studentClass =
+                    Number(
+                        raw.class
+                    );
+
+
+                const schoolJoinSession =
+                    String(
+                        raw.schoolJoinSession || ""
+                    ).trim();
+
+
+                const fatherName =
+                    String(
+                        raw.fatherName || ""
+                    ).trim();
+
+
+                const motherName =
+                    String(
+                        raw.motherName || ""
+                    ).trim();
+
+
+                if (!name) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            `Student ${i + 1}: Name is required.`
+
+                    });
+
+                }
+
+
+                if (
+                    !Number.isInteger(
+                        studentClass
+                    ) ||
+                    studentClass < 1 ||
+                    studentClass > 12
+                ) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            `Student ${i + 1}: Invalid class.`
+
+                    });
+
+                }
+
+
+                if (!schoolJoinSession) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            `Student ${i + 1}: School Join Session is required.`
+
+                    });
+
+                }
+
+
+                if (!fatherName) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            `Student ${i + 1}: Father Name is required.`
+
+                    });
+
+                }
+
+
+                if (!motherName) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            `Student ${i + 1}: Mother Name is required.`
+
+                    });
+
+                }
+
+
+                // --------------------------------------------
+                // AADHAAR
+                // --------------------------------------------
+
+                let aadhaar =
+                    String(
+                        raw.aadhaar || ""
+                    )
+                    .replace(
+                        /\s/g,
+                        ""
+                    )
+                    .trim();
+
+
+                if (aadhaar) {
+
+                    if (
+                        !/^\d{12}$/.test(
+                            aadhaar
+                        )
+                    ) {
+
+                        return res.status(400).json({
+
+                            success: false,
+
+                            message:
+                                `Student ${i + 1}: Aadhaar must contain exactly 12 digits.`
+
+                        });
+
+                    }
+
+
+                    /*
+                     * Detect duplicate Aadhaar inside the
+                     * same bulk request.
+                     */
+
+                    if (
+                        aadhaarSet.has(
+                            aadhaar
+                        )
+                    ) {
+
+                        return res.status(409).json({
+
+                            success: false,
+
+                            message:
+                                `Student ${i + 1}: This Aadhaar is already used by another student in this list.`
+
+                        });
+
+                    }
+
+
+                    aadhaarSet.add(
+                        aadhaar
+                    );
+
+                }
+
+
+                // --------------------------------------------
+                // DOCUMENTS
+                // --------------------------------------------
+
+                let submittedDocuments =
+                    Array.isArray(
+                        raw.submittedDocuments
+                    )
+                        ? raw.submittedDocuments
+                        : [];
+
+
+                submittedDocuments =
+                    submittedDocuments
+                        .map(
+                            document =>
+                                String(
+                                    document || ""
+                                ).trim()
+                        )
+                        .filter(
+                            Boolean
+                        );
+
+
+                // --------------------------------------------
+                // CUSTOM FIELDS
+                // --------------------------------------------
+
+                let customFields =
+                    Array.isArray(
+                        raw.customFields
+                    )
+                        ? raw.customFields
+                        : [];
+
+
+                customFields =
+                    customFields
+                        .map(
+                            field => ({
+
+                                name:
+                                    String(
+                                        field?.name || ""
+                                    ).trim(),
+
+                                value:
+                                    String(
+                                        field?.value || ""
+                                    ).trim()
+
+                            })
+                        )
+                        .filter(
+                            field =>
+                                field.name
+                        );
+
+
+                // --------------------------------------------
+                // CREATE OBJECT
+                // --------------------------------------------
+
+                const student = {
+
+                    name,
+
+                    class:
+                        studentClass,
+
+                    academicSession:
+                        String(
+                            raw.academicSession ||
+                            "2026-27"
+                        ).trim(),
+
+                    schoolJoinSession,
+
+                    status:
+                        ["active", "deactive"]
+                            .includes(
+                                raw.status
+                            )
+                            ? raw.status
+                            : "active",
+
+                    graduationSession:
+                        String(
+                            raw.graduationSession ||
+                            ""
+                        ).trim(),
+
+                    serialNo:
+                        String(
+                            raw.serialNo ||
+                            ""
+                        ).trim(),
+
+                    uid:
+                        String(
+                            raw.uid ||
+                            ""
+                        ).trim(),
+
+                    aadhaar,
+
+                    mobile:
+                        String(
+                            raw.mobile ||
+                            ""
+                        ).trim(),
+
+                    fatherName,
+
+                    motherName,
+
+                    fatherAadhaar:
+                        String(
+                            raw.fatherAadhaar ||
+                            ""
+                        )
+                        .replace(
+                            /\s/g,
+                            ""
+                        )
+                        .trim(),
+
+                    motherAadhaar:
+                        String(
+                            raw.motherAadhaar ||
+                            ""
+                        )
+                        .replace(
+                            /\s/g,
+                            ""
+                        )
+                        .trim(),
+
+                    submittedDocuments,
+
+                    customFields
+
+                };
+
+
+                preparedStudents.push(
+                    student
+                );
+
+            }
+
+
+            // ------------------------------------------------
+            // CHECK AADHAAR AGAINST DATABASE
+            // ------------------------------------------------
+
+            if (
+                aadhaarSet.size > 0
+            ) {
+
+                const existingStudents =
+                    await Student
+                        .find({
+                            aadhaar: {
+                                $in:
+                                    Array.from(
+                                        aadhaarSet
+                                    )
+                            }
+                        })
+                        .select(
+                            "name class aadhaar"
+                        )
+                        .lean();
+
+
+                if (
+                    existingStudents.length
+                ) {
+
+                    const duplicate =
+                        existingStudents[0];
+
+
+                    return res.status(409).json({
+
+                        success: false,
+
+                        message:
+                            `Aadhaar ${duplicate.aadhaar} is already taken by ${duplicate.name} in Class ${duplicate.class}.`
+
+                    });
+
+                }
+
+            }
+
+
+            // ------------------------------------------------
+            // INSERT ALL STUDENTS
+            // ------------------------------------------------
+
+            const createdStudents =
+                await Student.insertMany(
+                    preparedStudents,
+                    {
+                        ordered: true
+                    }
+                );
+
+
+            // ------------------------------------------------
+            // SUCCESS
+            // ------------------------------------------------
+
+            return res.status(201).json({
+
+                success: true,
+
+                message:
+                    `${createdStudents.length} student${createdStudents.length === 1 ? "" : "s"} added successfully.`,
+
+                count:
+                    createdStudents.length
+
+            });
+
+        }
+        catch (error) {
+
+            console.error(
+                "Bulk Add Students Error:",
+                error
+            );
+
+
+            // Mongo duplicate-key error
+            if (
+                error.code === 11000
+            ) {
+
+                return res.status(409).json({
+
+                    success: false,
+
+                    message:
+                        "A duplicate student value was detected."
+
+                });
+
+            }
+
+
+            // Mongoose validation error
+            if (
+                error.name ===
+                "ValidationError"
+            ) {
+
+                const messages =
+                    Object.values(
+                        error.errors
+                    )
+                    .map(
+                        e =>
+                            e.message
+                    )
+                    .join(
+                        ", "
+                    );
+
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        messages ||
+                        "Student validation failed."
+
+                });
+
+            }
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to add students."
 
             });
 
