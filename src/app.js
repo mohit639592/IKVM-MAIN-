@@ -156,6 +156,12 @@ app.set(
         "views"
     )
 );
+app.use(
+    "/papper",
+    express.static(
+        path.join(__dirname, "views", "papper")
+    )
+);
 
 
 // =====================================================
@@ -184,6 +190,7 @@ app.use(
     "/",
     academicSessionRoute
 );
+
 
 
 // =====================================================

@@ -1,0 +1,2183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IKVM Paper Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1020;
+  --panel:#121a2b;
+  --panel2:#1a2438;
+  --panel3:#243049;
+  --line:#2f3d58;
+  --line2:#3d4f6f;
+  --text:#eef3ff;
+  --muted:#9aabc6;
+  --accent:#5b9dff;
+  --accent2:#3d7fe0;
+  --accent-soft:rgba(91,157,255,.14);
+  --success:#3dd68c;
+  --warn:#f0b429;
+  --danger:#f07178;
+  --paper:#ffffff;
+  --ink:#171717;
+  --radius:10px;
+  --shadow:0 10px 28px rgba(0,0,0,.35);
+  --font:Inter,'Segoe UI',system-ui,sans-serif;
+  --font-dev:'Noto Sans Devanagari','Nirmala UI',Mangal,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font:14px/1.45 var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{
+  cursor:pointer;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  padding:7px 11px;
+  border-radius:8px;
+  transition:border-color .15s,background .15s,transform .1s;
+  white-space:nowrap;
+}
+button:hover{border-color:var(--accent);background:var(--panel3)}
+button:active{transform:translateY(1px)}
+button.primary{
+  background:linear-gradient(180deg,#3d7fe0,#2f6bc7);
+  border-color:#5b9dff;
+  font-weight:600;
+}
+button.primary:hover{filter:brightness(1.08)}
+button.active,button[aria-pressed="true"]{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:#cfe2ff;
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{
+  background:#0d1421;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:7px 9px;
+  color:var(--text);
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
+label{color:var(--muted);font-size:12px}
+.top{
+  position:sticky;top:0;z-index:20;
+  background:rgba(17,24,39,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:8px 12px;
+  display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+}
+.brand{
+  font-weight:800;font-size:15px;letter-spacing:.02em;
+  margin-right:8px;
+  background:linear-gradient(90deg,#9ec5ff,#5b9dff);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.group{
+  display:flex;gap:5px;align-items:center;flex-wrap:wrap;
+  padding-right:8px;margin-right:2px;
+  border-right:1px solid var(--line);
+}
+.group:last-child{border:0}
+.top select,.top input[type=number]{max-width:110px;padding:6px 8px}
+.top input[type=number]{max-width:78px}
+.tools-bar{
+  display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;
+  padding:10px 12px;
+  background:#101827;
+  border-bottom:1px solid var(--line);
+  position:relative;z-index:12;
+}
+.tools-bar .side-section{
+  min-width:200px;flex:1 1 210px;
+  padding:0 12px 4px 0;
+  margin:0;
+  border-right:1px solid var(--line);
+}
+.tools-bar .side-section:last-child{border:0}
+.tools-bar h3{
+  margin:0 0 6px;
+  font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;
+}
+.field{display:flex;flex-direction:column;gap:4px;margin:6px 0}
+.field input,.field select{width:100%}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.row>*{min-width:0}
+.workspace{
+  display:grid;
+  grid-template-columns:220px minmax(0,1fr);
+  min-height:calc(100vh - 210px);
+}
+aside.pages-pane{
+  background:var(--panel);
+  padding:14px;
+  border-right:1px solid var(--line);
+  overflow:auto;
+}
+aside.pages-pane h3{
+  font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px;font-weight:700;
+}
+.page-list{display:flex;flex-direction:column;gap:7px}
+.page-item{
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  background:var(--panel2);
+  transition:border-color .15s,background .15s;
+}
+.page-item:hover{border-color:var(--line2)}
+.page-item.selected{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+}
+.page-item button{padding:3px 7px;font-size:12px}
+.hint{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0 0}
+.main{padding:14px;overflow:auto;min-width:0}
+.notice{
+  padding:9px 12px;
+  background:var(--accent-soft);
+  border:1px solid rgba(91,157,255,.35);
+  border-radius:9px;
+  color:#cfe2ff;
+  margin:0 auto 14px;
+  max-width:920px;
+  font-size:13px;
+}
+.paper-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:22px;
+  min-height:55vh;
+  /* Normal mode: let the full paper stack expand; the main workspace scrolls instead of clipping page bottoms. */
+  max-height:none;
+  overflow:visible;
+  padding:18px;
+  background:#0a101c;
+  border:1px solid #1e2a40;
+  border-radius:12px;
+  scrollbar-gutter:stable;
+}
+.paper{
+  background:var(--paper);
+  color:var(--ink);
+  position:relative;
+  box-shadow:var(--shadow);
+  flex:none;
+  overflow:hidden; /* never let content paint outside the page */
+  transform-origin:top center;
+  border-radius:2px;
+}
+.paper.active-page{outline:3px solid var(--accent);outline-offset:3px}
+.paper-content{
+  position:absolute;inset:10mm;
+  outline:none;
+  overflow:hidden; /* clip anything that would spill past margins */
+  color:#171717;
+  font-family:var(--font-dev);
+  font-size:13pt;font-weight:500;line-height:1.45;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.paper-content p,.paper-content li{font-weight:500;margin:0 0 .5em}
+.paper-content strong,.paper-content b,.paper-content h1,.paper-content h2,.paper-content h3{font-weight:700}
+.paper-content:empty:before{
+  content:"Click here and start typing, or paste text in the left panel and click Generate.";
+  color:#999;
+}
+.paper-content h1,.paper-content h2,.paper-content h3{margin:0 0 .55em}
+.paper-content.double-column{
+  column-count:2;
+  column-gap:6mm;
+  column-rule:1px solid #999;
+  column-fill:auto;
+  height:100%;
+  max-height:100%;
+}
+.paper-content img{max-width:100%;height:auto;display:block}
+.paper-content table{border-collapse:collapse;max-width:100%;width:100%;table-layout:fixed}
+.paper-content td,.paper-content th{border:1px solid #777;padding:3px 4px;word-break:break-word}
+.paper-content.compact-page{font-size:10.5pt;line-height:1.2}
+.paper-content.compact-page p,.paper-content.compact-page li{margin-top:0;margin-bottom:.12em}
+.paper-content.compact-page h1,.paper-content.compact-page h2,.paper-content.compact-page h3{margin-top:.1em;margin-bottom:.18em;line-height:1.15}
+.paper-content .exam-header-block{column-span:all;break-inside:avoid;margin-bottom:6px}
+.paper-content .exam-section{font-weight:700;text-align:center;border:1px solid #333;padding:2px 6px;margin:6px 0 4px;break-inside:avoid;background:#f5f5f5}
+.paper-content p{max-width:100%}
+.paper-content *{max-width:100%;box-sizing:border-box}
+.paper-content.design-mode{outline:1px dashed #8abaff;min-height:100%}
+textarea#source{
+  width:100%;height:160px;
+  background:#0d1421;color:var(--text);
+  border:1px solid var(--line);border-radius:8px;
+  padding:10px;resize:vertical;
+  font-family:var(--font);
+}
+.status{
+  font-size:12px;color:var(--muted);
+  padding-top:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.status .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--success);flex-shrink:0;
+}
+.studio-object{
+  position:absolute!important;
+  left:10mm;top:10mm;width:55mm;min-height:12mm;
+  border:1px dashed #3984e8!important;
+  background:#fff!important;color:#111!important;
+  padding:6px!important;cursor:move;z-index:5;box-sizing:border-box;
+}
+.studio-object:focus{outline:2px solid #3984e8}
+.studio-object .studio-resize{
+  position:absolute;right:-6px;bottom:-6px;
+  width:12px;height:12px;background:#3984e8;
+  border:2px solid white;cursor:nwse-resize;
+}
+.studio-image{
+  width:70mm;min-width:18mm;min-height:14mm;height:auto;
+  padding:4px!important;background:#fff!important;
+  touch-action:none;
+}
+.studio-image img{
+  display:block;width:100%;height:auto;max-height:90mm;
+  object-fit:contain;pointer-events:none;user-select:none;
+}
+.studio-object.studio-selected{outline:2px solid #3984e8!important;outline-offset:2px}
+.studio-image .studio-resize{display:block}
+.studio-image.studio-selected:after{content:'Selected image · drag to move · blue corner to resize';position:absolute;left:0;top:-22px;padding:2px 6px;border-radius:4px;background:#3984e8;color:#fff;font:10px/1.4 Inter,Arial,sans-serif;white-space:nowrap;pointer-events:none}
+@media print{.studio-image.studio-selected:after{display:none!important}}
+@media print{
+  .studio-object .studio-resize{display:none!important}
+  .studio-image{border:0!important;padding:0!important}
+}
+.side-section .row button{flex:0 0 auto}
+@media(max-width:1100px){
+  .workspace{grid-template-columns:180px minmax(0,1fr)}
+}
+@media(max-width:780px){
+  .workspace{display:block}
+  aside.pages-pane{border-right:0;border-bottom:1px solid var(--line)}
+  .paper-wrap{max-height:none}
+}
+
+/* Full-screen preview */
+#previewOverlay{
+  display:none;position:fixed;inset:0;z-index:99999;
+  background:#0a0f18;color:#eef3ff;overflow:auto;
+}
+#previewOverlay.open{display:block}
+.preview-toolbar{
+  position:sticky;top:0;z-index:2;
+  display:flex;align-items:flex-start;gap:12px;justify-content:space-between;flex-wrap:wrap;
+  padding:10px 14px;background:#111827;border-bottom:1px solid #34425c;
+  max-height:32vh;overflow-y:auto;
+}
+.preview-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.preview-actions label{display:flex;gap:5px;align-items:center;font-size:12px;color:#c7d2e5}
+.preview-actions input,.preview-actions select{
+  background:#0e1421;color:#eef3ff;border:1px solid #34425c;border-radius:6px;padding:5px;
+}
+.preview-pages{
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  padding:18px;min-height:calc(100vh - 60px);
+}
+.preview-page{
+  position:relative;flex:none;background:#fff;color:#171717;
+  box-shadow:0 8px 32px #0008;overflow:hidden;
+}
+.preview-page.exam-border{border:1.5px solid #111}
+.preview-content{
+  position:absolute;overflow:auto;color:#171717;
+  font-family:var(--font-dev);font-weight:500;
+  overflow-wrap:anywhere;transform-origin:top left;
+  outline:none;cursor:text;
+}
+.preview-content:focus{outline:1px dashed #68a7ff}
+.preview-content p{margin:0 0 .5em;break-inside:avoid}
+.preview-content h1,.preview-content h2,.preview-content h3{margin:0 0 .35em}
+.preview-content.double-column{
+  column-count:2;column-gap:7mm;column-rule:1px solid #777;column-fill:auto;overflow:visible;
+}
+.preview-content img{max-width:100%}
+.preview-section-heading{
+  border:1px solid #444;border-radius:3px;text-align:center;font-weight:700;
+  margin:8px auto;padding:2px 8px;max-width:70%;background:#f7f7f7;color:#111;
+}
+.preview-shape{break-inside:avoid}
+#printRoot{display:none}
+
+/* Generate settings modal */
+#genModal{
+  display:none;position:fixed;inset:0;z-index:100000;
+  background:rgba(6,10,18,.72);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:16px;
+}
+#genModal.open{display:flex}
+.gen-card{
+  background:#121a2b;border:1px solid var(--line);border-radius:14px;
+  width:min(720px,100%);max-height:92vh;overflow:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);padding:18px 20px;
+}
+.gen-card h2{margin:0 0 6px;font-size:18px}
+.gen-card .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+.gen-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.gen-grid .field{margin:0}
+.gen-estimate{
+  margin:14px 0;padding:12px 14px;border-radius:10px;
+  background:var(--accent-soft);border:1px solid rgba(91,157,255,.35);
+  display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;
+}
+.gen-estimate strong{font-size:20px;color:#9ec5ff}
+.gen-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}
+.gen-preview-note{font-size:12px;color:var(--muted);margin-top:8px}
+@media(max-width:560px){.gen-grid{grid-template-columns:1fr}}
+
+@media print{
+  body{background:white;color:black}
+  .top,.tools-bar,aside,.notice,.no-print,#previewOverlay{display:none!important}
+  .workspace{display:block;min-height:0}
+  .main{padding:0;overflow:visible}
+  .paper-wrap{display:none!important}
+  #printRoot{display:block!important}
+  .paper{box-shadow:none!important;margin:0!important;page-break-after:always;break-after:page;overflow:hidden}
+  .paper:last-child{page-break-after:auto;break-after:auto}
+  .paper-content{overflow-wrap:anywhere}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">IKVM Paper Studio</div>
+  <div class="group">
+    <button id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button>
+    <button id="redoBtn" title="Redo (Ctrl+Y)">↷ Redo</button>
+    <button id="saveBtn" title="Save draft to this browser">Save draft</button>
+    <button id="loadBtn" title="Load last draft">Load draft</button>
+  </div>
+  <div class="group">
+    <label>Paper</label>
+    <select id="paperSize">
+      <option value="A4">A4</option>
+      <option value="A3">A3</option>
+      <option value="A5">A5</option>
+      <option value="Letter">Letter</option>
+      <option value="Legal">Legal</option>
+      <option value="custom">Custom</option>
+    </select>
+    <label>Orient</label>
+    <select id="orientation">
+      <option value="portrait">Portrait</option>
+      <option value="landscape">Landscape</option>
+    </select>
+    <label>W</label><input id="customW" type="number" min="50" max="1000" value="210" title="Width mm">
+    <label>H</label><input id="customH" type="number" min="50" max="1000" value="297" title="Height mm">
+    <button id="applySize">Apply size</button>
+    <button id="fitPageBtn" title="Fit page to workspace view">Fit view</button>
+  </div>
+  <div class="group">
+    <label>Mode</label>
+    <select id="editorMode">
+      <option value="smart">Smart Document</option>
+      <option value="free">Free Design</option>
+    </select>
+    <label>Columns</label>
+    <select id="columnMode">
+      <option value="1">Single</option>
+      <option value="2">Two</option>
+    </select>
+    <button id="applyColumns">Apply columns</button>
+    <button id="renumberBtn" title="Renumber questions in document order">Renumber Qs</button>
+    <button id="saveLayoutBtn">Save layout</button>
+    <select id="savedLayouts"><option value="">Saved layouts…</option></select>
+    <button id="applyLayoutBtn">Use layout</button>
+    <button id="deleteLayoutBtn">Delete layout</button>
+    <button id="resetBtn" title="Reset current paper">Reset</button>
+  </div>
+  <div class="group">
+    <label for="quickFontSize">Font pt</label>
+    <input id="quickFontSize" type="number" min="5" max="96" value="13">
+    <button id="quickApplyFont">Apply</button>
+    <button id="quickBold" title="Bold (Ctrl+B)"><b>B</b></button>
+    <button id="quickItalic" title="Italic (Ctrl+I)"><i>I</i></button>
+    <button id="quickUnderline" title="Underline (Ctrl+U)"><u>U</u></button>
+    <button id="compactBtn" title="Toggle compact typography">Compact</button>
+    <button id="reflowBtn" title="Fit all content onto as few pages as possible">Fit pages</button>
+    <button id="fullscreenBtn">Full-screen editor</button>
+    <button id="addPage">+ Page</button>
+    <button id="duplicatePage">Duplicate</button>
+    <button id="deletePage">Delete page</button>
+    <button id="printBtn" class="primary">Print / PDF</button>
+  </div>
+</header>
+
+<div class="tools-bar" id="toolsBar">
+  <div class="side-section">
+    <h3>Text formatting</h3>
+    <div class="field">
+      <label for="fontFamily">Font family</label>
+      <select id="fontFamily">
+        <option value="Noto Sans Devanagari">Noto Sans Devanagari</option>
+        <option value="Nirmala UI">Nirmala UI</option>
+        <option value="Mangal">Mangal</option>
+        <option value="Arial">Arial</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Calibri">Calibri</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Poppins">Poppins</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="fontSize">Font size (pt)</label>
+      <div class="row">
+        <input id="fontSize" type="number" min="5" max="96" value="13" style="width:70px">
+        <button id="applyFontSize">Apply size</button>
+      </div>
+    </div>
+    <div class="row">
+      <button data-cmd="bold" title="Bold"><b>B</b></button>
+      <button data-cmd="italic" title="Italic"><i>I</i></button>
+      <button data-cmd="underline" title="Underline"><u>U</u></button>
+      <button data-cmd="strikeThrough" title="Strike through"><s>S</s></button>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <button data-cmd="justifyLeft">Left</button>
+      <button data-cmd="justifyCenter">Center</button>
+      <button data-cmd="justifyRight">Right</button>
+    </div>
+    <div class="field">
+      <label for="textColor">Text colour</label>
+      <input id="textColor" type="color" value="#171717">
+    </div>
+    <div class="field">
+      <label for="highlightColor">Highlight</label>
+      <div class="row">
+        <input id="highlightColor" type="color" value="#fff176" style="width:42px;padding:2px">
+        <button id="highlightBtn">Highlight</button>
+        <button id="removeHighlight">Clear</button>
+      </div>
+    </div>
+  </div>
+  <div class="side-section">
+    <h3>Page layout</h3>
+    <div class="field">
+      <label for="pageFontSize">Whole page font (pt)</label>
+      <div class="row">
+        <input id="pageFontSize" type="number" min="5" max="48" value="13" style="width:70px">
+        <button id="applyPageFont">Apply</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="lineSpacing">Line spacing</label>
+      <select id="lineSpacing">
+        <option value="1.2">Compact (1.2)</option>
+        <option value="1.45" selected>Normal (1.45)</option>
+        <option value="1.7">Relaxed (1.7)</option>
+        <option value="2">Double (2.0)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="margin">Margins (mm)</label>
+      <input id="margin" type="number" min="0" max="50" value="10">
+    </div>
+    <button id="applyLayout">Apply layout</button>
+  </div>
+  <div class="side-section">
+    <h3>Insert</h3>
+    <div class="row">
+      <button id="insertTextBox">Add text box</button>
+      <button id="insertLine">Add line</button>
+      <button id="deleteObjectBtn">Delete selected</button>
+      <button id="fitImageBtn">Fit image to page</button>
+    </div>
+    <div class="field" style="margin-top:8px">
+      <label for="imageFile">Insert image</label>
+      <input id="imageFile" type="file" accept="image/*">
+    </div>
+    <p class="hint" style="margin-top:6px">Text boxes: drag border to move, corner to resize. Images stay within page width.</p>
+  </div>
+</div>
+
+<div class="workspace">
+  <aside class="pages-pane">
+    <h3>Pages</h3>
+    <div id="pageList" class="page-list"></div>
+    <div class="row" style="margin-top:10px">
+      <button id="upPage">↑ Up</button>
+      <button id="downPage">↓ Down</button>
+    </div>
+    <p class="hint">Pages print in the order shown. Click a page to edit it.</p>
+    <div class="side-section" style="border:0;padding-top:14px;margin-top:12px;border-top:1px solid var(--line)">
+      <h3>Generate from text</h3>
+      <textarea id="source" placeholder="Paste your complete paper here…
+
+Section A: Multiple Choice
+1. Question one
+(A) Option one
+(B) Option two
+
+खंड – अ
+प्रश्न 1. …"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="generateBtn" class="primary">Generate paper</button>
+        <button id="appendBtn">Append to page</button>
+      </div>
+      <p class="hint">Generate replaces all pages. Append adds to the selected page. Headings and blank structure are preserved.</p>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="notice">Tip: text that does not fit automatically flows to the next page. Use <b>Fit pages</b> to pack content into as few pages as possible, or <b>Compact</b> for tighter type. Shortcuts: Ctrl+B / Ctrl+I / Ctrl+U.</div>
+    <div class="paper-wrap" id="paperWrap"></div>
+    <div class="status" id="status"><span class="dot"></span><span id="statusText">Ready.</span></div>
+  </main>
+</div>
+
+<!-- Generate settings: live page estimate before creating paper -->
+<div id="genModal" role="dialog" aria-modal="true" aria-labelledby="genTitle">
+  <div class="gen-card">
+    <h2 id="genTitle">Generate paper settings</h2>
+    <p class="sub">Adjust parameters — page count updates live. Content will stay inside page margins (no overflow).</p>
+    <div class="gen-grid">
+      <div class="field">
+        <label for="genFontSize">Font size (pt)</label>
+        <input id="genFontSize" type="number" min="7" max="18" value="11" step="0.5">
+      </div>
+      <div class="field">
+        <label for="genLineHeight">Line spacing</label>
+        <select id="genLineHeight">
+          <option value="1.15">Tight (1.15)</option>
+          <option value="1.25" selected>Compact (1.25)</option>
+          <option value="1.4">Normal (1.4)</option>
+          <option value="1.6">Relaxed (1.6)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="genColumns">Columns</label>
+        <select id="genColumns">
+          <option value="1">Single column</option>
+          <option value="2" selected>Double column (exam style)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="genMargin">Margins (mm)</label>
+        <input id="genMargin" type="number" min="5" max="25" value="10">
+      </div>
+      <div class="field">
+        <label for="genPaper">Paper size</label>
+        <select id="genPaper">
+          <option value="A4" selected>A4</option>
+          <option value="A3">A3</option>
+          <option value="Letter">Letter</option>
+          <option value="Legal">Legal</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="genHeader">Exam header</label>
+        <select id="genHeader">
+          <option value="yes" selected>Yes (school / subject row)</option>
+          <option value="no">No header</option>
+        </select>
+      </div>
+    </div>
+    <div class="gen-estimate">
+      <div>Estimated pages: <strong id="genPageEst">—</strong></div>
+      <div id="genEstDetail" style="color:var(--muted);font-size:13px">Change settings to recalculate</div>
+    </div>
+    <p class="gen-preview-note">Tip: for long MCQ papers use <b>Double column</b> + font 10–11 pt + tight spacing to minimize pages (like a real board exam sheet).</p>
+    <div class="gen-actions">
+      <button id="genCancel">Cancel</button>
+      <button id="genApply" class="primary">Generate with these settings</button>
+    </div>
+  </div>
+</div>
+
+<div id="previewOverlay" aria-label="Full-screen paper editor" aria-modal="true" role="dialog">
+  <div class="preview-toolbar">
+    <div>
+      <strong>Full-screen Paper Editor</strong>
+      <span id="previewCount" style="margin-left:10px;color:#9aabc6;font-size:13px"></span>
+    </div>
+    <div class="preview-actions">
+      <label>Size <input id="previewFontSize" type="number" min="5" max="72" value="13" style="width:58px"></label>
+      <button id="previewApplySize">Apply size</button>
+      <button id="previewBold"><b>B</b></button>
+      <button id="previewItalic"><i>I</i></button>
+      <button id="previewUnderline"><u>U</u></button>
+      <label>Highlight <input id="previewHighlightColor" type="color" value="#fff176" style="width:34px;height:28px;padding:1px"></label>
+      <button id="previewHighlight">Highlight</button>
+      <label>Text <input id="previewTextColor" type="color" value="#171717" style="width:34px;height:28px;padding:1px"></label>
+      <button id="previewTextColorApply">Colour</button>
+      <button id="previewAlignLeft">Left</button>
+      <button id="previewAlignCenter">Center</button>
+      <button id="previewAlignRight">Right</button>
+      <label>Layout
+        <select id="previewArchitecture">
+          <option value="single">Single + border/header</option>
+          <option value="double">Double column exam</option>
+        </select>
+      </label>
+      <button id="previewApplyArchitecture">Apply layout</button>
+      <button id="previewLine">Line</button>
+      <button id="previewRectangle">Rectangle</button>
+      <button id="previewSection">Section heading</button>
+      <button id="previewBorder">Toggle border</button>
+      <button id="previewAddPage">+ Page</button>
+      <button id="previewPrint" class="primary">Print / Save PDF</button>
+      <button id="previewClose">Close ✕</button>
+    </div>
+  </div>
+  <div id="previewPages" class="preview-pages"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const sizes = {A4:[210,297],A3:[297,420],A5:[148,210],Letter:[215.9,279.4],Legal:[215.9,355.6]};
+let pages = [{w:210,h:297,margin:10,html:'',columns:1,compact:false,border:true}];
+let active = 0, history = [], future = [], savedRange = null;
+const AUTOSAVE_KEY = 'ikvm-paper-studio-autosave-v4';
+const LAYOUTS_KEY = 'ikvm-paper-studio-layouts-v1';
+const DRAFT_KEY = 'ikvm-paper-studio-draft-v1';
+let autosaveTimer = null;
+let previewSelection = null;
+
+function status(msg){
+  const t = $('statusText');
+  if(t) t.textContent = msg;
+  else if($('status')) $('status').textContent = msg;
+}
+function current(){ return pages[active]; }
+function editor(){ return document.querySelector(`.paper[data-index="${active}"] .paper-content`); }
+
+function snapshot(){
+  saveCurrent();
+  history.push(JSON.stringify({pages, active}));
+  if(history.length > 80) history.shift();
+  future = [];
+}
+function saveCurrent(){
+  document.querySelectorAll('.paper-content').forEach(el => {
+    const i = Number(el.dataset.pageIndex);
+    if(Number.isInteger(i) && pages[i]) pages[i].html = el.innerHTML;
+  });
+  const el = editor();
+  if(el && pages[active]) pages[active].html = el.innerHTML;
+}
+function restoreState(s){
+  const x = JSON.parse(s);
+  pages = x.pages;
+  active = Math.max(0, Math.min(x.active, pages.length - 1));
+  render();
+}
+function undo(){
+  saveCurrent();
+  if(!history.length){ status('Nothing to undo.'); return; }
+  future.push(JSON.stringify({pages, active}));
+  restoreState(history.pop());
+  status('Undo complete.');
+}
+function redo(){
+  saveCurrent();
+  if(!future.length){ status('Nothing to redo.'); return; }
+  history.push(JSON.stringify({pages, active}));
+  restoreState(future.pop());
+  status('Redo complete.');
+}
+
+function render(){
+  const wrap = $('paperWrap');
+  wrap.innerHTML = '';
+  pages.forEach((p, i) => {
+    const sheet = document.createElement('section');
+    sheet.className = 'paper' + (i === active ? ' active-page' : '');
+    sheet.dataset.index = i;
+    sheet.style.width = (p.w * 96 / 25.4) + 'px';
+    sheet.style.height = (p.h * 96 / 25.4) + 'px';
+    if(p.border !== false) sheet.style.border = '1.5px solid #111';
+
+    const content = document.createElement('div');
+    content.className = 'paper-content' + (p.compact ? ' compact-page' : '');
+    content.dataset.pageIndex = String(i);
+    content.contentEditable = 'true';
+    content.spellcheck = true;
+    content.style.inset = (p.margin ?? 10) + 'mm';
+    content.innerHTML = p.html || '';
+    const fs = Number(p.fontSize) || (p.compact ? 10.5 : 12);
+    const lh = Number(p.lineHeight) || (p.compact ? 1.2 : 1.4);
+    content.style.fontSize = fs + 'pt';
+    content.style.lineHeight = String(lh);
+    if((p.columns || 1) === 2){
+      content.classList.add('double-column');
+      content.style.columnCount = '2';
+      content.style.columnGap = '6mm';
+      content.style.columnRule = '1px solid #999';
+      content.style.columnFill = 'auto';
+      content.style.height = '100%';
+      content.style.maxHeight = '100%';
+    }
+    if($('editorMode').value === 'free') content.classList.add('design-mode');
+
+    const activate = () => {
+      active = i;
+      document.querySelectorAll('.paper').forEach((s, j) => s.classList.toggle('active-page', j === active));
+      renderPageList();
+    };
+    content.addEventListener('focus', () => { activate(); captureSelection(); });
+    content.addEventListener('keyup', () => { activate(); captureSelection(); scheduleAutosave(); });
+    content.addEventListener('mouseup', () => { activate(); captureSelection(); });
+    content.addEventListener('input', () => {
+      activate();
+      saveCurrent();
+      scheduleAutosave();
+      // Do not rebuild the editor while the user is typing: doing so destroys
+      // the caret/selection and makes generated content appear read-only.
+      scheduleAutoReflow();
+    });
+    content.addEventListener('blur', () => {
+      saveCurrent();
+      scheduleAutosave();
+      // Reflow only after editing has paused and focus has genuinely left the page.
+      scheduleAutoReflow();
+    });
+    content.addEventListener('keydown', e => {
+      active = i;
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){ e.preventDefault(); saveDraft(); }
+      // Let the browser's native contenteditable undo/redo handle individual typing edits.
+    });
+    sheet.addEventListener('pointerdown', activate);
+    sheet.appendChild(content);
+    wrap.appendChild(sheet);
+    bindDesignObjectsIn(content);
+  });
+  updatePrintStyle();
+  renderPageList();
+  updateCompactButton();
+}
+
+function renderPageList(){
+  const list = $('pageList');
+  list.innerHTML = '';
+  pages.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'page-item' + (i === active ? ' selected' : '');
+    const label = document.createElement('span');
+    label.textContent = `Page ${i + 1} · ${Math.round(p.w)}×${Math.round(p.h)} mm`;
+    label.style.cursor = 'pointer';
+    label.onclick = () => { saveCurrent(); active = i; render(); status('Page ' + (i + 1) + ' selected.'); };
+    const mini = document.createElement('button');
+    mini.textContent = 'Edit';
+    mini.onclick = () => { saveCurrent(); active = i; render(); };
+    row.append(label, mini);
+    list.appendChild(row);
+  });
+}
+
+function updatePrintStyle(){
+  let style = $('dynamicPrintStyle');
+  if(!style){
+    style = document.createElement('style');
+    style.id = 'dynamicPrintStyle';
+    document.head.appendChild(style);
+  }
+  const p = current();
+  style.textContent = `@media print{@page{size:${p.w}mm ${p.h}mm;margin:0}.paper{width:${p.w}mm!important;height:${p.h}mm!important;transform:none!important}.paper-content{inset:${p.margin??10}mm!important;transform:none!important;width:auto!important;height:auto!important;column-fill:auto!important}}`;
+}
+
+function updateCompactButton(){
+  const btn = $('compactBtn');
+  if(!btn) return;
+  const on = !!(pages[0] && pages[0].compact);
+  btn.classList.toggle('active', on);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.textContent = on ? 'Compact ✓' : 'Compact';
+}
+
+function captureSelection(){
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount && editor()?.contains(sel.anchorNode)){
+    savedRange = sel.getRangeAt(0).cloneRange();
+  }
+}
+function restoreSelection(){
+  const el = editor();
+  if(!el) return false;
+  el.focus({preventScroll: true});
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  if(savedRange && el.contains(savedRange.commonAncestorContainer)){
+    try{ sel.addRange(savedRange); return true; }catch(e){}
+  }
+  return false;
+}
+function selectionExists(){
+  return restoreSelection() && window.getSelection().toString().length > 0;
+}
+
+function applyCommand(cmd, value = null){
+  snapshot();
+  if(!restoreSelection()){
+    status('Click in the paper first, then select text and try again.');
+    return;
+  }
+  try{
+    document.execCommand(cmd, false, value);
+    captureSelection();
+    saveCurrent();
+    scheduleAutosave();
+    status('Formatting applied.');
+  }catch(e){
+    status('Could not apply formatting: ' + e.message);
+  }
+}
+
+function wrapSelection(styleObj){
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !sel.toString()){
+    status('Select some text in the paper first.');
+    return false;
+  }
+  const range = sel.getRangeAt(0);
+  if(!editor()?.contains(range.commonAncestorContainer)){
+    status('Select text inside the paper first.');
+    return false;
+  }
+  const span = document.createElement('span');
+  Object.assign(span.style, styleObj);
+  try{
+    const fragment = range.extractContents();
+    span.appendChild(fragment);
+    range.insertNode(span);
+    const next = document.createRange();
+    next.selectNodeContents(span);
+    sel.removeAllRanges();
+    sel.addRange(next);
+    savedRange = next.cloneRange();
+    return true;
+  }catch(e){
+    status('Please select text within one paragraph and try again.');
+    return false;
+  }
+}
+
+function applyFontSize(){
+  const size = Math.max(5, Math.min(96, Number($('fontSize').value) || 12));
+  snapshot();
+  if(selectionExists()){
+    if(wrapSelection({'font-size': size + 'pt'})){
+      saveCurrent();
+      scheduleAutosave();
+      status('Selected text set to ' + size + ' pt.');
+    }
+  }else{
+    const el = editor();
+    if(!el) return;
+    el.focus();
+    el.style.fontSize = size + 'pt';
+    status('Typing size set to ' + size + ' pt (select text to change only that text).');
+  }
+}
+
+function applyHighlight(){
+  snapshot();
+  if(!selectionExists()){ status('Select the words to highlight first.'); return; }
+  const color = $('highlightColor').value;
+  if(wrapSelection({
+    'background-color': color,
+    '-webkit-box-decoration-break': 'clone',
+    'box-decoration-break': 'clone'
+  })){
+    saveCurrent();
+    scheduleAutosave();
+    status('Highlight applied.');
+  }
+}
+function removeHighlight(){
+  snapshot();
+  if(!selectionExists()){ status('Select highlighted text first.'); return; }
+  if(wrapSelection({'background-color': 'transparent'})){
+    saveCurrent();
+    scheduleAutosave();
+    status('Highlight removed.');
+  }
+}
+
+function makeHTML(text){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const lines = text.replace(/\r/g,'').split('\n');
+  let out = '';
+  for(const raw of lines){
+    const line = raw.trimEnd();
+    if(!line.trim()){ continue; }
+    const t = esc(line);
+    // Section / खण्ड headings → boxed section style
+    if(/^(section|खंड|खण्ड|part|भाग|उपखण्ड|उपखंड)\s*[-:()a-z0-9अ-ह'"]/i.test(line)
+      || /^section\b/i.test(line)
+      || /^खण्ड\s*[-–—]/i.test(line)
+      || /^खंड\s*[-–—]/i.test(line)){
+      out += `<div class="exam-section">${t}</div>`;
+    }else if(/^(class|subject|time|maximum marks|कक्षा|विषय|समय|पूर्णांक|पृष्ठ)\s*[-:–]/i.test(line)){
+      out += `<p style="text-align:center;font-weight:700;margin:2px 0">${t}</p>`;
+    }else if(/^\s*(?:\d+[.)]|Q(?:uestion)?\s*\d+[:.)]|प्रश्न\s*\d+)/i.test(line)){
+      out += `<p style="margin:3px 0 2px"><strong>${t}</strong></p>`;
+    }else if(/^\s*[\(（]?\s*(?:[A-Da-dअ-द]|[ivxIVX]+)[\).）]/i.test(line) || /^\s*[•●▪◦]\s/.test(line) || /^\s*\([iIvVxX]+\)/.test(line)){
+      out += `<p style="margin:1px 0 1px 0.6em">${t}</p>`;
+    }else{
+      out += `<p style="margin:2px 0">${t || '<br>'}</p>`;
+    }
+  }
+  return out || '<p><br></p>';
+}
+
+function defaultExamHeader(){
+  return `<div class="exam-header-block studio-exam-header">
+<table style="width:100%;border-collapse:collapse;border:1.5px solid #111;font-size:9.5pt;line-height:1.3">
+<tbody>
+<tr>
+<td style="border:1px solid #111;padding:3px 5px;width:28%">कक्षा — ______</td>
+<td style="border:1px solid #111;padding:3px 5px;text-align:center;font-weight:700">विषय — ________________</td>
+<td style="border:1px solid #111;padding:3px 5px;text-align:right;width:22%">प्रश्न पत्र</td>
+</tr>
+<tr>
+<td colspan="2" style="border:1px solid #111;padding:3px 5px">समय — ______ &nbsp;|&nbsp; पूर्णांक — ______</td>
+<td style="border:1px solid #111;padding:3px 5px;text-align:right">पृष्ठ</td>
+</tr>
+</tbody>
+</table>
+</div>`;
+}
+
+function paginateHTMLIntoPages(sourceHtml, basePage){
+  const p = {...basePage};
+  const margin = Math.max(0, Math.min(50, Number(p.margin ?? 10)));
+  const pageWpx = Math.max(80, (Number(p.w) || 210) - 2 * margin) * 96 / 25.4;
+  const pageHpx = Math.max(80, (Number(p.h) || 297) - 2 * margin) * 96 / 25.4;
+  const cols = (p.columns || 1) === 2 ? 2 : 1;
+  const fontSize = Number(p.fontSize) || (p.compact ? 10.5 : 12);
+  const lineHeight = Number(p.lineHeight) || (p.compact ? 1.2 : 1.4);
+
+  // Measure each block at ONE column width — CSS multi-column scrollHeight is unreliable in browsers
+  const gapPx = cols === 2 ? (6 * 96 / 25.4) : 0;
+  const colW = Math.max(60, (pageWpx - gapPx * (cols - 1)) / cols);
+  const measurer = document.createElement('div');
+  measurer.style.cssText = `position:absolute;left:-40000px;top:0;width:${colW}px;box-sizing:border-box;visibility:hidden;overflow:visible;font-family:'Noto Sans Devanagari','Nirmala UI',Mangal,Arial,sans-serif;font-size:${fontSize}pt;font-weight:500;line-height:${lineHeight};overflow-wrap:anywhere;word-break:break-word`;
+  document.body.appendChild(measurer);
+
+  const parsed = document.createElement('div');
+  parsed.innerHTML = sourceHtml || '';
+  const blocks = [...parsed.childNodes].filter(n => {
+    if(n.nodeType === 3) return !!n.textContent.trim();
+    if(n.nodeType === 1){
+      const t = (n.textContent || '').replace(/\u00a0/g, ' ').trim();
+      if(!t && n.tagName !== 'IMG' && n.tagName !== 'HR' && n.tagName !== 'TABLE'
+        && !n.querySelector('img,hr,table,.studio-object,.studio-exam-header,.exam-header-block')) return false;
+      return true;
+    }
+    return false;
+  });
+
+  const measured = [];
+  for(const node of blocks){
+    measurer.innerHTML = '';
+    const clone = node.cloneNode(true);
+    measurer.appendChild(clone);
+    let h = Math.ceil(clone.getBoundingClientRect().height);
+    if(!h) h = Math.ceil(measurer.getBoundingClientRect().height);
+    const fullWidth = node.nodeType === 1 && (
+      (node.classList && (node.classList.contains('exam-header-block') || node.classList.contains('studio-exam-header') || node.classList.contains('exam-section')))
+    );
+    measured.push({
+      html: node.nodeType === 1 ? node.outerHTML : String(node.textContent || ''),
+      height: Math.max(8, h + 2),
+      fullWidth: !!fullWidth
+    });
+  }
+  document.body.removeChild(measurer);
+
+  // Pack: total budget = page height × columns (two columns hold ~2× content)
+  // Use a conservative content budget so font/line-height differences (especially Devanagari) never push the last block below the visible page.
+  const capacity = Math.max(80, pageHpx * 0.82) * cols;
+  const pagesOut = [];
+  let chunk = [];
+  let used = 0;
+  for(const block of measured){
+    const cost = block.fullWidth ? Math.min(block.height * cols, capacity * 0.4) : block.height;
+    if(chunk.length && used + cost > capacity){
+      pagesOut.push(chunk.join(''));
+      chunk = [];
+      used = 0;
+    }
+    chunk.push(block.html);
+    used += cost;
+  }
+  if(chunk.length || !pagesOut.length) pagesOut.push(chunk.join(''));
+  return pagesOut;
+}
+
+/** Merge every page's content and reflow into the fewest pages possible. */
+function reflowAllPages(opts = {}){
+  const { snapshotHistory = true, preferCompact = false } = opts;
+  // IMPORTANT: callers may have just replaced `pages` with newly generated content.
+  // Do not copy stale DOM content back into that new state when snapshotHistory is false.
+  // Editing callers must saveCurrent() before invoking reflowAllPages().
+  if(snapshotHistory) snapshot();
+
+  const first = {...(pages[0] || {w:210,h:297,margin:10,columns:1,compact:false,border:true,fontSize:12,lineHeight:1.4})};
+  if(preferCompact){
+    first.compact = true;
+    first.fontSize = first.fontSize || 10.5;
+    first.lineHeight = first.lineHeight || 1.2;
+  }
+
+  // Keep a single exam header at the top; strip duplicates from later pages
+  let headerHtml = '';
+  const bodies = [];
+  pages.forEach((p) => {
+    const box = document.createElement('div');
+    box.innerHTML = p.html || '';
+    box.querySelectorAll('.studio-exam-header, .exam-header-block').forEach((header) => {
+      if(!headerHtml) headerHtml = header.outerHTML;
+      header.remove();
+    });
+    box.querySelectorAll('p').forEach(para => {
+      const t = (para.textContent || '').replace(/\u00a0/g, ' ').trim();
+      if(!t && !para.querySelector('img,hr,table,br')) para.remove();
+    });
+    bodies.push(box.innerHTML);
+  });
+  const allHtml = (headerHtml || '') + bodies.join('');
+  const base = {
+    w: first.w, h: first.h,
+    margin: first.margin ?? 10,
+    columns: first.columns || 1,
+    compact: !!first.compact,
+    border: first.border !== false,
+    fontSize: Number(first.fontSize) || (first.compact ? 10.5 : 12),
+    lineHeight: Number(first.lineHeight) || (first.compact ? 1.2 : 1.4)
+  };
+  const chunks = paginateHTMLIntoPages(allHtml, base);
+  pages = chunks.map((html, idx) => {
+    let h = html;
+    if(idx > 0){
+      const tmp = document.createElement('div');
+      tmp.innerHTML = h;
+      tmp.querySelectorAll('.studio-exam-header, .exam-header-block').forEach(el => el.remove());
+      h = tmp.innerHTML;
+    }
+    return {...base, html: h};
+  });
+  active = Math.min(active, pages.length - 1);
+  render();
+  scheduleAutosave();
+  return pages.length;
+}
+
+function autoPaginate(){
+  // Reflow from the active page onward using current settings (legacy helper)
+  reflowAllPages({ snapshotHistory: false });
+}
+
+/** After typing, if content overflows the page box, auto-split to new pages. */
+let reflowTimer = null;
+function scheduleAutoReflow(){
+  if(reflowTimer) clearTimeout(reflowTimer);
+  reflowTimer = setTimeout(() => {
+    try{
+      // Never rerender contenteditable while the user is actively editing or selecting text.
+      const focused = document.activeElement && document.activeElement.matches('.paper-content, .preview-content');
+      if(focused){
+        // Wait for blur/input pause rather than polling forever; the blur handler schedules a fresh pass.
+        return;
+      }
+      saveCurrent();
+      const before = pages.length;
+      const needs = pages.some((p, i) => {
+        const el = document.querySelector(`.paper[data-index="${i}"] .paper-content`);
+        if(!el) return false;
+        return el.scrollHeight > el.clientHeight + 8;
+      });
+      if(!needs) return;
+      const count = reflowAllPages({ snapshotHistory: true });
+      if(count !== before){
+        status(count > before
+          ? `Auto-split: content needed ${count} page(s).`
+          : `Packed into ${count} page(s) (used fewer pages).`);
+      }
+    }catch(e){
+      console.warn('Auto pagination deferred:', e);
+    }
+  }, 1200);
+}
+function fitMinimizePages(){
+  // Try normal first; if still many pages, offer compact packing
+  const before = pages.length;
+  let count = reflowAllPages({ snapshotHistory: true, preferCompact: false });
+  if(count > 1){
+    // Second pass with compact for minimum page count
+    const compactCount = reflowAllPages({ snapshotHistory: false, preferCompact: true });
+    if(compactCount < count){
+      count = compactCount;
+      status(`Minimized to ${count} page(s) using compact type (was ${before}).`);
+      return;
+    }
+    // Revert compact flag if it didn't help? Keep compact if user wants min pages.
+    // Already applied compact; leave it — user can toggle Compact off.
+  }
+  status(count < before
+    ? `Fitted to ${count} page(s) (was ${before}).`
+    : `Content fits in ${count} page(s).`);
+}
+
+function selectedDimensions(){
+  const key = $('paperSize').value;
+  let w, h;
+  if(key === 'custom'){
+    w = Number($('customW').value) || 210;
+    h = Number($('customH').value) || 297;
+  }else{
+    [w, h] = sizes[key] || [210, 297];
+  }
+  if($('orientation').value === 'landscape' && h > w) [w, h] = [h, w];
+  else if($('orientation').value === 'portrait' && w > h) [w, h] = [h, w];
+  return {w, h};
+}
+
+function openGenerateModal(){
+  const text = $('source').value;
+  if(!text.trim()){ status('Paste paper text into the box first.'); return; }
+  // Sync modal defaults from current toolbar where useful.
+  const key = $('paperSize').value;
+  if($('genPaper').querySelector(`option[value="${key}"]`)) $('genPaper').value = key;
+  const modal = $('genModal');
+  if(!modal){ status('Generate settings panel is missing from this file.'); return; }
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  updateGenEstimate();
+}
+
+function closeGenerateModal(){
+  $('genModal').classList.remove('open');
+  $('genModal').setAttribute('aria-hidden', 'true');
+}
+
+function genSettingsFromModal(){
+  const paperKey = $('genPaper').value;
+  const dims = sizes[paperKey] || [210, 297];
+  let [w, h] = dims;
+  if($('orientation').value === 'landscape' && h > w) [w, h] = [h, w];
+  const fontSize = Math.max(7, Math.min(18, Number($('genFontSize').value) || 11));
+  const lineHeight = Number($('genLineHeight').value) || 1.25;
+  const columns = $('genColumns').value === '2' ? 2 : 1;
+  const margin = Math.max(5, Math.min(25, Number($('genMargin').value) || 10));
+  const compact = fontSize <= 11 || lineHeight <= 1.25;
+  return {w, h, margin, columns, compact, border: true, fontSize, lineHeight, withHeader: $('genHeader').value === 'yes'};
+}
+
+function updateGenEstimate(){
+  const estimate = $('genPageEst');
+  const detail = $('genEstDetail');
+  const text = $('source').value;
+  if(!text.trim()){
+    if(estimate) estimate.textContent = '—';
+    if(detail) detail.textContent = 'Paste text first';
+    return;
+  }
+  try{
+    const s = genSettingsFromModal();
+    let html = makeHTML(text);
+    if(s.withHeader) html = defaultExamHeader() + html;
+    const chunks = paginateHTMLIntoPages(html, s);
+    if(estimate) estimate.textContent = String(chunks.length);
+    if(detail) detail.textContent = `${s.columns === 2 ? 'Double' : 'Single'} column · ${s.fontSize}pt · spacing ${s.lineHeight} · margin ${s.margin}mm · ${s.w}×${s.h}mm`;
+  }catch(err){
+    // Keep the settings modal usable even if browser measurement fails.
+    const s = genSettingsFromModal();
+    const lines = text.replace(/\r/g, '').split('\n').filter(line => line.trim()).length;
+    const approxLinesPerPage = Math.max(12, Math.floor((s.h - 2*s.margin) * 2.2 / Math.max(7, s.fontSize)) * s.columns);
+    const estimated = Math.max(1, Math.ceil(lines / approxLinesPerPage));
+    if(estimate) estimate.textContent = `~${estimated}`;
+    if(detail) detail.textContent = `Approximate estimate · ${s.columns === 2 ? 'Double' : 'Single'} column · ${s.fontSize}pt. Final count is calculated when generated.`;
+    console.warn('Live page estimate fallback:', err);
+  }
+}
+
+function applyGenerateFromModal(){
+  const text = $('source').value;
+  if(!text.trim()){ status('Paste paper text first.'); return; }
+  try{
+    snapshot();
+    const s = genSettingsFromModal();
+    let html = makeHTML(text);
+    if(s.withHeader) html = defaultExamHeader() + html;
+    const layoutId = $('savedLayouts').value;
+    if(layoutId){
+      const l = readLayouts().find(x => x.id === layoutId);
+      if(l && l.pages && l.pages[0] && l.pages[0].html && l.pages[0].html.includes('{{PAPER_CONTENT}}')){
+        html = l.pages[0].html.replace('{{PAPER_CONTENT}}', html);
+      }
+    }
+    pages = [{...s, html}];
+    active = 0;
+    $('columnMode').value = String(s.columns);
+    const matchKey = Object.keys(sizes).find(k => {
+      const [sw, sh] = sizes[k];
+      return (Math.abs(sw - s.w) < 0.5 && Math.abs(sh - s.h) < 0.5)
+        || (Math.abs(sw - s.h) < 0.5 && Math.abs(sh - s.w) < 0.5);
+    });
+    if(matchKey) $('paperSize').value = matchKey;
+    $('customW').value = s.w;
+    $('customH').value = s.h;
+    const n = reflowAllPages({ snapshotHistory: false });
+    closeGenerateModal();
+    $('source').value = text;
+    scheduleAutosave();
+    // Scroll paper into view
+    const wrap = $('paperWrap');
+    if(wrap) wrap.scrollTop = 0;
+    status(`Paper generated · ${n} page(s). Scroll the paper area to see all pages.`);
+  }catch(err){
+    console.error(err);
+    status('Generate failed: ' + (err && err.message ? err.message : String(err)));
+    // Still try to show raw content on one page so user is not stuck
+    try{
+      const s = genSettingsFromModal();
+      pages = [{...s, html: (s.withHeader ? defaultExamHeader() : '') + makeHTML(text)}];
+      active = 0;
+      try { reflowAllPages({ snapshotHistory: false }); }
+      catch(paginationError) { render(); }
+      closeGenerateModal();
+      scheduleAutosave();
+    }catch(e2){}
+  }
+}
+
+function generate(){
+  openGenerateModal();
+}
+
+function applySize(){
+  snapshot();
+  const d = selectedDimensions();
+  pages.forEach(p => { p.w = d.w; p.h = d.h; });
+  render();
+  status(`Paper size applied: ${d.w} × ${d.h} mm.`);
+}
+
+function addPage(){
+  snapshot();
+  const p = current();
+  pages.splice(active + 1, 0, {...p, html: ''});
+  active++;
+  render();
+  status('New page added.');
+}
+function duplicatePage(){
+  snapshot();
+  saveCurrent();
+  pages.splice(active + 1, 0, {...current(), html: current().html});
+  active++;
+  render();
+  status('Page duplicated.');
+}
+function deletePage(){
+  if(pages.length === 1){
+    pages[0].html = '';
+    render();
+    status('Last page cleared.');
+    return;
+  }
+  snapshot();
+  pages.splice(active, 1);
+  active = Math.min(active, pages.length - 1);
+  render();
+  status('Page deleted.');
+}
+function movePage(delta){
+  const n = active + delta;
+  if(n < 0 || n >= pages.length) return;
+  snapshot();
+  saveCurrent();
+  [pages[active], pages[n]] = [pages[n], pages[active]];
+  active = n;
+  render();
+  status('Page order changed.');
+}
+
+function saveDraft(){
+  saveCurrent();
+  try{
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({pages, active, source: $('source').value}));
+    status('Draft saved in this browser.');
+  }catch(e){
+    status('Could not save draft (storage full?).');
+  }
+}
+function loadDraft(){
+  const s = localStorage.getItem(DRAFT_KEY);
+  if(!s){ status('No saved draft found.'); return; }
+  try{
+    const x = JSON.parse(s);
+    pages = x.pages || pages;
+    active = Math.min(x.active || 0, pages.length - 1);
+    $('source').value = x.source || '';
+    render();
+    status('Draft loaded.');
+  }catch(e){
+    status('Could not load draft.');
+  }
+}
+
+function insertTextBox(){
+  snapshot();
+  const el = editor();
+  if(!el) return;
+  const box = document.createElement('div');
+  box.className = 'studio-object';
+  box.contentEditable = 'true';
+  box.textContent = 'Type here';
+  box.style.left = '12mm';
+  box.style.top = '12mm';
+  box.style.width = '90mm';
+  box.style.minHeight = '28mm';
+  box.style.fontSize = '14pt';
+  box.style.fontFamily = "'Noto Sans Devanagari','Nirmala UI',Mangal,Arial,sans-serif";
+  const handle = document.createElement('span');
+  handle.className = 'studio-resize';
+  handle.contentEditable = 'false';
+  box.appendChild(handle);
+  el.appendChild(box);
+  saveCurrent();
+  bindDesignObjectsIn(el);
+  status('Text box added. Drag border to move; corner to resize.');
+}
+
+function insertLine(){
+  snapshot();
+  const el = editor();
+  if(!el) return;
+  const hr = document.createElement('hr');
+  hr.style.border = '0';
+  hr.style.borderTop = '1px solid #222';
+  hr.style.margin = '8px 0';
+  restoreSelection();
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount && el.contains(sel.anchorNode)){
+    sel.getRangeAt(0).insertNode(hr);
+  }else{
+    el.appendChild(hr);
+  }
+  saveCurrent();
+  captureSelection();
+  status('Line inserted.');
+}
+
+let selectedDesignObject = null;
+function selectDesignObject(box){
+  document.querySelectorAll('.studio-object.studio-selected').forEach(x => x.classList.remove('studio-selected'));
+  selectedDesignObject = box || null;
+  if(selectedDesignObject) selectedDesignObject.classList.add('studio-selected');
+}
+function deleteSelectedObject(){
+  const box = selectedDesignObject;
+  if(!box || !box.isConnected){ status('Click an image or text box first, then Delete selected.'); return; }
+  snapshot();
+  box.remove();
+  selectedDesignObject = null;
+  saveCurrent(); scheduleAutosave();
+  status('Selected image/text box deleted.');
+}
+function fitSelectedImage(){
+  const box = selectedDesignObject;
+  if(!box || !box.classList.contains('studio-image')){ status('Select an imported image first.'); return; }
+  const page = current();
+  const margin = Number(page.margin ?? 10);
+  const printableW = Math.max(25, (Number(page.w) || 210) - margin * 2 - 8);
+  snapshot();
+  box.style.width = Math.min(85, printableW * 0.65) + 'mm';
+  box.style.height = 'auto';
+  const img = box.querySelector('img');
+  if(img){ img.style.maxWidth='100%'; img.style.maxHeight='90mm'; img.style.height='auto'; }
+  saveCurrent(); scheduleAutosave();
+  status('Image fitted to a comfortable page size.');
+}
+function bindDesignObjectsIn(el){
+  if(!el) return;
+  el.querySelectorAll('.studio-object').forEach(box => {
+    if(box.dataset.bound === '1') return;
+    box.dataset.bound = '1';
+    const handle = box.querySelector('.studio-resize');
+    box.addEventListener('click', e => { e.stopPropagation(); selectDesignObject(box); });
+    box.addEventListener('pointerdown', e => {
+      selectDesignObject(box);
+      if(e.target === handle){
+        e.preventDefault();
+        e.stopPropagation();
+        const r = box.getBoundingClientRect();
+        box.setPointerCapture?.(e.pointerId);
+        const startX = e.clientX, startY = e.clientY, startW = r.width, startH = r.height;
+        const move = ev => {
+          box.style.width = Math.max(35, startW + ev.clientX - startX) + 'px';
+          box.style.height = Math.max(24, startH + ev.clientY - startY) + 'px';
+        };
+        const up = () => {
+          box.removeEventListener('pointermove', move);
+          box.removeEventListener('pointerup', up);
+          saveCurrent();
+        };
+        box.addEventListener('pointermove', move);
+        box.addEventListener('pointerup', up, {once: true});
+      }else if((e.target === box || (box.classList.contains('studio-image') && e.target.tagName === 'IMG')) && e.button === 0 && !window.getSelection().toString()){
+        const p = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+        const startX = e.clientX, startY = e.clientY, left = b.left - p.left, top = b.top - p.top;
+        const move = ev => {
+          box.style.left = Math.max(0, left + ev.clientX - startX) + 'px';
+          box.style.top = Math.max(0, top + ev.clientY - startY) + 'px';
+        };
+        const up = () => {
+          box.removeEventListener('pointermove', move);
+          box.removeEventListener('pointerup', up);
+          saveCurrent();
+        };
+        box.addEventListener('pointermove', move);
+        box.addEventListener('pointerup', up, {once: true});
+      }
+    });
+  });
+}
+
+function applyColumns(){
+  snapshot();
+  saveCurrent();
+  const n = $('columnMode').value === '2' ? 2 : 1;
+  pages.forEach(p => { p.columns = n; });
+  const count = reflowAllPages({ snapshotHistory: false });
+  status(n === 2
+    ? `Double-column layout applied · packed into ${count} page(s).`
+    : `Single-column layout applied · packed into ${count} page(s).`);
+}
+
+/** Toggle compact typography and reflow to use fewer pages when possible. */
+function compactPages(){
+  snapshot();
+  saveCurrent();
+  const turningOn = !(pages[0] && pages[0].compact);
+  pages.forEach(p => { p.compact = turningOn; });
+  const count = reflowAllPages({ snapshotHistory: false });
+  status(turningOn
+    ? `Compact mode ON · tighter type · ${count} page(s).`
+    : `Compact mode OFF · normal type · ${count} page(s).`);
+}
+
+function renumberQuestions(){
+  snapshot();
+  // Work across all pages in order
+  let n = 1;
+  pages.forEach((p, pi) => {
+    const box = document.createElement('div');
+    box.innerHTML = p.html || '';
+    const nodes = [...box.querySelectorAll('p,h2,h3,h4,li')];
+    nodes.forEach(node => {
+      const txt = node.textContent || '';
+      if(/^\s*(?:Q(?:uestion)?\s*)?\d+[.)]\s+/i.test(txt)){
+        node.innerHTML = node.innerHTML.replace(
+          /^(\s*)(?:(?:Q(?:uestion)?\s*)?\d+[.)])(\s+)/i,
+          (_, a, b) => a + (n++) + '.' + b
+        );
+      }else if(/^\s*प्रश्न\s*\d+[.)]?/i.test(txt)){
+        node.innerHTML = node.innerHTML.replace(
+          /^\s*प्रश्न\s*\d+[.)]?/i,
+          () => `प्रश्न ${n++}.`
+        );
+      }
+    });
+    p.html = box.innerHTML;
+  });
+  render();
+  status('Question numbers updated in document order across all pages.');
+}
+
+function setEditorMode(){
+  const free = $('editorMode').value === 'free';
+  document.querySelectorAll('.paper-content').forEach(el => {
+    el.classList.toggle('design-mode', free);
+  });
+  status(free
+    ? 'Free Design mode: use text boxes and images for manual layout.'
+    : 'Smart Document mode: edit text with automatic page flow.');
+}
+
+function scheduleAutosave(){
+  if(autosaveTimer) clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    try{
+      saveCurrent();
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+        pages, active,
+        source: $('source').value,
+        mode: $('editorMode').value,
+        paperSize: $('paperSize').value,
+        orientation: $('orientation').value
+      }));
+      status('Autosaved locally.');
+    }catch(e){
+      status('Autosave failed: browser storage may be full.');
+    }
+  }, 600);
+}
+
+function readLayouts(){
+  try{ return JSON.parse(localStorage.getItem(LAYOUTS_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function refreshLayouts(selected = ''){
+  const s = $('savedLayouts');
+  s.innerHTML = '<option value="">Saved layouts…</option>';
+  readLayouts().forEach(l => {
+    const o = document.createElement('option');
+    o.value = l.id;
+    o.textContent = l.name;
+    s.appendChild(o);
+  });
+  if(selected) s.value = selected;
+}
+function saveLayout(){
+  saveCurrent();
+  const name = prompt('Name this layout (e.g. School Logo Header):');
+  if(!name || !name.trim()) return;
+  const all = readLayouts();
+  const id = 'layout-' + Date.now();
+  all.push({
+    id,
+    name: name.trim(),
+    pages: pages.map(p => ({...p})),
+    created: new Date().toISOString()
+  });
+  try{
+    localStorage.setItem(LAYOUTS_KEY, JSON.stringify(all));
+    refreshLayouts(id);
+    status('Layout saved: ' + name.trim());
+  }catch(e){
+    status('Could not save layout; embedded images may exceed storage.');
+  }
+}
+function applySavedLayout(){
+  const id = $('savedLayouts').value;
+  if(!id) return status('Choose a saved layout first.');
+  const l = readLayouts().find(x => x.id === id);
+  if(!l) return status('Layout not found.');
+  if(!confirm(`Load "${l.name}"? Current pages will be replaced.`)) return;
+  snapshot();
+  pages = l.pages.map(p => ({...p}));
+  active = 0;
+  render();
+  scheduleAutosave();
+  status('Layout loaded.');
+}
+function deleteSavedLayout(){
+  const id = $('savedLayouts').value;
+  if(!id) return status('Choose a layout first.');
+  const l = readLayouts().find(x => x.id === id);
+  if(!l) return;
+  if(!confirm(`Delete layout "${l.name}"?`)) return;
+  localStorage.setItem(LAYOUTS_KEY, JSON.stringify(readLayouts().filter(x => x.id !== id)));
+  refreshLayouts();
+  status('Layout deleted.');
+}
+
+function restoreAutosave(){
+  try{
+    const x = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null');
+    if(!x || !x.pages || !x.pages.length) return false;
+    if(confirm('Restore the last autosaved session?')){
+      pages = x.pages;
+      active = Math.min(x.active || 0, pages.length - 1);
+      $('source').value = x.source || '';
+      if(x.mode) $('editorMode').value = x.mode;
+      if(x.paperSize) $('paperSize').value = x.paperSize;
+      if(x.orientation) $('orientation').value = x.orientation;
+      render();
+      status('Autosaved session restored.');
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function resetAll(){
+  if(!confirm('Reset the current paper and editor? Saved layouts will remain.')) return;
+  const d = selectedDimensions();
+  pages = [{w: d.w, h: d.h, margin: 10, html: '', columns: 1, compact: false, border: true}];
+  active = 0;
+  $('source').value = '';
+  history = [];
+  future = [];
+  savedRange = null;
+  render();
+  localStorage.removeItem(AUTOSAVE_KEY);
+  status('Current paper reset. Saved layouts remain.');
+}
+
+/* ---------- Full-screen preview ---------- */
+function capturePreviewSelection(){
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount && $('previewPages').contains(sel.anchorNode)){
+    previewSelection = sel.getRangeAt(0).cloneRange();
+  }
+}
+function restorePreviewSelection(){
+  const sel = window.getSelection();
+  if(!previewSelection || !$('previewPages').contains(previewSelection.commonAncestorContainer)) return false;
+  sel.removeAllRanges();
+  try{ sel.addRange(previewSelection); return true; }catch(e){ return false; }
+}
+function syncPreviewToPages(){
+  const nodes = [...$('previewPages').querySelectorAll('.preview-content')];
+  nodes.forEach((content, i) => {
+    if(pages[i]) pages[i].html = content.innerHTML;
+  });
+  scheduleAutosave();
+}
+
+function openFullscreenPreview(forceRebuild = false){
+  if(!forceRebuild){
+    if($('previewOverlay').classList.contains('open')) syncPreviewToPages();
+    else saveCurrent();
+  }
+  const overlay = $('previewOverlay');
+  const container = $('previewPages');
+  container.innerHTML = '';
+  $('previewCount').textContent = `${pages.length} page${pages.length === 1 ? '' : 's'} · scroll to view all`;
+  pages.forEach((p, i) => {
+    const sourceW = p.w * 96 / 25.4;
+    const sourceH = p.h * 96 / 25.4;
+    const maxWidth = Math.max(320, window.innerWidth - 56);
+    const scale = Math.min(1, maxWidth / sourceW);
+    const page = document.createElement('section');
+    page.className = 'preview-page' + (p.border === false ? '' : ' exam-border');
+    page.dataset.pageIndex = String(i);
+    page.style.width = (sourceW * scale) + 'px';
+    page.style.height = (sourceH * scale) + 'px';
+    page.title = `Page ${i + 1}`;
+    const content = document.createElement('div');
+    content.className = 'preview-content' + (p.compact ? ' compact-page' : '');
+    content.contentEditable = 'true';
+    content.spellcheck = true;
+    content.dataset.pageIndex = String(i);
+    content.innerHTML = p.html || '';
+    if((p.columns || 1) === 2) content.classList.add('double-column');
+    content.style.left = ((p.margin ?? 10) / p.w * 100) + '%';
+    content.style.top = ((p.margin ?? 10) / p.h * 100) + '%';
+    content.style.width = (100 / scale * (1 - 2 * (p.margin ?? 10) / p.w)) + '%';
+    content.style.height = (100 / scale * (1 - 2 * (p.margin ?? 10) / p.h)) + '%';
+    content.style.columnFill = 'auto';
+    content.style.boxSizing = 'border-box';
+    content.style.transform = `scale(${scale})`;
+    content.style.fontSize = p.compact ? '11pt' : '13pt';
+    content.style.lineHeight = p.compact ? '1.15' : '1.5';
+    content.addEventListener('input', () => {
+      pages[i].html = content.innerHTML;
+      scheduleAutosave();
+    });
+    content.addEventListener('keyup', capturePreviewSelection);
+    content.addEventListener('mouseup', capturePreviewSelection);
+    page.appendChild(content);
+    container.appendChild(page);
+  });
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if(overlay.requestFullscreen) overlay.requestFullscreen().catch(() => {});
+}
+
+function closeFullscreenPreview(){
+  syncPreviewToPages();
+  const overlay = $('previewOverlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  if(document.fullscreenElement && document.exitFullscreen){
+    document.exitFullscreen().catch(() => {});
+  }
+  render();
+}
+
+function previewCommand(cmd, value = null){
+  restorePreviewSelection();
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !sel.toString()){
+    status('Select text in the full-screen paper first.');
+    return;
+  }
+  document.execCommand(cmd, false, value);
+  capturePreviewSelection();
+  syncPreviewToPages();
+}
+
+function previewApplySize(){
+  const size = Math.max(5, Math.min(72, Number($('previewFontSize').value) || 13));
+  if(!restorePreviewSelection() || !window.getSelection().toString()){
+    status('Select text in the full-screen paper first.');
+    return;
+  }
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  span.style.fontSize = size + 'pt';
+  try{
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+    const r = document.createRange();
+    r.selectNodeContents(span);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    capturePreviewSelection();
+    syncPreviewToPages();
+    status('Selected text size updated.');
+  }catch(e){
+    status('Could not change size. Select text in one paragraph.');
+  }
+}
+
+function insertPreviewNode(node){
+  const sel = window.getSelection();
+  if(restorePreviewSelection() && sel && sel.rangeCount){
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(node);
+    const next = document.createRange();
+    next.setStartAfter(node);
+    next.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(next);
+  }else{
+    const all = [...$('previewPages').querySelectorAll('.preview-content')];
+    const target = all.find(el => el.contains(document.activeElement)) || all[0];
+    if(!target){ status('Open a paper page first.'); return; }
+    target.appendChild(node);
+  }
+  capturePreviewSelection();
+  syncPreviewToPages();
+}
+
+function previewInsertLine(){
+  const hr = document.createElement('hr');
+  hr.className = 'preview-shape';
+  hr.style.cssText = 'border:0;border-top:1.5px solid #111;width:100%;margin:8px 0;break-inside:avoid';
+  insertPreviewNode(hr);
+}
+function previewInsertRectangle(){
+  const box = document.createElement('div');
+  box.className = 'preview-shape';
+  box.contentEditable = 'true';
+  box.textContent = '';
+  box.style.cssText = 'height:18mm;border:1.5px solid #111;margin:6px 0;min-width:20mm;break-inside:avoid';
+  insertPreviewNode(box);
+}
+function previewInsertSection(){
+  const label = prompt('Section heading (e.g. खण्ड – अ : बहुविकल्पीय प्रश्न)', 'खण्ड – अ : बहुविकल्पीय प्रश्न');
+  if(!label) return;
+  const div = document.createElement('div');
+  div.className = 'preview-section-heading';
+  div.textContent = label;
+  insertPreviewNode(div);
+}
+
+function previewApplyArchitecture(){
+  const mode = $('previewArchitecture').value;
+  syncPreviewToPages();
+  const n = mode === 'double' ? 2 : 1;
+  $('columnMode').value = String(n);
+  pages.forEach(p => { p.columns = n; p.border = true; });
+
+  // Ensure a default exam header exists once at the top
+  const firstHtml = pages[0]?.html || '';
+  if(!firstHtml.includes('studio-exam-header')){
+    const headerHtml = '<table class="studio-exam-header" style="width:100%;border-collapse:collapse;border:1.5px solid #111;margin:0 0 8px;font-size:10pt;line-height:1.25"><tbody><tr><td style="border:1px solid #111;padding:3px 5px;text-align:left;width:30%">कक्षा — ______</td><td style="border:1px solid #111;padding:3px 5px;text-align:center;font-weight:bold">विषय — __________________</td><td style="border:1px solid #111;padding:3px 5px;text-align:right;width:18%">प्रश्न पत्र</td></tr></tbody></table>';
+    if(pages[0]) pages[0].html = headerHtml + firstHtml;
+  }
+
+  const count = reflowAllPages({ snapshotHistory: true });
+  openFullscreenPreview(true);
+  status(n === 1
+    ? `Single-column + header · packed into ${count} page(s).`
+    : `Double-column exam layout · packed into ${count} page(s).`);
+}
+
+function previewToggleBorder(){
+  syncPreviewToPages();
+  pages.forEach(p => { p.border = (p.border === false ? true : false); });
+  openFullscreenPreview();
+}
+
+function previewApplyTextColor(){
+  const color = $('previewTextColor').value;
+  if(!restorePreviewSelection() || !window.getSelection().toString()){
+    status('Select text first.');
+    return;
+  }
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  span.style.color = color;
+  try{
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+    const r = document.createRange();
+    r.selectNodeContents(span);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    capturePreviewSelection();
+    syncPreviewToPages();
+  }catch(e){
+    status('Select text within one paragraph to change its colour.');
+  }
+}
+
+function previewHighlight(){
+  const color = $('previewHighlightColor').value;
+  if(!restorePreviewSelection() || !window.getSelection().toString()){
+    status('Select text to highlight first.');
+    return;
+  }
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  span.style.backgroundColor = color;
+  try{
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+    const r = document.createRange();
+    r.selectNodeContents(span);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    capturePreviewSelection();
+    syncPreviewToPages();
+  }catch(e){
+    status('Could not highlight that selection.');
+  }
+}
+
+function doPrint(){
+  saveCurrent();
+  let root = $('printRoot');
+  if(!root){
+    root = document.createElement('div');
+    root.id = 'printRoot';
+    document.body.appendChild(root);
+  }
+  root.innerHTML = '';
+  pages.forEach(p => {
+    const sheet = document.createElement('section');
+    sheet.className = 'paper';
+    sheet.style.width = p.w + 'mm';
+    sheet.style.height = p.h + 'mm';
+    if(p.border !== false) sheet.style.border = '1.5px solid #111';
+    const content = document.createElement('div');
+    content.className = 'paper-content' + (p.compact ? ' compact-page' : '');
+    content.contentEditable = 'false';
+    content.style.inset = (p.margin ?? 10) + 'mm';
+    content.innerHTML = p.html;
+    const fs = Number(p.fontSize) || (p.compact ? 10.5 : 12);
+    const lh = Number(p.lineHeight) || (p.compact ? 1.2 : 1.4);
+    content.style.fontSize = fs + 'pt';
+    content.style.lineHeight = String(lh);
+    content.style.overflow = 'hidden';
+    if((p.columns || 1) === 2){
+      content.classList.add('double-column');
+      content.style.columnCount = '2';
+      content.style.columnGap = '6mm';
+      content.style.columnRule = '1px solid #999';
+      content.style.columnFill = 'auto';
+      content.style.height = '100%';
+    }
+    sheet.appendChild(content);
+    root.appendChild(sheet);
+  });
+  let printStyle = document.getElementById('printPageSizeStyle');
+  if(printStyle) printStyle.remove();
+  printStyle = document.createElement('style');
+  printStyle.id = 'printPageSizeStyle';
+  printStyle.textContent = `@media print{@page{size:${current().w}mm ${current().h}mm;margin:0}}`;
+  document.head.appendChild(printStyle);
+  window.print();
+}
+
+/* ---------- Wire events ---------- */
+$('fullscreenBtn').addEventListener('click', () => openFullscreenPreview());
+$('previewClose').addEventListener('click', closeFullscreenPreview);
+$('previewPrint').addEventListener('click', () => {
+  syncPreviewToPages();
+  closeFullscreenPreview();
+  setTimeout(() => doPrint(), 120);
+});
+
+$('previewApplySize').addEventListener('mousedown', e => e.preventDefault());
+$('previewApplySize').addEventListener('click', previewApplySize);
+$('previewBold').addEventListener('mousedown', e => e.preventDefault());
+$('previewBold').addEventListener('click', () => previewCommand('bold'));
+$('previewItalic').addEventListener('mousedown', e => e.preventDefault());
+$('previewItalic').addEventListener('click', () => previewCommand('italic'));
+$('previewUnderline').addEventListener('mousedown', e => e.preventDefault());
+$('previewUnderline').addEventListener('click', () => previewCommand('underline'));
+$('previewHighlight').addEventListener('mousedown', e => e.preventDefault());
+$('previewHighlight').addEventListener('click', previewHighlight);
+$('previewTextColorApply').addEventListener('mousedown', e => e.preventDefault());
+$('previewTextColorApply').addEventListener('click', previewApplyTextColor);
+$('previewAlignLeft').addEventListener('mousedown', e => e.preventDefault());
+$('previewAlignLeft').addEventListener('click', () => previewCommand('justifyLeft'));
+$('previewAlignCenter').addEventListener('mousedown', e => e.preventDefault());
+$('previewAlignCenter').addEventListener('click', () => previewCommand('justifyCenter'));
+$('previewAlignRight').addEventListener('mousedown', e => e.preventDefault());
+$('previewAlignRight').addEventListener('click', () => previewCommand('justifyRight'));
+$('previewLine').addEventListener('click', previewInsertLine);
+$('previewRectangle').addEventListener('click', previewInsertRectangle);
+$('previewSection').addEventListener('click', previewInsertSection);
+$('previewApplyArchitecture').addEventListener('click', previewApplyArchitecture);
+$('previewBorder').addEventListener('click', previewToggleBorder);
+$('previewAddPage').addEventListener('click', () => {
+  syncPreviewToPages();
+  const last = pages[pages.length - 1] || {w: 210, h: 297, margin: 10, columns: 1, compact: false, border: true};
+  pages.push({...last, html: ''});
+  active = pages.length - 1;
+  openFullscreenPreview();
+});
+
+$('compactBtn').addEventListener('click', compactPages);
+$('reflowBtn').addEventListener('click', fitMinimizePages);
+$('quickApplyFont').addEventListener('mousedown', e => e.preventDefault());
+$('quickApplyFont').addEventListener('click', () => {
+  $('fontSize').value = $('quickFontSize').value;
+  applyFontSize();
+});
+$('quickBold').addEventListener('mousedown', e => e.preventDefault());
+$('quickBold').addEventListener('click', () => applyCommand('bold'));
+$('quickItalic').addEventListener('mousedown', e => e.preventDefault());
+$('quickItalic').addEventListener('click', () => applyCommand('italic'));
+$('quickUnderline').addEventListener('mousedown', e => e.preventDefault());
+$('quickUnderline').addEventListener('click', () => applyCommand('underline'));
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && $('previewOverlay').classList.contains('open')) closeFullscreenPreview();
+});
+
+$('source').addEventListener('input', scheduleAutosave);
+$('generateBtn').addEventListener('click', () => {
+  try { generate(); }
+  catch(err) { console.error(err); status('Could not open generation settings: ' + (err?.message || err)); }
+});
+$('genCancel').addEventListener('click', closeGenerateModal);
+$('genApply').addEventListener('click', applyGenerateFromModal);
+['genFontSize','genLineHeight','genColumns','genMargin','genPaper','genHeader'].forEach(id => {
+  const el = $(id);
+  if(el){
+    el.addEventListener('input', updateGenEstimate);
+    el.addEventListener('change', updateGenEstimate);
+  }
+});
+$('genModal').addEventListener('click', e => { if(e.target === $('genModal')) closeGenerateModal(); });
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && $('genModal').classList.contains('open')) closeGenerateModal();
+});
+$('appendBtn').addEventListener('click', () => {
+  if(!$('source').value.trim()) return status('Paste text first.');
+  snapshot();
+  saveCurrent();
+  pages[active].html += (pages[active].html ? '<p><br></p>' : '') + makeHTML($('source').value);
+  const n = reflowAllPages({ snapshotHistory: false });
+  status(`Text appended and packed into ${n} page(s).`);
+});
+$('applySize').addEventListener('click', applySize);
+$('fitPageBtn').addEventListener('click', () => {
+  const p = current();
+  const available = Math.max(300, document.querySelector('.main').clientWidth - 50);
+  const scale = Math.min(1, available / (p.w * 96 / 25.4));
+  const sheet = document.querySelector('.paper.active-page') || document.querySelector('.paper');
+  if(sheet){
+    sheet.style.width = (p.w * 96 / 25.4 * scale) + 'px';
+    sheet.style.height = (p.h * 96 / 25.4 * scale) + 'px';
+    const content = sheet.querySelector('.paper-content');
+    if(content){
+      content.style.transform = `scale(${scale})`;
+      content.style.transformOrigin = 'top left';
+      content.style.width = (100 / scale) + '%';
+      content.style.height = (100 / scale) + '%';
+    }
+    status('Page fitted to workspace view; print size unchanged.');
+  }
+});
+$('paperSize').addEventListener('change', () => {
+  if($('paperSize').value !== 'custom'){
+    const [w, h] = sizes[$('paperSize').value];
+    $('customW').value = w;
+    $('customH').value = h;
+  }
+});
+$('addPage').addEventListener('click', addPage);
+$('duplicatePage').addEventListener('click', duplicatePage);
+$('deletePage').addEventListener('click', deletePage);
+$('upPage').addEventListener('click', () => movePage(-1));
+$('downPage').addEventListener('click', () => movePage(1));
+$('undoBtn').addEventListener('click', undo);
+$('redoBtn').addEventListener('click', redo);
+$('saveBtn').addEventListener('click', saveDraft);
+$('loadBtn').addEventListener('click', loadDraft);
+$('printBtn').addEventListener('click', doPrint);
+
+document.querySelectorAll('[data-cmd]').forEach(b => {
+  b.addEventListener('mousedown', e => e.preventDefault());
+  b.addEventListener('click', () => applyCommand(b.dataset.cmd));
+});
+$('applyFontSize').addEventListener('mousedown', e => e.preventDefault());
+$('applyFontSize').addEventListener('click', applyFontSize);
+$('highlightBtn').addEventListener('mousedown', e => e.preventDefault());
+$('highlightBtn').addEventListener('click', applyHighlight);
+$('removeHighlight').addEventListener('mousedown', e => e.preventDefault());
+$('removeHighlight').addEventListener('click', removeHighlight);
+$('fontFamily').addEventListener('change', () => applyCommand('fontName', $('fontFamily').value));
+$('textColor').addEventListener('input', () => applyCommand('foreColor', $('textColor').value));
+$('applyPageFont').addEventListener('click', () => {
+  snapshot();
+  const el = editor();
+  if(!el) return;
+  el.style.fontSize = (Number($('pageFontSize').value) || 12) + 'pt';
+  saveCurrent();
+  status('Whole page font size updated.');
+});
+$('applyLayout').addEventListener('click', () => {
+  snapshot();
+  const p = current();
+  p.margin = Math.max(0, Math.min(50, Number($('margin').value) || 10));
+  const el = editor();
+  if(el){
+    el.style.lineHeight = $('lineSpacing').value;
+    el.style.inset = p.margin + 'mm';
+  }
+  saveCurrent();
+  render();
+  status('Page layout updated.');
+});
+$('insertTextBox').addEventListener('click', insertTextBox);
+$('insertLine').addEventListener('click', insertLine);
+$('deleteObjectBtn').addEventListener('click', deleteSelectedObject);
+$('fitImageBtn').addEventListener('click', fitSelectedImage);
+$('applyColumns').addEventListener('click', applyColumns);
+$('renumberBtn').addEventListener('click', renumberQuestions);
+$('saveLayoutBtn').addEventListener('click', saveLayout);
+$('applyLayoutBtn').addEventListener('click', applySavedLayout);
+$('deleteLayoutBtn').addEventListener('click', deleteSavedLayout);
+$('resetBtn').addEventListener('click', resetAll);
+$('editorMode').addEventListener('change', setEditorMode);
+
+$('imageFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const el = editor();
+    if(!el){ status('Select a page before inserting an image.'); return; }
+    snapshot();
+    const wrap = document.createElement('div');
+    wrap.className = 'studio-object studio-image';
+    wrap.contentEditable = 'false';
+    wrap.style.left = '12mm';
+    wrap.style.top = '12mm';
+    // Start at a practical size and never larger than the printable page area.
+    const page = current();
+    const margin = Number(page.margin ?? 10);
+    const printableW = Math.max(25, (Number(page.w) || 210) - margin * 2 - 8);
+    const initialW = Math.min(70, printableW * 0.55);
+    wrap.style.width = initialW + 'mm';
+    wrap.style.maxWidth = printableW + 'mm';
+
+    const img = document.createElement('img');
+    img.src = reader.result;
+    img.alt = file.name;
+    img.draggable = false;
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '90mm';
+    img.style.height = 'auto';
+    wrap.appendChild(img);
+    const handle = document.createElement('span');
+    handle.className = 'studio-resize';
+    handle.contentEditable = 'false';
+    wrap.appendChild(handle);
+
+    // Put image at the caret when the saved selection is still valid; otherwise place it near the top-left.
+    restoreSelection();
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount && el.contains(sel.anchorNode)){
+      sel.getRangeAt(0).insertNode(wrap);
+    }else{
+      el.appendChild(wrap);
+    }
+    bindDesignObjectsIn(el);
+    saveCurrent();
+    scheduleAutosave();
+    status('Image inserted at page-fit size. Drag it to move; drag the blue corner to resize.');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+document.addEventListener('selectionchange', () => {
+  if(editor()) captureSelection();
+});
+document.addEventListener('keydown', e => {
+  if((e.key === 'Delete' || e.key === 'Backspace') && selectedDesignObject && selectedDesignObject.isConnected){
+    const target = e.target;
+    const typingText = target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) && !target.classList.contains('paper-content');
+    if(!typingText && !window.getSelection()?.toString()){
+      e.preventDefault(); deleteSelectedObject(); return;
+    }
+  }
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b'){ e.preventDefault(); applyCommand('bold'); }
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i'){ e.preventDefault(); applyCommand('italic'); }
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u'){ e.preventDefault(); applyCommand('underline'); }
+});
+
+window.addEventListener('beforeunload', () => {
+  saveCurrent();
+  try{
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+      pages, active,
+      source: $('source').value,
+      mode: $('editorMode').value,
+      paperSize: $('paperSize').value,
+      orientation: $('orientation').value
+    }));
+  }catch(e){}
+});
+
+function init(){
+  const d = selectedDimensions();
+  pages[0].w = d.w;
+  pages[0].h = d.h;
+  refreshLayouts();
+  render();
+  const recovered = restoreAutosave();
+  if(!recovered) status('Ready. Paste text and click Generate paper. Scroll to see all pages.');
+}
+init();
+})();
+</script>
+</body>
+</html>

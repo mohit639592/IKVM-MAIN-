@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IKVM Paper Studio</title>
+<style>
+:root{--bg:#101522;--panel:#171f30;--panel2:#202b40;--line:#34425c;--text:#eef3ff;--muted:#aab6cc;--accent:#68a7ff;--paper:#fff;--ink:#171717}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:8px 10px;border-radius:8px}button:hover{border-color:var(--accent)}button.primary{background:#2469c7;border-color:#4388e7}button.active{background:#31588d;border-color:#7bb4ff}
+.top{position:relative;z-index:10;background:#111827;border-bottom:1px solid var(--line);padding:10px 12px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}.brand{font-weight:800;font-size:16px;margin-right:10px}.group{display:flex;gap:6px;align-items:center;padding-right:8px;margin-right:2px;border-right:1px solid var(--line);flex-wrap:wrap}.group:last-child{border:0}.top label,.toolbar label{color:var(--muted);font-size:12px}.top select,.top input{background:#0e1421;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:7px;max-width:125px}.top button{white-space:nowrap}.right button{min-height:34px}.right input[type=number]{max-width:92px}
+.workspace{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100vh - 260px)}aside{background:var(--panel);padding:14px;border-right:1px solid var(--line)}aside.right{border:0;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;overflow:visible;position:relative;z-index:4;padding:10px 14px;background:#151e2e;border-bottom:1px solid var(--line);max-height:none;width:100%}aside.right .side-section{min-width:220px;max-width:100%;flex:1 1 230px;padding:0 12px 8px 0;margin:0;border:0;border-right:1px solid var(--line)}aside.right .side-section:last-child{border:0}aside.right h3{margin:2px 0 7px}aside.right .field{margin:5px 0}aside.right .hint{display:none}h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:5px 0 12px}.page-list{display:flex;flex-direction:column;gap:8px}.page-item{padding:10px;border:1px solid var(--line);border-radius:9px;display:flex;justify-content:space-between;align-items:center;gap:8px}.page-item.selected{border-color:var(--accent);background:#223451}.page-item button{padding:4px 7px}.hint{font-size:12px;color:var(--muted);line-height:1.5}.main{grid-column:2;grid-row:auto;padding:14px;overflow:auto;min-width:0}.notice{padding:9px 12px;background:#182a42;border:1px solid #2c4d77;border-radius:8px;color:#cfe2ff;margin:0 auto 18px;max-width:900px}
+.paper-wrap{display:flex;flex-direction:column;align-items:center;gap:26px;min-height:60vh;max-height:calc(100vh - 320px);overflow:auto;padding:18px;background:#0e1421;border:1px solid #27354c;border-radius:12px;scrollbar-gutter:stable}.paper.active-page{outline:3px solid #68a7ff;outline-offset:3px}.paper{background:var(--paper);color:var(--ink);position:relative;box-shadow:0 12px 40px #0008;flex:none;overflow:hidden;transform-origin:top center}.paper-content{position:absolute;inset:10mm;outline:none;overflow:visible;color:#171717;font-family:'Noto Sans Devanagari','Nirmala UI',Mangal,'Segoe UI',Arial,sans-serif;font-size:13pt;font-weight:500;line-height:1.5;overflow-wrap:anywhere;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}.paper-content p,.paper-content li{font-weight:500}.paper-content strong,.paper-content b{font-weight:750}.paper-content h1,.paper-content h2,.paper-content h3{font-weight:750}.paper-content:empty:before{content:"Click here and start typing, or paste your paper text above.";color:#999}.paper-content h1,.paper-content h2,.paper-content h3{margin:0 0 .6em}.paper-content p{margin:0 0 .5em;break-inside:avoid}.paper-content{column-fill:auto}.paper-content.double-column{column-count:2;column-gap:7mm;column-rule:1px solid #777;column-fill:auto;height:auto;min-height:0}.paper-content img{max-width:100%}.paper-content table{border-collapse:collapse;max-width:100%}.paper-content td,.paper-content th{border:1px solid #777;padding:4px}
+textarea#source{width:100%;height:180px;background:#0d1421;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}.side-section{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--line)}.field{display:flex;flex-direction:column;gap:5px;margin:9px 0}.field input,.field select{width:100%;padding:8px;border-radius:7px;border:1px solid var(--line);background:#0d1421;color:var(--text)}.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.row>*{min-width:0}.row input{width:80px}.swatch{width:32px;height:30px;padding:2px}.status{font-size:12px;color:var(--muted);padding-top:8px}.object{position:absolute;left:20mm;top:25mm;width:55mm;height:18mm;border:1px dashed #3984e8;color:#111;background:#fff9;cursor:move;padding:5px;z-index:4}.object .resize{position:absolute;width:12px;height:12px;right:-6px;bottom:-6px;background:#3984e8;border:2px solid white;cursor:nwse-resize}
+.paper-content.design-mode{outline:1px dashed #8abaff;min-height:100%}.studio-object{position:absolute!important;left:10mm;top:10mm;width:55mm;min-height:12mm;border:1px dashed #3984e8!important;background:#fff!important;color:#111!important;padding:6px!important;cursor:move;z-index:5;box-sizing:border-box}.studio-object:focus{outline:2px solid #3984e8}.studio-object .studio-resize{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:#3984e8;border:2px solid white;cursor:nwse-resize}.ribbon-note{font-size:11px;color:var(--muted);align-self:center}
+@media(max-width:1050px){.workspace{grid-template-columns:180px minmax(0,1fr)}aside.right{position:sticky;top:67px;max-height:190px;flex-wrap:nowrap}.main{grid-row:auto;grid-column:2}}
+@media(max-width:700px){.workspace{display:block}aside:not(.right){border-right:0;border-bottom:1px solid var(--line)}aside.right{display:flex;position:static;max-height:none;flex-wrap:wrap}.main{padding:10px}.paper-wrap{justify-content:flex-start}}
+@media print{
+ body{background:white;color:black}.top,aside,.notice,.no-print{display:none!important}.workspace{display:block;min-height:0}.main{padding:0;overflow:visible}.paper-wrap{display:none!important}#printRoot{display:block!important}.paper{box-shadow:none!important;margin:0!important;page-break-after:always;break-after:page;overflow:hidden}.paper:last-child{page-break-after:auto;break-after:auto}.paper-content{overflow-wrap:anywhere}
+}
+
+/* Compact mode deliberately removes empty-line waste and tightens page typography. */
+.paper-content.compact-page{font-size:11pt;line-height:1.15}
+.paper-content.compact-page p,.paper-content.compact-page li{margin-top:0;margin-bottom:.16em}
+.paper-content.compact-page h1,.paper-content.compact-page h2,.paper-content.compact-page h3{margin-top:.15em;margin-bottom:.25em;line-height:1.15}
+#previewOverlay{display:none;position:fixed;inset:0;z-index:99999;background:#0a0f18;color:#eef3ff;overflow:auto}
+#previewOverlay.open{display:block}
+.preview-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;padding:12px 16px;background:#111827;border-bottom:1px solid #34425c}
+.preview-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.preview-actions label{display:flex;gap:5px;align-items:center;font-size:12px;color:#c7d2e5}.preview-actions input,.preview-actions select{background:#0e1421;color:#eef3ff;border:1px solid #34425c;border-radius:6px;padding:5px}.preview-actions button{white-space:nowrap}.preview-toolbar{align-items:flex-start}.preview-actions{max-width:100%;overflow:visible}.preview-toolbar{max-height:30vh;overflow-y:auto}.preview-page.exam-border{border:1.5px solid #111}.preview-page .preview-content.double-column{column-count:2;column-gap:7mm;column-rule:1px solid #777;column-fill:auto;overflow:visible}.preview-content p{break-inside:avoid}.preview-shape{break-inside:avoid}.preview-section-heading{border:1px solid #444;border-radius:3px;text-align:center;font-weight:700;margin:8px auto;padding:2px 8px;max-width:70%;background:#f7f7f7;color:#111}
+.preview-pages{display:flex;flex-direction:column;align-items:center;gap:18px;padding:18px;min-height:calc(100vh - 60px)}
+.preview-page{position:relative;flex:none;background:#fff;color:#171717;box-shadow:0 8px 32px #0008;overflow:hidden}
+.preview-content{position:absolute;overflow:auto;color:#171717;font-family:'Noto Sans Devanagari','Nirmala UI',Mangal,'Segoe UI',Arial,sans-serif;font-weight:500;overflow-wrap:anywhere;transform-origin:top left;outline:none;cursor:text}.preview-content:focus{outline:1px dashed #68a7ff}
+.preview-content p{margin:0 0 .5em}.preview-content h1,.preview-content h2,.preview-content h3{margin:0 0 .35em}.preview-content img{max-width:100%}
+@media(max-width:700px){.preview-toolbar{align-items:flex-start}.preview-pages{padding:8px;gap:10px}}
+
+#printRoot{display:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">IKVM Paper Studio</div>
+  <div class="group">
+    <button id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button><button id="redoBtn" title="Redo (Ctrl+Y)">↷ Redo</button>
+    <button id="saveBtn">Save draft</button><button id="loadBtn">Load draft</button>
+  </div>
+  <div class="group">
+    <label>Paper</label><select id="paperSize"><option value="A4">A4</option><option value="A3">A3</option><option value="A5">A5</option><option value="Letter">Letter</option><option value="Legal">Legal</option><option value="custom">Custom</option></select>
+    <label>Orientation</label><select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
+    <label>W mm</label><input id="customW" type="number" min="50" max="1000" value="210">
+    <label>H mm</label><input id="customH" type="number" min="50" max="1000" value="297">
+    <button id="applySize">Apply size</button><button id="fitPageBtn">Fit page</button>
+  </div>
+  <div class="group">
+    <label>Workspace</label><select id="editorMode"><option value="smart">Smart Document</option><option value="free">Free Design</option></select>
+    <label>Columns</label><select id="columnMode"><option value="1">Single</option><option value="2">Two columns</option></select>
+    <button id="applyColumns">Apply columns</button>
+    <button id="renumberBtn">Renumber questions</button><button id="saveLayoutBtn">Save layout</button><select id="savedLayouts"><option value="">Saved layouts…</option></select><button id="applyLayoutBtn">Use layout</button><button id="deleteLayoutBtn">Delete layout</button><button id="resetBtn">Reset all</button>
+  </div>
+  <div class="group"><label for="quickFontSize">Font pt</label><input id="quickFontSize" type="number" min="5" max="96" value="13" style="width:66px"><button id="quickApplyFont">Apply</button><button id="quickBold" title="Bold">B</button><button id="quickItalic" title="Italic"><i>I</i></button><button id="quickUnderline" title="Underline"><u>U</u></button><button id="compactBtn">Compact pages</button><button id="fullscreenBtn">Full-screen PDF</button><button id="addPage">+ Page</button><button id="duplicatePage">Duplicate</button><button id="deletePage">Delete page</button><button id="printBtn" class="primary">Print / PDF</button></div>
+</header>
+<div class="workspace">
+  <aside>
+    <h3>Pages</h3>
+    <div id="pageList" class="page-list"></div>
+    <div class="row" style="margin-top:10px"><button id="upPage">↑ Move up</button><button id="downPage">↓ Move down</button></div>
+    <p class="hint">Choose a page to edit. Pages print in the order shown here.</p>
+    <div class="side-section">
+      <h3>Generate from text</h3>
+      <textarea id="source" placeholder="Paste your complete paper here…&#10;&#10;Section A: Multiple Choice&#10;1. Question one&#10;(A) Option one&#10;(B) Option two"></textarea>
+      <div class="row" style="margin-top:8px"><button id="generateBtn" class="primary">Generate paper</button><button id="appendBtn">Append to page</button></div>
+      <p class="hint">Blank lines and headings are preserved. Generation replaces all current pages; Append adds text to the selected page.</p>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="notice">Tip: select text first, then use the formatting controls. Use Ctrl+B / Ctrl+I / Ctrl+U in the paper too.</div>
+    <div class="paper-wrap" id="paperWrap"></div>
+    <div class="status" id="status">Ready.</div>
+  </main>
+  <aside class="right">
+    <div class="side-section">
+      <h3>Text formatting</h3>
+      <div class="field"><label for="fontFamily">Font family</label><select id="fontFamily"><option value="Noto Sans Devanagari">Noto Sans Devanagari</option><option value="Nirmala UI">Nirmala UI</option><option value="Mangal">Mangal</option><option value="Arial">Arial</option><option value="Times New Roman">Times New Roman</option><option value="Calibri">Calibri</option><option value="Georgia">Georgia</option><option value="Verdana">Verdana</option><option value="Poppins">Poppins</option></select></div>
+      <div class="field"><label for="fontSize">Font size (pt)</label><div class="row"><input id="fontSize" type="number" min="5" max="96" value="13"><button id="applyFontSize">Apply size</button></div></div>
+      <div class="row">
+        <button data-cmd="bold" title="Bold"><b>B</b></button><button data-cmd="italic" title="Italic"><i>I</i></button><button data-cmd="underline" title="Underline"><u>U</u></button><button data-cmd="strikeThrough" title="Strike through"><s>S</s></button>
+      </div>
+      <div class="row" style="margin-top:8px"><button data-cmd="justifyLeft">Left</button><button data-cmd="justifyCenter">Center</button><button data-cmd="justifyRight">Right</button></div>
+      <div class="field"><label for="textColor">Text colour</label><input id="textColor" type="color" value="#171717"></div>
+      <div class="field"><label for="highlightColor">Highlight colour</label><div class="row"><input id="highlightColor" type="color" value="#fff176"><button id="highlightBtn">Highlight selection</button><button id="removeHighlight">Remove highlight</button></div></div>
+      <p class="hint">If no text is selected, font size applies to new typing. Highlight applies only to selected text.</p>
+    </div>
+    <div class="side-section">
+      <h3>Page layout</h3>
+      <div class="field"><label for="pageFontSize">Whole page font size (pt)</label><div class="row"><input id="pageFontSize" type="number" min="5" max="48" value="13"><button id="applyPageFont">Apply</button></div></div>
+      <div class="field"><label for="lineSpacing">Line spacing</label><select id="lineSpacing"><option value="1.2">Compact (1.2)</option><option value="1.45" selected>Normal (1.45)</option><option value="1.7">Relaxed (1.7)</option><option value="2">Double (2.0)</option></select></div>
+      <div class="field"><label for="margin">Margins (mm)</label><input id="margin" type="number" min="0" max="50" value="10"></div>
+      <button id="applyLayout">Apply layout</button>
+    </div>
+    <div class="side-section">
+      <h3>Insert</h3>
+      <div class="row"><button id="insertTextBox">Add text box</button><button id="insertLine">Add line</button></div>
+      <div class="field"><label for="imageFile">Insert image</label><input id="imageFile" type="file" accept="image/*"></div>
+      <p class="hint">Text boxes can be dragged and resized. Click an image in the paper to select it, then resize via browser handles only if supported by the browser; image width is constrained to the page.</p>
+    </div>
+  </aside>
+</div>
+<div id="previewOverlay" aria-label="Full-screen PDF preview" aria-modal="true" role="dialog">
+  <div class="preview-toolbar">
+    <strong>Full-screen Paper Editor</strong><span id="previewCount"></span>
+    <div class="preview-actions">
+      <label>Size <input id="previewFontSize" type="number" min="5" max="72" value="13" style="width:62px"></label>
+      <button id="previewApplySize">Apply size</button>
+      <button id="previewBold"><b>B</b></button><button id="previewItalic"><i>I</i></button><button id="previewUnderline"><u>U</u></button>
+      <label>Highlight <input id="previewHighlightColor" type="color" value="#fff176" style="width:34px;height:30px;padding:1px"></label>
+      <button id="previewHighlight">Highlight</button>
+      <label>Text <input id="previewTextColor" type="color" value="#171717" style="width:34px;height:30px;padding:1px"></label>
+      <button id="previewTextColorApply">Text colour</button>
+      <button id="previewAlignLeft">Left</button><button id="previewAlignCenter">Center</button><button id="previewAlignRight">Right</button>
+      <label>Layout <select id="previewArchitecture"><option value="single">Single column + border/header</option><option value="double">Double column exam paper</option></select></label>
+      <button id="previewApplyArchitecture">Apply layout</button>
+      <button id="previewLine">Insert line</button><button id="previewRectangle">Insert rectangle</button>
+      <button id="previewSection">Section heading</button>
+      <button id="previewBorder">Toggle page border</button>
+      <button id="previewAddPage">+ Page</button>
+      <button id="previewPrint" class="primary">Print / Save PDF</button>
+      <button id="previewClose">Close ✕</button>
+    </div>
+  </div>
+  <div id="previewPages" class="preview-pages"></div>
+</div>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+// Keep the full formatting/tool ribbon above the working canvas, like a desktop editor.
+const workspaceNode=document.querySelector('.workspace');
+const toolsRibbon=document.querySelector('aside.right');
+if(workspaceNode&&toolsRibbon)workspaceNode.parentNode.insertBefore(toolsRibbon,workspaceNode);
+
+const sizes = {A4:[210,297],A3:[297,420],A5:[148,210],Letter:[215.9,279.4],Legal:[215.9,355.6]};
+let pages = [{w:210,h:297,margin:10,html:''}], active=0, history=[], future=[], savedRange=null, selectedObject=null, dragState=null;
+const status = msg => $('status').textContent = msg;
+const current = () => pages[active];
+const editor = () => document.querySelector(`.paper[data-index="${active}"] .paper-content`);
+function snapshot(){ saveCurrent(); history.push(JSON.stringify({pages,active})); if(history.length>80)history.shift(); future=[]; }
+function saveCurrent(){document.querySelectorAll('.paper-content').forEach(el=>{const i=Number(el.dataset.pageIndex);if(Number.isInteger(i)&&pages[i])pages[i].html=el.innerHTML;});const el=editor();if(el&&pages[active])pages[active].html=el.innerHTML;}
+function restoreState(s){const x=JSON.parse(s);pages=x.pages;active=Math.max(0,Math.min(x.active,pages.length-1));render();renderPageList();}
+function undo(){saveCurrent();if(!history.length)return;future.push(JSON.stringify({pages,active}));restoreState(history.pop());status('Undo complete.');}
+function redo(){saveCurrent();if(!future.length)return;history.push(JSON.stringify({pages,active}));restoreState(future.pop());status('Redo complete.');}
+function dimensions(p){return {w:p.w,h:p.h};}
+function render(){
+ const wrap=$('paperWrap');wrap.innerHTML='';
+ pages.forEach((p,i)=>{
+  const sheet=document.createElement('section');sheet.className='paper'+(i===active?' active-page':'');sheet.dataset.index=i;
+  sheet.style.width=(p.w*96/25.4)+'px';sheet.style.height=(p.h*96/25.4)+'px';if(p.border!==false)sheet.style.border='1.5px solid #111';
+  const content=document.createElement('div');content.className='paper-content'+(p.compact?' compact-page':'');content.dataset.pageIndex=String(i);content.contentEditable='true';content.spellcheck=true;
+  content.style.inset=(p.margin??10)+'mm';content.innerHTML=p.html;if((p.columns||1)===2){content.classList.add('double-column');content.style.columnCount='2';content.style.columnGap='7mm';content.style.columnRule='1px solid #777';content.style.columnFill='auto';}
+  const activate=()=>{active=i;document.querySelectorAll('.paper').forEach((s,j)=>s.classList.toggle('active-page',j===active));renderPageList();};
+  content.addEventListener('focus',()=>{activate();captureSelection();});
+  content.addEventListener('keyup',()=>{activate();captureSelection();scheduleAutosave();});
+  content.addEventListener('mouseup',()=>{activate();captureSelection();});
+  content.addEventListener('input',()=>{activate();saveCurrent();scheduleAutosave();});
+  content.addEventListener('keydown',e=>{active=i;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveDraft();}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}});
+  sheet.addEventListener('pointerdown',activate);sheet.appendChild(content);wrap.appendChild(sheet);
+  bindDesignObjectsIn(content);
+ });
+ updatePrintStyle();renderPageList();
+}
+function renderPageList(){
+  const list=$('pageList');list.innerHTML='';
+  pages.forEach((p,i)=>{const row=document.createElement('div');row.className='page-item'+(i===active?' selected':'');
+    const label=document.createElement('span');label.textContent=`Page ${i+1} · ${p.w}×${p.h} mm`;label.style.cursor='pointer';label.onclick=()=>{saveCurrent();active=i;render();status('Page '+(i+1)+' selected.');};
+    const mini=document.createElement('button');mini.textContent='Select';mini.onclick=()=>{saveCurrent();active=i;render();};
+    row.append(label,mini);list.appendChild(row);});
+}
+function updatePrintStyle(){
+ let style=$('dynamicPrintStyle');if(!style){style=document.createElement('style');style.id='dynamicPrintStyle';document.head.appendChild(style);}
+ const p=current();style.textContent=`@media print{@page{size:${p.w}mm ${p.h}mm;margin:0}.paper{width:${p.w}mm!important;height:${p.h}mm!important;transform:none!important}.paper-content{inset:${p.margin??10}mm!important;transform:none!important;width:auto!important;height:auto!important;column-fill:auto!important}}`;
+}
+function captureSelection(){const sel=window.getSelection();if(sel&&sel.rangeCount&&editor()?.contains(sel.anchorNode)){savedRange=sel.getRangeAt(0).cloneRange();}}
+function restoreSelection(){
+ const el=editor();if(!el)return false;el.focus({preventScroll:true});const sel=window.getSelection();sel.removeAllRanges();
+ if(savedRange&&el.contains(savedRange.commonAncestorContainer)){sel.addRange(savedRange);return true;}
+ return false;
+}
+function selectionExists(){return restoreSelection()&&window.getSelection().toString().length>0;}
+function applyCommand(cmd,value=null){
+ snapshot();const ok=restoreSelection();
+ if(!ok){status('Click in the paper first, then select text and try again.');return;}
+ try{document.execCommand(cmd,false,value);captureSelection();saveCurrent();scheduleAutosave();status('Formatting applied.');}catch(e){status('Could not apply formatting: '+e.message);}
+}
+function wrapSelection(styleObj){
+ const sel=window.getSelection();if(!sel||!sel.rangeCount||!sel.toString()){status('Select some text in the paper first.');return false;}
+ const range=sel.getRangeAt(0);if(!editor()?.contains(range.commonAncestorContainer)){status('Select text inside the paper first.');return false;}
+ const span=document.createElement('span');Object.assign(span.style,styleObj);
+ try{const fragment=range.extractContents();span.appendChild(fragment);range.insertNode(span);const next=document.createRange();next.selectNodeContents(span);sel.removeAllRanges();sel.addRange(next);savedRange=next.cloneRange();return true;}catch(e){status('Please select text within one paragraph and try again.');return false;}
+}
+function applyFontSize(){
+ const size=Math.max(5,Math.min(96,Number($('fontSize').value)||12));snapshot();
+ if(selectionExists()){
+   if(wrapSelection({'font-size':size+'pt'})){saveCurrent();scheduleAutosave();status('Selected text set to '+size+' pt.');}
+ }else{
+   const el=editor();if(!el)return;el.focus();el.style.fontSize=size+'pt';status('Page typing size set to '+size+' pt (select text to change only that text).');
+ }
+}
+function applyHighlight(){
+ snapshot();if(!selectionExists()){status('Select the words to highlight first.');return;}
+ const color=$('highlightColor').value;
+ // Use a span instead of browser-dependent hiliteColor so highlight stays consistent.
+ if(wrapSelection({'background-color':color,'-webkit-box-decoration-break':'clone','box-decoration-break':'clone'})){saveCurrent();scheduleAutosave();status('Highlight applied to selected text.');}
+}
+function removeHighlight(){
+ snapshot();if(!selectionExists()){status('Select highlighted text first.');return;}
+ if(wrapSelection({'background-color':'transparent'})){saveCurrent();scheduleAutosave();status('Highlight removed from selection.');}
+}
+function makeHTML(text){
+ const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ const lines=text.replace(/\r/g,'').split('\n');let out='',blank=0;
+ for(const raw of lines){const line=raw.trimEnd();if(!line.trim()){blank=0;continue;}blank=0;
+   const t=esc(line);
+   if(/^(section|खंड|खण्ड|part|भाग)\s*[-:()a-z0-9अ-ह]/i.test(line)||/^section\b/i.test(line))out+=`<h3>${t}</h3>`;
+   else if(/^(class|subject|time|maximum marks|कक्षा|विषय|समय|पूर्णांक)\s*[-:–]/i.test(line))out+=`<p style="text-align:center;font-weight:bold">${t}</p>`;
+   else if(/^\s*(?:\d+[.)]|Q(?:uestion)?\s*\d+[:.)]|प्रश्न\s*\d+)/i.test(line))out+=`<p><strong>${t}</strong></p>`;
+   else out+=`<p>${t||'<br>'}</p>`;
+ }
+ return out||'<p><br></p>';
+}
+function paginateHTMLIntoPages(sourceHtml, basePage){
+ const p={...basePage};const margin=Math.max(0,Number(p.margin??10));
+ const width=Math.max(80,(p.w-2*margin)*96/25.4),height=Math.max(80,(p.h-2*margin)*96/25.4);
+ const cols=(p.columns||1)===2?2:1;
+ const css=`position:absolute;left:-30000px;top:0;width:${width}px;height:${height}px;box-sizing:border-box;overflow:hidden;column-count:${cols};column-gap:${cols===2?'7mm':'normal'};column-rule:${cols===2?'1px solid #777':'none'};column-fill:auto;font-family:'Noto Sans Devanagari','Nirmala UI',Mangal,Arial,sans-serif;font-size:${p.compact?'11pt':'13pt'};font-weight:500;line-height:${p.compact?'1.15':'1.5'};overflow-wrap:anywhere;visibility:hidden`;
+ const measure=document.createElement('div');measure.style.cssText=css;measure.innerHTML=sourceHtml;document.body.appendChild(measure);
+ const nodes=[...measure.childNodes].map(n=>n.cloneNode(true)).filter(n=>!(n.nodeType===3&&!n.textContent.trim())&&!(n.nodeType===1&&/^(P|DIV)$/.test(n.tagName)&&!n.textContent.trim()&&!n.querySelector('img,table,hr')));
+ const makeBucket=()=>{const el=document.createElement('div');el.style.cssText=css;return el;};
+ const overflow=el=>{
+   document.body.appendChild(el);
+   const result=cols===2 ? (el.scrollWidth>el.clientWidth+3 || el.scrollHeight>el.clientHeight+3) : (el.scrollHeight>el.clientHeight+3);
+   document.body.removeChild(el);return result;
+ };
+ const chunks=[];let bucket=makeBucket();
+ for(const node of nodes){
+   bucket.appendChild(node);
+   if(overflow(bucket)&&bucket.childNodes.length>1){
+     const last=bucket.lastChild;bucket.removeChild(last);
+     if(bucket.childNodes.length)chunks.push(bucket.innerHTML);
+     bucket=makeBucket();bucket.appendChild(last);
+     // An individual oversized block is retained intact; it is never discarded.
+     if(overflow(bucket)&&bucket.childNodes.length===1){chunks.push(bucket.innerHTML);bucket=makeBucket();}
+   }
+ }
+ if(bucket.childNodes.length)chunks.push(bucket.innerHTML);
+ document.body.removeChild(measure);
+ return chunks.length?chunks:[''];
+}
+function autoPaginate(){
+ saveCurrent();const p=current();if(!p)return;
+ const chunks=paginateHTMLIntoPages(p.html,p);
+ const base={...p};pages.splice(active,1,...chunks.map(html=>({...base,html})));
+ active=Math.min(active,pages.length-1);
+}
+function generate(){
+ const text=$('source').value;if(!text.trim()){status('Paste paper text into the box first.');return;}
+ const layoutId=$('savedLayouts').value;let useLayout=false;
+ if(layoutId)useLayout=confirm('Generate using the selected saved layout?\nOK = use saved layout; Cancel = use a new blank layout.');
+ snapshot();const d=selectedDimensions();let base={w:d.w,h:d.h,margin:10,html:''};
+ let layoutHtml='';
+ if(useLayout){const l=readLayouts().find(x=>x.id===layoutId);if(l&&l.pages&&l.pages[0]){base={...l.pages[0],w:d.w,h:d.h};layoutHtml=l.pages[0].html||'';}}
+ const generatedHtml=makeHTML(text);
+ // A saved blank/header layout is preserved; use {{PAPER_CONTENT}} as an optional insertion marker.
+ const finalHtml=layoutHtml.includes('{{PAPER_CONTENT}}')?layoutHtml.replace('{{PAPER_CONTENT}}',generatedHtml):(layoutHtml?layoutHtml+generatedHtml:generatedHtml);
+ pages=[{...base,html:finalHtml}];active=0;render();autoPaginate();render();scheduleAutosave();
+ status(`Paper generated. ${pages.length} page(s) created; scroll vertically to view all pages.`);
+}
+function selectedDimensions(){
+ const key=$('paperSize').value;let [w,h]=sizes[key]||[Number($('customW').value)||210,Number($('customH').value)||297];
+ if(key==='custom'){w=Number($('customW').value)||210;h=Number($('customH').value)||297;}
+ if($('orientation').value==='landscape'&&h>w)[w,h]=[h,w];else if($('orientation').value==='portrait'&&w>h)[w,h]=[h,w];
+ return {w,h};
+}
+function applySize(){snapshot();const d=selectedDimensions();pages.forEach(p=>{p.w=d.w;p.h=d.h;});render();status(`Paper size applied: ${d.w} × ${d.h} mm.`);}
+function addPage(){snapshot();const p=current();pages.splice(active+1,0,{...p,html:''});active++;render();status('New page added.');}
+function duplicatePage(){snapshot();saveCurrent();pages.splice(active+1,0,{...current(),html:current().html});active++;render();status('Page duplicated.');}
+function deletePage(){if(pages.length===1){pages[0].html='';render();status('Last page cleared.');return;}snapshot();pages.splice(active,1);active=Math.min(active,pages.length-1);render();status('Page deleted.');}
+function movePage(delta){const n=active+delta;if(n<0||n>=pages.length)return;snapshot();saveCurrent();[pages[active],pages[n]]=[pages[n],pages[active]];active=n;render();status('Page order changed.');}
+function saveDraft(){saveCurrent();localStorage.setItem('ikvm-paper-studio-draft-v1',JSON.stringify({pages,active,source:$('source').value}));status('Draft saved in this browser.');}
+function loadDraft(){const s=localStorage.getItem('ikvm-paper-studio-draft-v1');if(!s){status('No saved draft found in this browser.');return;}try{const x=JSON.parse(s);pages=x.pages||pages;active=Math.min(x.active||0,pages.length-1);$('source').value=x.source||'';render();status('Draft loaded.');}catch(e){status('Could not load draft.');}}
+function insertTextBox(){
+ snapshot();const el=editor();if(!el)return;
+ const box=document.createElement('div');box.className='studio-object';box.contentEditable='true';box.textContent='Type here';
+ box.style.left='12mm';box.style.top='12mm';box.style.width='90mm';box.style.minHeight='28mm';box.style.fontSize='14pt';box.style.fontFamily="'Noto Sans Devanagari','Nirmala UI',Mangal,Arial,sans-serif";
+ const handle=document.createElement('span');handle.className='studio-resize';handle.contentEditable='false';box.appendChild(handle);
+ el.appendChild(box);saveCurrent();bindDesignObjectsIn(el);status('Movable text box added. Drag its border to move; drag the corner to resize.');
+}
+function insertLine(){snapshot();const el=editor();if(!el)return;const hr=document.createElement('hr');hr.style.border='0';hr.style.borderTop='1px solid #222';hr.style.margin='8px 0';restoreSelection();const sel=window.getSelection();if(sel&&sel.rangeCount&&el.contains(sel.anchorNode)){sel.getRangeAt(0).insertNode(hr);}else el.appendChild(hr);saveCurrent();captureSelection();}
+
+function bindDesignObjectsIn(el){
+ if(!el)return;
+ el.querySelectorAll('.studio-object').forEach(box=>{
+   if(box.dataset.bound==='1')return;box.dataset.bound='1';
+   const handle=box.querySelector('.studio-resize');
+   box.addEventListener('pointerdown',e=>{
+     if(e.target===handle){
+       e.preventDefault();e.stopPropagation();const r=box.getBoundingClientRect();
+       box.setPointerCapture?.(e.pointerId);
+       const startX=e.clientX,startY=e.clientY,startW=r.width,startH=r.height;
+       const move=ev=>{box.style.width=Math.max(35,startW+ev.clientX-startX)+'px';box.style.height=Math.max(24,startH+ev.clientY-startY)+'px';};
+       const up=()=>{box.removeEventListener('pointermove',move);box.removeEventListener('pointerup',up);saveCurrent();};
+       box.addEventListener('pointermove',move);box.addEventListener('pointerup',up,{once:true});
+     }else if(e.target===box&&!box.isContentEditable){
+       e.preventDefault();
+     }else if(e.target===box&&e.button===0&&!window.getSelection().toString()){
+       const p=el.getBoundingClientRect(),b=box.getBoundingClientRect();
+       const startX=e.clientX,startY=e.clientY,left=b.left-p.left,top=b.top-p.top;
+       const move=ev=>{box.style.left=Math.max(0,left+ev.clientX-startX)+'px';box.style.top=Math.max(0,top+ev.clientY-startY)+'px';};
+       const up=()=>{box.removeEventListener('pointermove',move);box.removeEventListener('pointerup',up);saveCurrent();};
+       box.addEventListener('pointermove',move);box.addEventListener('pointerup',up,{once:true});
+     }
+   });
+ });
+}
+function applyColumns(){
+ snapshot();saveCurrent();
+ const n=$('columnMode').value==='2'?2:1;
+ const first={...(pages[0]||current()),columns:n};
+ let combined=[];
+ pages.forEach((p,i)=>{
+   const box=document.createElement('div');box.innerHTML=p.html;
+   // Keep the school header once at the beginning; don't duplicate it on every page.
+   box.querySelectorAll('.studio-exam-header').forEach((header,idx)=>{if(i>0||idx>0)header.remove();});
+   combined.push(box.innerHTML);
+ });
+ const allHtml=combined.join('');
+ const base={...first,columns:n,html:allHtml};
+ const chunks=paginateHTMLIntoPages(allHtml,base);
+ pages=chunks.map(html=>({...base,html}));
+ active=Math.min(active,pages.length-1);
+ render();scheduleAutosave();
+ status(n===2?'Double-column layout applied; content repaginated to use both columns and reduce page count.':'Single-column layout applied; content repaginated.');
+}
+function renumberQuestions(){
+ snapshot();const el=editor();if(!el)return;
+ let n=1;
+ const walker=document.createTreeWalker(el,NodeFilter.SHOW_ELEMENT);
+ const nodes=[];while(walker.nextNode()){const node=walker.currentNode;if(node.matches('p,h2,h3,h4,li'))nodes.push(node);}
+ nodes.forEach(node=>{
+   const txt=node.textContent||'';
+   if(/^(\\s*)(?:Q(?:uestion)?\\s*)?\\d+[.)](\\s+)/i.test(txt)){
+     node.innerHTML=node.innerHTML.replace(/^(\\s*)(?:(?:Q(?:uestion)?\\s*)?\\d+[.)])(\\s+)/i,(_,a,b)=>a+(n++)+'.'+b);
+   }else if(/^\\s*प्रश्न\\s*\\d+[.)]?/i.test(txt)){
+     node.innerHTML=node.innerHTML.replace(/^\\s*प्रश्न\\s*\\d+[.)]?/i,()=>`प्रश्न ${n++}.`);
+   }
+ });
+ saveCurrent();status('Question numbers updated in document order.');
+}
+function setEditorMode(){
+ const el=editor();if(!el)return;
+ const free=$('editorMode').value==='free';el.classList.toggle('design-mode',free);
+ status(free?'Free Design mode: use text boxes and images for manual layout.':'Smart Document mode: edit text and use automatic page flow.');
+}
+
+
+const AUTOSAVE_KEY='ikvm-paper-studio-autosave-v3';
+const LAYOUTS_KEY='ikvm-paper-studio-layouts-v1';
+let autosaveTimer=null;
+function scheduleAutosave(){
+ if(autosaveTimer)clearTimeout(autosaveTimer);
+ autosaveTimer=setTimeout(()=>{try{saveCurrent();localStorage.setItem(AUTOSAVE_KEY,JSON.stringify({pages,active,source:$('source').value,mode:$('editorMode').value,paperSize:$('paperSize').value,orientation:$('orientation').value}));status('Autosaved locally.');}catch(e){status('Autosave failed: browser storage may be full.');}},500);
+}
+function readLayouts(){try{return JSON.parse(localStorage.getItem(LAYOUTS_KEY)||'[]');}catch(e){return [];}}
+function refreshLayouts(selected=''){
+ const s=$('savedLayouts');s.innerHTML='<option value="">Saved layouts…</option>';
+ readLayouts().forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.name;s.appendChild(o);});
+ if(selected)s.value=selected;
+}
+function saveLayout(){
+ saveCurrent();const name=prompt('Name this layout (for example, School Logo Header):');if(!name||!name.trim())return;
+ const all=readLayouts(),id='layout-'+Date.now();all.push({id,name:name.trim(),pages:pages.map(p=>({...p})),created:new Date().toISOString()});
+ try{localStorage.setItem(LAYOUTS_KEY,JSON.stringify(all));refreshLayouts(id);status('Layout saved: '+name.trim());}catch(e){status('Could not save layout; embedded images may exceed browser storage.');}
+}
+function applySavedLayout(){
+ const id=$('savedLayouts').value;if(!id)return status('Choose a saved layout first.');
+ const l=readLayouts().find(x=>x.id===id);if(!l)return status('Layout not found.');
+ if(!confirm(`Load "${l.name}"? Current pages will be replaced.`))return;
+ snapshot();pages=l.pages.map(p=>({...p}));active=0;render();scheduleAutosave();status('Layout loaded.');
+}
+function deleteSavedLayout(){
+ const id=$('savedLayouts').value;if(!id)return status('Choose a layout first.');
+ const l=readLayouts().find(x=>x.id===id);if(!l)return;
+ if(!confirm(`Delete layout "${l.name}"?`))return;
+ localStorage.setItem(LAYOUTS_KEY,JSON.stringify(readLayouts().filter(x=>x.id!==id)));refreshLayouts();status('Layout deleted.');
+}
+function restoreAutosave(){
+ try{const x=JSON.parse(localStorage.getItem(AUTOSAVE_KEY)||'null');if(!x||!x.pages||!x.pages.length)return false;
+  if(confirm('Restore the last autosaved session?')){pages=x.pages;active=Math.min(x.active||0,pages.length-1);$('source').value=x.source||'';if(x.mode)$('editorMode').value=x.mode;if(x.paperSize)$('paperSize').value=x.paperSize;if(x.orientation)$('orientation').value=x.orientation;render();status('Autosaved session restored.');return true;}
+ }catch(e){}return false;
+}
+function resetAll(){
+ if(!confirm('Reset the current paper and editor? Saved layouts will remain.'))return;
+ pages=[{...selectedDimensions(),margin:10,html:''}];active=0;$('source').value='';history=[];future=[];savedRange=null;render();localStorage.removeItem(AUTOSAVE_KEY);status('Current paper reset. Saved layouts remain.');
+}
+
+let previewSelection=null;
+function capturePreviewSelection(){
+ const sel=window.getSelection();
+ if(sel&&sel.rangeCount&&$('previewPages').contains(sel.anchorNode))previewSelection=sel.getRangeAt(0).cloneRange();
+}
+function restorePreviewSelection(){
+ const sel=window.getSelection();
+ if(!previewSelection||!$('previewPages').contains(previewSelection.commonAncestorContainer))return false;
+ sel.removeAllRanges();sel.addRange(previewSelection);return true;
+}
+function syncPreviewToPages(){
+ const nodes=[...$('previewPages').querySelectorAll('.preview-content')];
+ nodes.forEach((content,i)=>{if(pages[i])pages[i].html=content.innerHTML;});
+ scheduleAutosave();
+}
+function openFullscreenPreview(forceRebuild=false){
+ if(!forceRebuild){if($('previewOverlay').classList.contains('open'))syncPreviewToPages();else saveCurrent();}
+ const overlay=$('previewOverlay'),container=$('previewPages');container.innerHTML='';
+ $('previewCount').textContent=`${pages.length} page${pages.length===1?'':'s'} · scroll to view all`;
+ pages.forEach((p,i)=>{
+   const sourceW=p.w*96/25.4,sourceH=p.h*96/25.4;
+   const maxWidth=Math.max(320,window.innerWidth-56);
+   const scale=Math.min(1,maxWidth/sourceW);
+   const page=document.createElement('section');page.className='preview-page'+(p.border===false?'':' exam-border');page.dataset.pageIndex=String(i);
+   page.style.width=(sourceW*scale)+'px';page.style.height=(sourceH*scale)+'px';page.title=`Page ${i+1}`;
+   const content=document.createElement('div');content.className='preview-content'+(p.compact?' compact-page':'');
+   content.contentEditable='true';content.spellcheck=true;content.dataset.pageIndex=String(i);
+   content.innerHTML=p.html;
+   if((p.columns||1)===2)content.classList.add('double-column');
+   content.style.left=((p.margin??10)/p.w*100)+'%';content.style.top=((p.margin??10)/p.h*100)+'%';
+   content.style.width=(100/scale*(1-2*(p.margin??10)/p.w))+'%';
+   content.style.height=(100/scale*(1-2*(p.margin??10)/p.h))+'%';
+   content.style.columnFill='auto';content.style.boxSizing='border-box';
+   content.style.transform=`scale(${scale})`;content.style.fontSize=(p.compact?'11pt':'13pt');content.style.lineHeight=p.compact?'1.15':'1.5';
+   content.addEventListener('input',()=>{pages[i].html=content.innerHTML;scheduleAutosave();});
+   content.addEventListener('keyup',capturePreviewSelection);content.addEventListener('mouseup',capturePreviewSelection);
+   page.appendChild(content);container.appendChild(page);
+ });
+ overlay.classList.add('open');document.body.style.overflow='hidden';
+ if(overlay.requestFullscreen)overlay.requestFullscreen().catch(()=>{});
+}
+function closeFullscreenPreview(){
+ syncPreviewToPages();
+ const overlay=$('previewOverlay');overlay.classList.remove('open');document.body.style.overflow='';
+ if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+ render();
+}
+function previewCommand(cmd,value=null){
+ restorePreviewSelection();
+ const sel=window.getSelection();
+ if(!sel||!sel.rangeCount||!sel.toString()){status('Select text in the full-screen paper first.');return;}
+ document.execCommand(cmd,false,value);capturePreviewSelection();syncPreviewToPages();
+}
+function previewApplySize(){
+ const size=Math.max(5,Math.min(72,Number($('previewFontSize').value)||13));
+ if(!restorePreviewSelection()||!window.getSelection().toString()){status('Select text in the full-screen paper first.');return;}
+ const sel=window.getSelection(),range=sel.getRangeAt(0),span=document.createElement('span');
+ span.style.fontSize=size+'pt';
+ try{span.appendChild(range.extractContents());range.insertNode(span);const r=document.createRange();r.selectNodeContents(span);sel.removeAllRanges();sel.addRange(r);capturePreviewSelection();syncPreviewToPages();status('Selected text size updated in full-screen view.');}
+ catch(e){status('Could not change size for that selection. Try selecting text in one paragraph.');}
+}
+
+function insertPreviewNode(node){
+ const sel=window.getSelection();
+ if(restorePreviewSelection()&&sel&&sel.rangeCount){
+   const range=sel.getRangeAt(0);range.deleteContents();range.insertNode(node);
+   const next=document.createRange();next.setStartAfter(node);next.collapse(true);sel.removeAllRanges();sel.addRange(next);
+ }else{
+   const all=[...$('previewPages').querySelectorAll('.preview-content')];
+   const target=all.find(el=>el.contains(document.activeElement))||all[0];
+   if(!target){status('Open a paper page first.');return;}
+   target.appendChild(node);
+ }
+ capturePreviewSelection();syncPreviewToPages();
+}
+function previewInsertLine(){
+ const hr=document.createElement('hr');hr.className='preview-shape';hr.style.cssText='border:0;border-top:1.5px solid #111;width:100%;margin:8px 0;break-inside:avoid';
+ insertPreviewNode(hr);
+}
+function previewInsertRectangle(){
+ const box=document.createElement('div');box.className='preview-shape';box.contentEditable='true';
+ box.textContent='';box.style.cssText='height:18mm;border:1.5px solid #111;margin:6px 0;min-width:20mm;break-inside:avoid';
+ insertPreviewNode(box);
+}
+function previewInsertSection(){
+ const label=prompt('Section heading (for example, खण्ड – अ : बहुविकल्पीय प्रश्न)','खण्ड – अ : बहुविकल्पीय प्रश्न');
+ if(!label)return;const div=document.createElement('div');div.className='preview-section-heading';div.textContent=label;
+ insertPreviewNode(div);
+}
+function previewApplyArchitecture(){
+ const mode=$('previewArchitecture').value;
+ syncPreviewToPages();
+ const n=mode==='double'?2:1;$('columnMode').value=String(n);
+ const first={...(pages[0]||current()),columns:n,border:true};
+ const bodies=[];
+ let headerHtml='';
+ pages.forEach((p,i)=>{
+   const box=document.createElement('div');box.innerHTML=p.html;
+   box.querySelectorAll('.studio-exam-header').forEach(header=>{
+     if(!headerHtml)headerHtml=header.outerHTML;
+     header.remove();
+   });
+   bodies.push(box.innerHTML);
+ });
+ if(!headerHtml){
+   headerHtml='<table class="studio-exam-header" style="width:100%;border-collapse:collapse;border:1.5px solid #111;margin:0 0 8px;font-size:10pt;line-height:1.25"><tbody><tr><td style="border:1px solid #111;padding:3px 5px;text-align:left;width:30%">कक्षा — ______</td><td style="border:1px solid #111;padding:3px 5px;text-align:center;font-weight:bold">विषय — __________________</td><td style="border:1px solid #111;padding:3px 5px;text-align:right;width:18%">प्रश्न पत्र</td></tr></tbody></table>';
+ }
+ // Preserve one header and flow all existing page content together, then paginate for selected columns.
+ const allHtml=headerHtml+bodies.join('');
+ const chunks=paginateHTMLIntoPages(allHtml,first);
+ pages=chunks.map((html,i)=>({...first,html,headerApplied:true,columns:n,border:true}));
+ active=0;
+ render();
+ openFullscreenPreview(true);
+ scheduleAutosave();
+ status(n===1?'Single-column layout applied and pages reflowed.':'Double-column layout applied; both columns fill vertically and pages are compacted.');
+}
+function previewToggleBorder(){
+ syncPreviewToPages();pages.forEach(p=>p.border=(p.border===false?true:false));openFullscreenPreview();
+}
+function previewApplyTextColor(){
+ const color=$('previewTextColor').value;
+ if(!restorePreviewSelection()||!window.getSelection().toString()){status('Select text first.');return;}
+ const sel=window.getSelection(),range=sel.getRangeAt(0),span=document.createElement('span');span.style.color=color;
+ try{span.appendChild(range.extractContents());range.insertNode(span);const r=document.createRange();r.selectNodeContents(span);sel.removeAllRanges();sel.addRange(r);capturePreviewSelection();syncPreviewToPages();}
+ catch(e){status('Select text within one paragraph to change its colour.');}
+}
+function previewHighlight(){
+ const color=$('previewHighlightColor').value;
+ if(!restorePreviewSelection()||!window.getSelection().toString()){status('Select text to highlight first.');return;}
+ const sel=window.getSelection(),range=sel.getRangeAt(0),span=document.createElement('span');span.style.backgroundColor=color;
+ try{span.appendChild(range.extractContents());range.insertNode(span);const r=document.createRange();r.selectNodeContents(span);sel.removeAllRanges();sel.addRange(r);capturePreviewSelection();syncPreviewToPages();}
+ catch(e){status('Could not highlight that selection.');}
+}
+
+$('fullscreenBtn').addEventListener('click',openFullscreenPreview);
+$('previewClose').addEventListener('click',closeFullscreenPreview);
+$('previewPrint').addEventListener('click',()=>{syncPreviewToPages();closeFullscreenPreview();setTimeout(()=>$('printBtn').click(),100);});
+
+$('previewApplySize').addEventListener('mousedown',e=>e.preventDefault());
+$('previewApplySize').addEventListener('click',previewApplySize);
+$('previewBold').addEventListener('mousedown',e=>e.preventDefault());
+$('previewBold').addEventListener('click',()=>previewCommand('bold'));
+$('previewItalic').addEventListener('mousedown',e=>e.preventDefault());
+$('previewItalic').addEventListener('click',()=>previewCommand('italic'));
+$('previewUnderline').addEventListener('mousedown',e=>e.preventDefault());
+$('previewUnderline').addEventListener('click',()=>previewCommand('underline'));
+$('previewHighlight').addEventListener('mousedown',e=>e.preventDefault());
+$('previewHighlight').addEventListener('click',previewHighlight);
+$('previewTextColorApply').addEventListener('mousedown',e=>e.preventDefault());
+$('previewTextColorApply').addEventListener('click',previewApplyTextColor);
+$('previewAlignLeft').addEventListener('mousedown',e=>e.preventDefault());
+$('previewAlignLeft').addEventListener('click',()=>previewCommand('justifyLeft'));
+$('previewAlignCenter').addEventListener('mousedown',e=>e.preventDefault());
+$('previewAlignCenter').addEventListener('click',()=>previewCommand('justifyCenter'));
+$('previewAlignRight').addEventListener('mousedown',e=>e.preventDefault());
+$('previewAlignRight').addEventListener('click',()=>previewCommand('justifyRight'));
+$('previewLine').addEventListener('click',previewInsertLine);
+$('previewRectangle').addEventListener('click',previewInsertRectangle);
+$('previewSection').addEventListener('click',previewInsertSection);
+$('previewApplyArchitecture').addEventListener('click',previewApplyArchitecture);
+$('previewBorder').addEventListener('click',previewToggleBorder);
+
+$('previewAddPage').addEventListener('click',()=>{
+ syncPreviewToPages();const last=pages[pages.length-1]||{w:210,h:297,margin:10};
+ pages.push({...last,html:''});active=pages.length-1;openFullscreenPreview();
+});
+
+$('compactBtn').addEventListener('click',compactPages);
+$('quickApplyFont').addEventListener('mousedown',e=>e.preventDefault());$('quickApplyFont').addEventListener('click',()=>{$('fontSize').value=$('quickFontSize').value;applyFontSize();});
+$('quickBold').addEventListener('mousedown',e=>e.preventDefault());$('quickBold').addEventListener('click',()=>applyCommand('bold'));
+$('quickItalic').addEventListener('mousedown',e=>e.preventDefault());$('quickItalic').addEventListener('click',()=>applyCommand('italic'));
+$('quickUnderline').addEventListener('mousedown',e=>e.preventDefault());$('quickUnderline').addEventListener('click',()=>applyCommand('underline'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('previewOverlay').classList.contains('open'))closeFullscreenPreview();});
+window.addEventListener('resize',()=>{if($('previewOverlay').classList.contains('open')){const overlay=$('previewOverlay'); if(document.fullscreenElement===overlay && overlay.requestFullscreen){/* keep current fullscreen preview stable */} }});
+
+$('source').addEventListener('input',scheduleAutosave);
+$('generateBtn').addEventListener('click',generate);
+$('appendBtn').addEventListener('click',()=>{if(!$('source').value.trim())return status('Paste text first.');snapshot();saveCurrent();pages[active].html+=(pages[active].html?'<p><br></p>':'')+makeHTML($('source').value);render();status('Text appended to current page.');});
+$('applySize').addEventListener('click',applySize);
+$('fitPageBtn').addEventListener('click',()=>{const p=current();const available=Math.max(300,document.querySelector('.main').clientWidth-50);const scale=Math.min(1,available/(p.w*96/25.4));const sheet=document.querySelector('.paper');if(sheet){sheet.style.width=(p.w*96/25.4*scale)+'px';sheet.style.height=(p.h*96/25.4*scale)+'px';const content=sheet.querySelector('.paper-content');if(content){content.style.transform=`scale(${scale})`;content.style.transformOrigin='top left';content.style.width=(100/scale)+'%';content.style.height=(100/scale)+'%';}status('Page fitted to workspace for viewing; print dimensions remain unchanged.');}});
+$('paperSize').addEventListener('change',()=>{if($('paperSize').value!=='custom'){const [w,h]=sizes[$('paperSize').value];$('customW').value=w;$('customH').value=h;}});
+$('addPage').addEventListener('click',addPage);$('duplicatePage').addEventListener('click',duplicatePage);$('deletePage').addEventListener('click',deletePage);$('upPage').addEventListener('click',()=>movePage(-1));$('downPage').addEventListener('click',()=>movePage(1));
+$('undoBtn').addEventListener('click',undo);$('redoBtn').addEventListener('click',redo);$('saveBtn').addEventListener('click',saveDraft);$('loadBtn').addEventListener('click',loadDraft);$('printBtn').addEventListener('click',()=>{saveCurrent();let root=$('printRoot');if(!root){root=document.createElement('div');root.id='printRoot';document.body.appendChild(root);}root.innerHTML='';pages.forEach(p=>{const sheet=document.createElement('section');sheet.className='paper';sheet.style.width=p.w+'mm';sheet.style.height=p.h+'mm';const content=document.createElement('div');content.className='paper-content'+(p.compact?' compact-page':'');content.contentEditable='false';content.style.inset=(p.margin??10)+'mm';content.innerHTML=p.html;if((p.columns||1)===2){content.classList.add('double-column');content.style.columnCount='2';content.style.columnGap='7mm';content.style.columnRule='1px solid #777';content.style.columnFill='auto';}sheet.appendChild(content);root.appendChild(sheet);});const printStyle=document.createElement('style');printStyle.id='printPageSizeStyle';printStyle.textContent='@media print{@page{size:'+current().w+'mm '+current().h+'mm;margin:0}}';document.getElementById('printPageSizeStyle')?.remove();document.head.appendChild(printStyle);window.print();});
+document.querySelectorAll('[data-cmd]').forEach(b=>b.addEventListener('mousedown',e=>e.preventDefault()));
+document.querySelectorAll('[data-cmd]').forEach(b=>b.addEventListener('click',()=>applyCommand(b.dataset.cmd)));
+$('applyFontSize').addEventListener('mousedown',e=>e.preventDefault());$('applyFontSize').addEventListener('click',applyFontSize);
+$('highlightBtn').addEventListener('mousedown',e=>e.preventDefault());$('highlightBtn').addEventListener('click',applyHighlight);
+$('removeHighlight').addEventListener('mousedown',e=>e.preventDefault());$('removeHighlight').addEventListener('click',removeHighlight);
+$('fontFamily').addEventListener('change',()=>applyCommand('fontName',$('fontFamily').value));
+$('textColor').addEventListener('input',()=>applyCommand('foreColor',$('textColor').value));
+$('applyPageFont').addEventListener('click',()=>{snapshot();const el=editor();el.style.fontSize=(Number($('pageFontSize').value)||12)+'pt';saveCurrent();status('Whole page font size updated.');});
+$('applyLayout').addEventListener('click',()=>{snapshot();const p=current();p.margin=Math.max(0,Math.min(50,Number($('margin').value)||10));const el=editor();el.style.lineHeight=$('lineSpacing').value;el.style.inset=p.margin+'mm';saveCurrent();render();status('Page layout updated.');});
+$('insertTextBox').addEventListener('click',insertTextBox);$('insertLine').addEventListener('click',insertLine);
+$('applyColumns').addEventListener('click',applyColumns);
+$('renumberBtn').addEventListener('click',renumberQuestions);
+$('saveLayoutBtn').addEventListener('click',saveLayout);$('applyLayoutBtn').addEventListener('click',applySavedLayout);$('deleteLayoutBtn').addEventListener('click',deleteSavedLayout);$('resetBtn').addEventListener('click',resetAll);
+$('editorMode').addEventListener('change',setEditorMode);
+$('imageFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{snapshot();const img=document.createElement('img');img.src=reader.result;img.alt=file.name;img.style.maxWidth='100%';img.style.height='auto';img.style.display='block';img.style.margin='8px auto';const el=editor();restoreSelection();const sel=window.getSelection();if(sel&&sel.rangeCount&&el.contains(sel.anchorNode))sel.getRangeAt(0).insertNode(img);else el.appendChild(img);saveCurrent();status('Image inserted.');};reader.readAsDataURL(file);e.target.value='';});
+document.addEventListener('selectionchange',()=>{if(editor())captureSelection();});
+document.addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='b'){e.preventDefault();applyCommand('bold');}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='i'){e.preventDefault();applyCommand('italic');}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='u'){e.preventDefault();applyCommand('underline');}
+});
+window.addEventListener('beforeunload',()=>{saveCurrent();try{localStorage.setItem(AUTOSAVE_KEY,JSON.stringify({pages,active,source:$('source').value,mode:$('editorMode').value,paperSize:$('paperSize').value,orientation:$('orientation').value}));}catch(e){}});
+function init(){
+ const d=selectedDimensions();pages[0].w=d.w;pages[0].h=d.h;refreshLayouts();render();const recovered=restoreAutosave();if(!recovered)status('Ready. Paste text and click Generate paper. Scroll to see all pages.');
+}
+init();
+})();
+</script>
+</body>
+</html>
